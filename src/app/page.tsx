@@ -1,0 +1,23 @@
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import AmbientSection from "@/components/AmbientSection";
+import TeraSection from "@/components/TeraSection";
+import MenuPreview from "@/components/MenuPreview";
+import BrandDetails from "@/components/BrandDetails";
+import Footer from "@/components/Footer";
+
+export default function Home() {
+  return (
+    <div className="flex flex-col flex-1 bg-background">
+      <Navbar />
+      <main className="flex-1">
+        <HeroSection />
+        <AmbientSection />
+        <TeraSection />
+        <MenuPreview />
+        <BrandDetails />
+      </main>
+      <Footer />
+    </div>
+  );
+}
