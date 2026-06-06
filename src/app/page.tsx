@@ -6,6 +6,7 @@ import MenuPreview from "@/components/MenuPreview";
 import BrandDetails from "@/components/BrandDetails";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import VisualStorySection from "@/components/VisualStorySection";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
         <TeraSection />
         <MenuPreview />
         <BrandDetails />
+        <VisualStorySection />
       </main>
       <Footer />
       <WhatsAppFloat />
