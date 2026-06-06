@@ -86,7 +86,7 @@ export default function TeraSection() {
               src="/images/tera-experience.png"
               alt="Progetto TERA"
               fill
-              className="object-cover"
+              className="object-cover object-left"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 to-transparent" />
