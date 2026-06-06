@@ -4,6 +4,7 @@ import AmbientSection from "@/components/AmbientSection";
 import TeraSection from "@/components/TeraSection";
 import MenuPreview from "@/components/MenuPreview";
 import BrandDetails from "@/components/BrandDetails";
+import FounderSection from "@/components/FounderSection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <TeraSection />
         <MenuPreview />
         <BrandDetails />
+        <FounderSection />
       </main>
       <Footer />
       <WhatsAppFloat />
