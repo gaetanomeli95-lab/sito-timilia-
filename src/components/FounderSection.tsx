@@ -4,13 +4,13 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 
-function AnimatedNumber({ target, suffix = "" }: { target: number; suffix?: string }) {
+function AnimatedNumber({ target, suffix = "", trigger }: { target: number; suffix?: string; trigger: boolean }) {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!trigger || hasRun.current) return;
+    hasRun.current = true;
     const duration = 2000;
     const start = performance.now();
     const animate = (now: number) => {
@@ -21,10 +21,10 @@ function AnimatedNumber({ target, suffix = "" }: { target: number; suffix?: stri
       if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
-  }, [isInView, target]);
+  }, [trigger, target]);
 
   return (
-    <span ref={ref}>
+    <span>
       {count}
       {suffix}
     </span>
@@ -137,7 +137,7 @@ export default function FounderSection() {
             >
               <div>
                 <span className="text-gold text-2xl md:text-3xl font-light tracking-wide block mb-2">
-                  <AnimatedNumber target={2017} />
+                  <AnimatedNumber target={2017} trigger={isInView} />
                 </span>
                 <span className="text-foreground/40 text-xs tracking-[0.15em] uppercase font-light">
                   Nascita di Timilia
@@ -145,7 +145,7 @@ export default function FounderSection() {
               </div>
               <div>
                 <span className="text-gold text-2xl md:text-3xl font-light tracking-wide block mb-2">
-                  +<AnimatedNumber target={10} /> anni
+                  +<AnimatedNumber target={10} trigger={isInView} /> anni
                 </span>
                 <span className="text-foreground/40 text-xs tracking-[0.15em] uppercase font-light">
                   Di ricerca e sperimentazione
@@ -153,7 +153,7 @@ export default function FounderSection() {
               </div>
               <div>
                 <span className="text-gold text-2xl md:text-3xl font-light tracking-wide block mb-2">
-                  <AnimatedNumber target={100} suffix="%" />
+                  <AnimatedNumber target={100} suffix="%" trigger={isInView} />
                 </span>
                 <span className="text-foreground/40 text-xs tracking-[0.15em] uppercase font-light">
                   Identità siciliana
