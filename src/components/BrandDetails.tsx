@@ -29,7 +29,7 @@ export default function BrandDetails() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.25) 25%, rgba(10,10,10,0.25) 75%, rgba(10,10,10,0.95) 100%)",
+              "linear-gradient(to bottom, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.60) 25%, rgba(10,10,10,0.60) 75%, rgba(10,10,10,0.92) 100%)",
           }}
         />
       </div>
