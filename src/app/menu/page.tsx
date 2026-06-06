@@ -5,10 +5,12 @@ import { motion, useInView } from "framer-motion";
 import { menuCategories } from "@/data/menuData";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 function MenuItemCard({ item, index }: { item: typeof menuCategories[0]["items"][0]; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-30px" });
+  const hasImage = !!item.image;
 
   return (
     <motion.div
@@ -18,24 +20,39 @@ function MenuItemCard({ item, index }: { item: typeof menuCategories[0]["items"]
       transition={{ duration: 0.6, delay: index * 0.05, ease: "easeOut" }}
       className="py-6 border-b border-white/5 last:border-b-0"
     >
-      <div className="flex justify-between items-baseline gap-4 mb-2">
-        <h3 className="text-foreground text-base md:text-lg font-light tracking-wide">
-          {item.name}
-        </h3>
-        <span className="text-gold text-base md:text-lg font-light whitespace-nowrap">
-          € {item.price.toFixed(2)}
-        </span>
+      <div className={`flex gap-5 ${hasImage ? "items-start" : "items-baseline justify-between"}`}>
+        {hasImage && (
+          <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-sm">
+            <Image
+              src={item.image!}
+              alt={item.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 96px, 128px"
+            />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-baseline gap-4 mb-2">
+            <h3 className="text-foreground text-base md:text-lg font-light tracking-wide">
+              {item.name}
+            </h3>
+            <span className="text-gold text-base md:text-lg font-light whitespace-nowrap">
+              € {item.price.toFixed(2)}
+            </span>
+          </div>
+          {item.description && (
+            <p className="text-foreground/50 text-sm font-light leading-relaxed">
+              {item.description}
+            </p>
+          )}
+          {item.note && (
+            <p className="text-foreground/30 text-xs mt-2 font-light">
+              {item.note}
+            </p>
+          )}
+        </div>
       </div>
-      {item.description && (
-        <p className="text-foreground/50 text-sm font-light leading-relaxed">
-          {item.description}
-        </p>
-      )}
-      {item.note && (
-        <p className="text-foreground/30 text-xs mt-2 font-light">
-          {item.note}
-        </p>
-      )}
     </motion.div>
   );
 }
