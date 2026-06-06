@@ -85,10 +85,10 @@ export default function Navbar() {
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-foreground p-2"
+              className={`md:hidden text-foreground p-2 ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"} transition-opacity`}
               aria-label="Toggle menu"
             >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              <Menu size={24} />
             </button>
           </div>
         </div>
@@ -124,6 +124,31 @@ export default function Navbar() {
                   {link.label}
                 </motion.a>
               ))}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="flex items-center gap-6 mt-4"
+              >
+                <a
+                  href="https://www.instagram.com/pizzatimilia/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground/50 hover:text-gold transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram size={24} strokeWidth={1.5} />
+                </a>
+                <a
+                  href="https://www.facebook.com/timiliapalermo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground/50 hover:text-gold transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook size={24} strokeWidth={1.5} />
+                </a>
+              </motion.div>
             </div>
           </motion.div>
         )}

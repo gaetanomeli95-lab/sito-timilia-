@@ -8,12 +8,9 @@ export default function WhatsAppFloat() {
       href="https://wa.me/393792483597"
       target="_blank"
       rel="noopener noreferrer"
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 2, duration: 0.6, ease: "easeOut" }}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gold text-background flex items-center justify-center shadow-lg shadow-gold/20 hover:bg-gold-light transition-colors"
+      className="fixed bottom-8 right-6 z-30 w-14 h-14 rounded-full bg-gold text-background flex items-center justify-center shadow-lg shadow-gold/20 hover:bg-gold-light transition-colors"
       aria-label="Chat WhatsApp"
     >
       <svg
