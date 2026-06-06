@@ -69,9 +69,7 @@ export default function MenuPreview() {
               Ogni piatto racconta una storia di ricerca, equilibrio e identità. La nostra pizza nasce da una ricerca continua sulle materie prime, da impasti studiati e da combinazioni di gusto che uniscono tradizione e creatività.
             </p>
             <a
-              href="https://www.pizzeriatimilia.com/copia-di-tera"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/menu"
               className="inline-block px-8 py-4 border border-gold text-gold text-xs tracking-[0.2em] uppercase font-medium hover:bg-gold hover:text-background transition-all duration-300"
             >
               Esplora il menu
