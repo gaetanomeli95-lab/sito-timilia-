@@ -35,12 +35,12 @@ export default function TeraSection() {
   return (
     <section id="tera" ref={ref} className="relative py-24 md:py-40 bg-charcoal">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="flex flex-col gap-12 lg:gap-20">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="order-2 lg:order-1"
+            className="order-2"
           >
             <span className="text-gold text-xs tracking-[0.3em] uppercase font-medium block mb-4">
               Progetto
@@ -77,17 +77,17 @@ export default function TeraSection() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="order-1 lg:order-2 relative aspect-[16/9] md:aspect-[3/2] lg:aspect-[4/3] overflow-hidden"
+            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden"
           >
             <Image
               src="/images/tera-experience.png"
               alt="Progetto TERA"
               fill
-              className="object-cover object-left"
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover object-left-top"
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 to-transparent" />
           </motion.div>

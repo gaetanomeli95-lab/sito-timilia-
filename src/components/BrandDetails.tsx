@@ -18,12 +18,12 @@ export default function BrandDetails() {
   return (
     <section id="brand" ref={ref} className="relative py-24 md:py-40 bg-charcoal">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className="flex flex-col gap-12 lg:gap-20">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="lg:col-span-5 flex flex-col justify-center"
+            className="order-2"
           >
             <span className="text-gold text-xs tracking-[0.3em] uppercase font-medium block mb-4">
               Il brand
@@ -59,19 +59,19 @@ export default function BrandDetails() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-            className="lg:col-span-7 relative aspect-[16/9] md:aspect-[3/2] lg:aspect-[3/2] overflow-hidden"
+            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden"
           >
             <Image
               src="/images/brand-details.png"
               alt="Brand TIMILIA"
               fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 58vw"
+              className="object-cover object-center"
+              sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-charcoal/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/30 to-transparent" />
           </motion.div>
         </div>
       </div>

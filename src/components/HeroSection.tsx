@@ -11,7 +11,7 @@ export default function HeroSection() {
           src="/images/hero-banner.png"
           alt="TIMILIA Pizza di Sicilia"
           fill
-          className="object-cover"
+          className="object-cover object-top"
           priority
           sizes="100vw"
         />

@@ -39,29 +39,28 @@ export default function MenuPreview() {
               className="object-cover"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
           </div>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            className="absolute bottom-0 left-0 right-0 p-8 md:p-16"
-          >
-            <div className="max-w-3xl">
-              <p className="text-foreground/70 text-lg md:text-xl font-light leading-relaxed mb-6">
-                Ogni piatto racconta una storia di ricerca, equilibrio e identità. La nostra pizza nasce da una ricerca continua sulle materie prime, da impasti studiati e da combinazioni di gusto che uniscono tradizione e creatività.
-              </p>
-              <a
-                href="https://www.pizzeriatimilia.com/copia-di-tera"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-8 py-4 border border-gold text-gold text-xs tracking-[0.2em] uppercase font-medium hover:bg-gold hover:text-background transition-all duration-300"
-              >
-                Esplora il menu
-              </a>
-            </div>
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+          className="mt-12 md:mt-16"
+        >
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-foreground/70 text-lg md:text-xl font-light leading-relaxed mb-8">
+              Ogni piatto racconta una storia di ricerca, equilibrio e identità. La nostra pizza nasce da una ricerca continua sulle materie prime, da impasti studiati e da combinazioni di gusto che uniscono tradizione e creatività.
+            </p>
+            <a
+              href="https://www.pizzeriatimilia.com/copia-di-tera"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-8 py-4 border border-gold text-gold text-xs tracking-[0.2em] uppercase font-medium hover:bg-gold hover:text-background transition-all duration-300"
+            >
+              Esplora il menu
+            </a>
+          </div>
         </motion.div>
       </div>
     </section>
