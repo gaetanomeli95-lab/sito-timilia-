@@ -62,7 +62,7 @@ export default function BrandDetails() {
             initial={{ opacity: 0, y: 60 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-            className="lg:col-span-7 relative aspect-[4/5] lg:aspect-auto overflow-hidden"
+            className="lg:col-span-7 relative aspect-[16/9] md:aspect-[3/2] lg:aspect-[3/2] overflow-hidden"
           >
             <Image
               src="/images/brand-details.png"

@@ -80,7 +80,7 @@ export default function TeraSection() {
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="order-1 lg:order-2 relative aspect-[4/5] overflow-hidden"
+            className="order-1 lg:order-2 relative aspect-[16/9] md:aspect-[3/2] lg:aspect-[4/3] overflow-hidden"
           >
             <Image
               src="/images/tera-experience.png"
