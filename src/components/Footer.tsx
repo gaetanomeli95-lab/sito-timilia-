@@ -10,8 +10,24 @@ export default function Footer() {
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <footer id="contatti" ref={ref} className="relative bg-background border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-24 md:py-32">
+    <footer id="contatti" ref={ref} className="relative overflow-hidden border-t border-white/5">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/sfondi/5.png"
+          alt="Sfondo"
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.25) 25%, rgba(10,10,10,0.25) 75%, rgba(10,10,10,0.95) 100%)",
+          }}
+        />
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-24 md:py-32">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
