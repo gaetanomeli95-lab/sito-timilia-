@@ -3,7 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
-import { Phone, MapPin, Clock, Instagram, Facebook } from "lucide-react";
+import { Phone, MapPin, Clock, Instagram, Facebook, Star, MessageCircle } from "lucide-react";
 
 export default function Footer() {
   const ref = useRef(null);
@@ -31,7 +31,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://www.instagram.com/pizzeriatimilia/"
+                href="https://www.instagram.com/pizzatimilia/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
@@ -40,13 +40,22 @@ export default function Footer() {
                 <Instagram size={18} strokeWidth={1.5} />
               </a>
               <a
-                href="https://www.facebook.com/pizzeriatimilia"
+                href="https://www.facebook.com/timiliapalermo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook size={18} strokeWidth={1.5} />
+              </a>
+              <a
+                href="https://www.google.com/search?sca_esv=9bf71fb085e6e221&sxsrf=ANbL-n5C1BswKzsh3MMfqFXnxA1UNs61fQ:1780736562454&q=timilia+palermo+&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOeW-wBQrQSO9Tzvsyb0OqkQRCd8oqW9LtAYlf_3blnonTBUENV_DfNg4K3pmZNELuaQWlHQ%3D&uds=ALYpb_k6otuSYDT1zFYqBpNGDSzKyH7hSZ0tf_YL8wbw4Ic3MJViW4bMqzma7H6DSYEb3U8r_lKXMCfMliyiQfGaZ8GYLUYrv2EP9sH63xUiBs4Cgyy-GHo&sa=X&ved=2ahUKEwiRl_nRoPKUAxWYnP0HHdOJBgkQ3PALegQIGhAE&biw=1920&bih=957&dpr=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
+                aria-label="Google Recensioni"
+              >
+                <Star size={18} strokeWidth={1.5} />
               </a>
             </div>
           </div>
@@ -62,6 +71,15 @@ export default function Footer() {
               >
                 <Phone size={16} strokeWidth={1.5} className="text-gold/60 group-hover:text-gold" />
                 <span className="text-sm font-light">+39 379 248 3597</span>
+              </a>
+              <a
+                href="https://wa.me/393792483597"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-foreground/50 hover:text-gold transition-colors group"
+              >
+                <MessageCircle size={16} strokeWidth={1.5} className="text-gold/60 group-hover:text-gold" />
+                <span className="text-sm font-light">WhatsApp</span>
               </a>
               <div className="flex items-start gap-3 text-foreground/50">
                 <MapPin size={16} strokeWidth={1.5} className="text-gold/60 mt-1 shrink-0" />

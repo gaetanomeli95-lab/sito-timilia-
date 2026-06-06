@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Instagram, Facebook } from "lucide-react";
 import Image from "next/image";
 
 const navLinks = [
@@ -61,6 +61,26 @@ export default function Navbar() {
                   {link.label}
                 </a>
               ))}
+            </div>
+            <div className="hidden md:flex items-center gap-4 ml-2 pl-6 border-l border-white/10">
+              <a
+                href="https://www.instagram.com/pizzatimilia/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground/50 hover:text-gold transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} strokeWidth={1.5} />
+              </a>
+              <a
+                href="https://www.facebook.com/timiliapalermo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground/50 hover:text-gold transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={18} strokeWidth={1.5} />
+              </a>
             </div>
 
             <button
