@@ -22,13 +22,13 @@ function MenuItemCard({ item, index }: { item: typeof menuCategories[0]["items"]
     >
       <div className={`flex gap-5 ${hasImage ? "items-start" : "items-baseline justify-between"}`}>
         {hasImage && (
-          <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-sm">
+          <div className="relative w-24 h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 flex-shrink-0 overflow-hidden rounded-sm">
             <Image
               src={item.image!}
               alt={item.name}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 96px, 128px"
+              sizes="(max-width: 768px) 96px, (max-width: 1024px) 144px, 176px"
             />
           </div>
         )}
@@ -72,7 +72,21 @@ export default function MenuPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      {/* Logo watermark dietro ai prodotti del menu */}
+      <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center">
+        <div className="relative w-[80vw] max-w-[640px] aspect-square opacity-[0.06]">
+          <Image
+            src="/images/logo.png"
+            alt=""
+            fill
+            className="object-contain"
+            sizes="80vw"
+            priority
+          />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -90,7 +104,7 @@ export default function MenuPage() {
       </header>
 
       {/* Hero */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 px-6 lg:px-8">
+      <section className="relative z-10 pt-32 pb-16 md:pt-40 md:pb-24 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -150,7 +164,7 @@ export default function MenuPage() {
       </div>
 
       {/* Menu Content */}
-      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-16 md:py-24">
+      <main className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 py-16 md:py-24">
         {menuCategories.map((category, catIndex) => (
           <section
             key={category.id}
@@ -185,7 +199,7 @@ export default function MenuPage() {
       </main>
 
       {/* Footer Note */}
-      <section className="border-t border-white/5 py-12">
+      <section className="relative z-10 border-t border-white/5 py-12">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <p className="text-foreground/30 text-xs font-light tracking-[0.1em]">
             In assenza di prodotti freschi verranno utilizzati prodotti surgelati di ottima qualita.
