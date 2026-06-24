@@ -97,13 +97,13 @@ export default function TeraSection() {
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden edge-fade-soft image-glow"
+            className="order-1 relative aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden edge-fade-soft image-glow"
           >
             <Image
               src="/images/tera-experience.png"
               alt="Progetto TERA"
               fill
-              className="object-cover object-left-top"
+              className="object-cover object-center md:object-left-top"
               sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 to-transparent" />

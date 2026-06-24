@@ -48,7 +48,7 @@ export default function MenuPreview() {
           transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
           className="relative"
         >
-          <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden edge-fade-wide image-glow">
+          <div className="relative aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/9] overflow-hidden edge-fade-wide image-glow">
             <Image
               src="/images/menu-hero.png"
               alt="Menu TIMILIA"
