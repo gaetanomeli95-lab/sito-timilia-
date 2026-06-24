@@ -29,9 +29,10 @@ export default function BrandDetails() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.60) 25%, rgba(10,10,10,0.60) 75%, rgba(10,10,10,0.92) 100%)",
+              "linear-gradient(to bottom, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.54) 25%, rgba(10,10,10,0.54) 75%, rgba(10,10,10,0.88) 100%)",
           }}
         />
+        <div className="section-glow" />
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col gap-12 lg:gap-20">
@@ -78,7 +79,7 @@ export default function BrandDetails() {
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden edge-fade-wide"
+            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden edge-fade-wide image-glow"
           >
             <Image
               src="/images/brand-details.png"

@@ -22,9 +22,10 @@ export default function AmbientSection() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.60) 25%, rgba(10,10,10,0.60) 75%, rgba(10,10,10,0.92) 100%)",
+              "linear-gradient(to bottom, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.54) 25%, rgba(10,10,10,0.54) 75%, rgba(10,10,10,0.88) 100%)",
           }}
         />
+        <div className="section-glow" />
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
@@ -46,7 +47,7 @@ export default function AmbientSection() {
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="relative aspect-[4/5] overflow-hidden edge-fade"
+            className="relative aspect-[4/5] overflow-hidden edge-fade image-glow"
           >
             <Image
               src="/images/ambient-experience.png"
@@ -97,7 +98,7 @@ export default function AmbientSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-          className="mt-16 md:mt-24 relative aspect-[21/9] overflow-hidden edge-fade-wide"
+          className="mt-16 md:mt-24 relative aspect-[21/9] overflow-hidden edge-fade-wide image-glow"
         >
           <Image
             src="/images/ambient-experience-2.png"

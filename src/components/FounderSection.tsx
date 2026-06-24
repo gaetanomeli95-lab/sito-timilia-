@@ -44,11 +44,11 @@ export default function FounderSection() {
     >
       {/* subtle amber/gold ambient glow */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-[0.04] blur-[120px] pointer-events-none"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-[0.08] blur-[120px] pointer-events-none"
         style={{ background: "radial-gradient(circle, #c9a962 0%, transparent 70%)" }}
       />
       <div
-        className="absolute bottom-0 right-0 w-[400px] h-[300px] rounded-full opacity-[0.03] blur-[100px] pointer-events-none"
+        className="absolute bottom-0 right-0 w-[400px] h-[300px] rounded-full opacity-[0.07] blur-[100px] pointer-events-none"
         style={{ background: "radial-gradient(circle, #d4a574 0%, transparent 70%)" }}
       />
 
@@ -59,7 +59,7 @@ export default function FounderSection() {
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1.2, ease: "easeOut" }}
-            className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden edge-fade"
+            className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden edge-fade image-glow"
           >
             <Image
               src="/images/tommaso.png"

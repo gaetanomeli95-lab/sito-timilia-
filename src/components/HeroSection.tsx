@@ -15,7 +15,8 @@ export default function HeroSection() {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/32 to-black/76" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(200,169,126,0.16),transparent_34%),radial-gradient(circle_at_18%_72%,rgba(212,165,116,0.10),transparent_28%)] mix-blend-screen" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">

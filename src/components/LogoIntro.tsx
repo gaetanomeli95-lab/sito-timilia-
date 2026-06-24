@@ -33,10 +33,16 @@ const orbitalLights = [
   { size: 430, duration: 32, delay: 0.8, opacity: 0.18 },
 ];
 
+const introSessionKey = "timilia-intro-entered";
+
 export default function LogoIntro() {
   const prefersReducedMotion = useReducedMotion();
   const shouldReduceMotion = prefersReducedMotion === true;
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(sessionStorage.getItem(introSessionKey) !== "true");
+  }, []);
 
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
@@ -79,6 +85,7 @@ export default function LogoIntro() {
   };
 
   const enterSite = () => {
+    sessionStorage.setItem(introSessionKey, "true");
     setVisible(false);
   };
 
