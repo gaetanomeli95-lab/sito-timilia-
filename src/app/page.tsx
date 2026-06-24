@@ -1,3 +1,4 @@
+import LogoIntro from "@/components/LogoIntro";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AmbientSection from "@/components/AmbientSection";
@@ -11,6 +12,7 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 bg-background">
+      <LogoIntro />
       <Navbar />
       <main className="flex-1">
         <HeroSection />
