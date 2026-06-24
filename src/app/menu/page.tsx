@@ -22,13 +22,13 @@ function MenuItemCard({ item, index }: { item: typeof menuCategories[0]["items"]
     >
       <div className={`flex gap-5 ${hasImage ? "items-start" : "items-baseline justify-between"}`}>
         {hasImage && (
-          <div className="relative w-24 h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 flex-shrink-0 overflow-hidden rounded-sm">
+          <div className="relative w-24 h-24 md:w-44 md:h-44 lg:w-64 lg:h-64 flex-shrink-0 overflow-hidden rounded-sm">
             <Image
               src={item.image!}
               alt={item.name}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 96px, (max-width: 1024px) 144px, 176px"
+              sizes="(max-width: 768px) 96px, (max-width: 1024px) 176px, 256px"
             />
           </div>
         )}
@@ -73,18 +73,16 @@ export default function MenuPage() {
 
   return (
     <div className="relative min-h-screen bg-background">
-      {/* Logo watermark dietro ai prodotti del menu */}
-      <div className="pointer-events-none fixed inset-0 z-0 flex items-center justify-center">
-        <div className="relative w-[80vw] max-w-[640px] aspect-square opacity-[0.06]">
-          <Image
-            src="/images/logo.png"
-            alt=""
-            fill
-            className="object-contain"
-            sizes="80vw"
-            priority
-          />
-        </div>
+      {/* Logo watermark a piena pagina dietro ai prodotti del menu */}
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.12]">
+        <Image
+          src="/images/logo.png"
+          alt=""
+          fill
+          className="object-contain p-4 md:p-10"
+          sizes="100vw"
+          priority
+        />
       </div>
 
       {/* Header */}
