@@ -59,7 +59,7 @@ export default function FounderSection() {
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1.2, ease: "easeOut" }}
-            className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden"
+            className="relative aspect-[3/4] lg:aspect-[4/5] overflow-hidden edge-fade"
           >
             <Image
               src="/images/tommaso.png"

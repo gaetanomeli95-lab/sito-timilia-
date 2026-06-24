@@ -47,3 +47,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #c8a97e;
 }
+
+.edge-fade {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, black 6%, black 94%, transparent),
+    linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, black 6%, black 94%, transparent),
+    linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  mask-composite: intersect;
+}
+
+.edge-fade-wide {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, black 4%, black 96%, transparent),
+    linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, black 4%, black 96%, transparent),
+    linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-composite: intersect;
+}

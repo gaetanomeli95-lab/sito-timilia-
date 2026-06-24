@@ -46,7 +46,7 @@ export default function AmbientSection() {
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="relative aspect-[4/5] overflow-hidden"
+            className="relative aspect-[4/5] overflow-hidden edge-fade"
           >
             <Image
               src="/images/ambient-experience.png"
@@ -97,7 +97,7 @@ export default function AmbientSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-          className="mt-16 md:mt-24 relative aspect-[21/9] overflow-hidden"
+          className="mt-16 md:mt-24 relative aspect-[21/9] overflow-hidden edge-fade-wide"
         >
           <Image
             src="/images/ambient-experience-2.png"

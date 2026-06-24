@@ -78,7 +78,7 @@ export default function BrandDetails() {
             initial={{ opacity: 0, y: 40 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden"
+            className="order-1 relative aspect-[3/2] md:aspect-[16/9] lg:aspect-[21/9] overflow-hidden edge-fade-wide"
           >
             <Image
               src="/images/brand-details.png"
