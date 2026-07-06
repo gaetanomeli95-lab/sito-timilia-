@@ -1,39 +1,60 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import TeraWordmark from "@/components/TeraWordmark";
+import TeraFeatureModal, { type TeraFeatureContent } from "@/components/TeraFeatureModal";
 import { FlaskConical, Leaf, Heart, WheatOff } from "lucide-react";
 
-const features = [
+const features: TeraFeatureContent[] = [
   {
     icon: FlaskConical,
     title: "Ricerca",
     desc: "Un approccio scientifico all'impasto, studiato per garantire leggerezza e digeribilità senza compromessi.",
+    body: "TERA nasce da anni di prove, studio e sacrifici. Ogni variabile è stata testata: idratazione, tempi di fermentazione, blend di farine, temperatura di cottura. Il risultato è un impasto che non ha nulla da invidiare a uno tradizionale — anzi. La ricerca continua ogni giorno, perché la perfezione non è un punto di arrivo ma un processo.",
   },
   {
     icon: WheatOff,
     title: "Senza Glutine",
     desc: "Un impasto dedicato, pensato per chi sceglie il benessere senza rinunciare al piacere della pizza.",
+    body: "Non una semplice alternativa, ma un mondo dedicato. L'impasto TERA è sviluppato esclusivamente per il senza glutine, con attrezzature e spazi separati per evitare ogni contaminazione. Il risultato è una pizza che non sa di \"alternativa\" — sa di pizza. Leggera, fragrante, digeribile.",
   },
   {
     icon: Leaf,
     title: "Ingredienti Selezionati",
     desc: "Ogni componente è scelto con cura, per un risultato che unisce qualità e naturalezza.",
+    body: "Le farine TERA sono selezionate tra le migliori fonti naturali senza glutine. Ognuna porta caratteristiche uniche: struttura, sapore, nutrienti. Insieme creano un blend equilibrato che garantisce un impasto lavorabile, digeribile e gustoso.",
+    items: [
+      { name: "Sorgo", desc: "Cereale antico naturalmente senza glutine, ricco di antiossidanti e fibre. Apporta leggerezza e un sapore delicato all'impasto." },
+      { name: "Saraceno", desc: "Pseudocereale ad alto valore proteico, ricco di minerali come magnesio e ferro. Dona struttura e un caratteristico aroma tostato." },
+      { name: "Miglio", desc: "Cereale digestibile e nutriente, fonte di vitamine del gruppo B. Contribuisce alla friabilità e alla digeribilità dell'impasto." },
+      { name: "Piselli", desc: "Farina di piselli ricca di proteine vegetali. Migliora la struttura dell'impasto e aumenta l'apporto nutrizionale senza aggiungere grassi." },
+    ],
   },
   {
     icon: Heart,
     title: "Benessere",
     desc: "Un'esperienza premium gluten free dove il gusto incontra la sensazione di leggerezza.",
+    body: "TERA non è solo senza glutine — è un impasto pensato per il benessere. Grazie al blend di farine naturali, l'impasto TERA ha un basso indice glicemico, un alto apporto di fibre e un ricco profilo di vitamine e minerali: calcio, magnesio, zinco, fosforo e ferro. Il risultato è una pizza che nutre senza appesantire, che si digerisce con facilità e che lascia una sensazione di leggerezza reale.",
   },
 ];
 
 export default function TeraSection() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [activeFeature, setActiveFeature] = useState<TeraFeatureContent | null>(null);
+
+  const handleOpenFeature = useCallback((feature: TeraFeatureContent) => {
+    setActiveFeature(feature);
+  }, []);
+
+  const handleCloseFeature = useCallback(() => {
+    setActiveFeature(null);
+  }, []);
 
   return (
+    <>
     <section id="tera" ref={ref} className="relative overflow-hidden py-16 md:py-24 lg:py-40">
       <div
         className="absolute inset-0"
@@ -73,7 +94,7 @@ export default function TeraSection() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-9">
               {features.map((feature, i) => (
-                <FeatureCard key={feature.title} feature={feature} i={i} isInView={isInView} />
+                <FeatureCard key={feature.title} feature={feature} i={i} isInView={isInView} onClick={() => handleOpenFeature(feature)} />
               ))}
             </div>
 
@@ -114,6 +135,9 @@ export default function TeraSection() {
         </div>
       </div>
     </section>
+
+    <TeraFeatureModal content={activeFeature} onClose={handleCloseFeature} />
+    </>
   );
 }
 
@@ -122,10 +146,12 @@ function FeatureCard({
   feature,
   i,
   isInView,
+  onClick,
 }: {
-  feature: { icon: typeof Heart; title: string; desc: string };
+  feature: TeraFeatureContent;
   i: number;
   isInView: boolean;
+  onClick: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -161,9 +187,18 @@ function FeatureCard({
     >
       <div
         ref={cardRef}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative cursor-default overflow-hidden rounded-[1.6rem] border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035))] p-5 backdrop-blur-md transition-all duration-500 hover:border-white/28 hover:shadow-[0_24px_80px_rgba(0,0,0,0.24)]"
+        className="group relative cursor-pointer overflow-hidden rounded-[1.6rem] border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035))] p-5 backdrop-blur-md transition-all duration-500 hover:border-white/28 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none hover:shadow-[0_24px_80px_rgba(0,0,0,0.24)]"
         style={{ willChange: "transform", transformStyle: "preserve-3d" }}
       >
         <div ref={spotlightRef} className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" />
@@ -180,6 +215,10 @@ function FeatureCard({
         <p className="relative text-white/55 text-sm font-light leading-relaxed transition-colors duration-500 group-hover:text-white/72" style={{ transform: "translateZ(10px)" }}>
           {feature.desc}
         </p>
+        <div className="relative mt-3 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500" style={{ transform: "translateZ(15px)" }}>
+          <span className="text-[10px] tracking-[0.2em] uppercase font-light">Scopri di più</span>
+          <span className="text-xs transition-transform duration-500 group-hover:translate-x-1">→</span>
+        </div>
       </div>
     </motion.div>
   );

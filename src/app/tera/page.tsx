@@ -1,32 +1,94 @@
 "use client";
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import TeraWordmark from "@/components/TeraWordmark";
-import { ArrowLeft, WheatOff, FlaskConical, Leaf, Heart, Sparkles, ArrowRight } from "lucide-react";
+import TeraFeatureModal, { type TeraFeatureContent } from "@/components/TeraFeatureModal";
+import { ArrowLeft, WheatOff, FlaskConical, Leaf, Heart, Sparkles, ArrowRight, Microscope, Compass, Sun, Sprout } from "lucide-react";
 
-const farine = [
+const farine: TeraFeatureContent[] = [
   {
-    nome: "Teff",
-    desc: "Un cereale antico originario dell'Etiopia, naturalmente senza glutine. Ricco di ferro, calcio e fibre, conferisce all'immasto una struttura morbida e un leggero sapore di nocciola.",
+    icon: Sprout,
+    title: "Sorgo",
+    desc: "Cereale antico naturalmente senza glutine, ricco di antiossidanti e fibre. Apporta leggerezza e un sapore delicato all'impasto.",
+    body: "Il sorgo è uno dei cereali più antichi coltivati dall'uomo. Naturalmente privo di glutine, è ricco di antiossidanti, fibre e proteine. Nel blend TERA, il sorgo contribuisce alla leggerezza dell'impasto conferendo una struttura morbida e un sapore delicato, quasi dolce. È una farina che lavora bene in sinergia con le altre, migliorando la digeribilità senza sovrastare i gusti.",
+    image: "/images/farina-sorgo.png",
+    emoji: "🌾",
   },
   {
-    nome: "Miglio",
+    icon: Sprout,
+    title: "Saraceno",
+    desc: "Pseudocereale ad alto valore proteico, ricco di minerali come magnesio e ferro. Dona struttura e un caratteristico aroma tostato.",
+    body: "Il grano saraceno non è un vero cereale ma uno pseudocereale, parente del rabarbaro. È naturalmente senza glutine e vanta un eccezionale profilo nutrizionale: alto contenuto proteico, ricco di magnesio, ferro, potassio e vitamine del gruppo B. Nell'impasto TERA, il saraceno dona struttura e un caratteristico aroma tostato che arricchisce il sapore della pizza. Le sue proteine contengono tutti gli amminoacidi essenziali, rendendolo un alleato prezioso per una nutrizione completa.",
+    image: "/images/farina-saraceno.png",
+    emoji: "🌱",
+  },
+  {
+    icon: Sprout,
+    title: "Miglio",
     desc: "Cereale antico altamente digeribile, fonte di magnesio e fosforo. Contribuisce alla leggerezza dell'impasto e alla sua fragranza.",
+    body: "Il miglio è uno dei cereali più antichi e digeribili. Naturalmente senza glutine, è una fonte eccellente di magnesio, fosforo, manganese e vitamine del gruppo B. Nel blend TERA, il miglio contribuisce alla leggerezza e alla fragranza dell'impasto, migliorando la sua digeribilità. La sua struttura fine permette di ottenere un impasto elastico e lavorabile, fondamentale per una pizza gluten free di qualità.",
+    image: "/images/farina-miglio.png",
+    emoji: "🌿",
   },
   {
-    nome: "Piselli",
+    icon: Sprout,
+    title: "Piselli",
     desc: "Farina di piselli che apporta proteine vegetali e un basso indice glicemico. Migliora la struttura e la tenuta dell'impasto senza glutine.",
+    body: "La farina di piselli è ottenuta dalla macinazione di piselli essiccati ed è naturalmente priva di glutine. È eccezionalmente ricca di proteine vegetali, fibre e ferro, con un bassissimo indice glicemico. Nel blend TERA, la farina di piselli svolge una funzione strutturale fondamentale: migliora la tenuta e l'elasticità dell'impasto senza glutine, compensando l'assenza del glutine con le sue proteine. Il risultato è un impasto che si lavora come quello tradizionale, con un apporto nutrizionale superiore.",
+    image: "/images/farina-piselli.png",
+    emoji: "🟢",
   },
 ];
 
-const proprieta = [
-  { icon: Heart, label: "Ricco di vitamine", desc: "Calcio, magnesio, zinco, fosforo e ferro" },
-  { icon: Leaf, label: "Alto apporto di fibre", desc: "Per una digestione leggera e naturale" },
-  { icon: WheatOff, label: "Senza glutine", desc: "Impasto dedicato per celiaci e intolleranti" },
-  { icon: FlaskConical, label: "Basso indice glicemico", desc: "Teff, miglio e piselli per un impasto equilibrato" },
+const proprieta: TeraFeatureContent[] = [
+  {
+    icon: Heart,
+    title: "Ricco di vitamine",
+    desc: "Calcio, magnesio, zinco, fosforo e ferro",
+    body: "L'impasto TERA è naturalmente ricco di vitamine e minerali essenziali. Il blend di farine senza glutine apporta calcio per la salute delle ossa, magnesio per la funzione muscolare e nervosa, zinco per il sistema immunitario, fosforo per il metabolismo energetico e ferro per il trasporto dell'ossigeno. Non è solo una pizza buona — è una pizza che nutre.",
+  },
+  {
+    icon: Leaf,
+    title: "Alto apporto di fibre",
+    desc: "Per una digestione leggera e naturale",
+    body: "Le farine naturali di TERA — sorgo, saraceno, miglio e piselli — sono naturalmente ricche di fibre. Questo significa non solo una migliore digestione, ma anche un senso di sazietà più duraturo e un assorbimento più graduale degli zuccheri. Il risultato è una pizza che si fa digerire con facilità, senza quel senso di pesantezza tipico degli impasti tradizionali.",
+  },
+  {
+    icon: WheatOff,
+    title: "Senza glutine",
+    desc: "Impasto dedicato per celiaci e intolleranti",
+    body: "TERA è un progetto dedicato esclusivamente al senza glutine. Attrezzature separate, spazi dedicati, procedure rigorose per evitare ogni rischio di contaminazione. Non è una pizza adattata — è una pizza pensata da zero per chi non può consumare glutine. Il risultato è un prodotto che rispetta le esigenze dei celiaci senza compromettere sapore, texture o piacere.",
+  },
+  {
+    icon: FlaskConical,
+    title: "Basso indice glicemico",
+    desc: "Teff, miglio e piselli per un impasto equilibrato",
+    body: "Grazie alla presenza di cereali antichi come teff, miglio e piselli, l'impasto TERA ha un basso indice glicemico. Questo significa che gli zuccheri vengono rilasciati lentamente nel sangue, evitando picchi glicemici e garantendo un'energia costante nel tempo. È la scelta ideale per chi cerca un'alimentazione equilibrata senza rinunciare al piacere della pizza.",
+  },
+];
+
+const heroCards: TeraFeatureContent[] = [
+  {
+    icon: Microscope,
+    title: "Anni di ricerca",
+    desc: "Studio continuo su farine naturali, tecnica e maturazione.",
+    body: "TERA è il frutto di un percorso lungo e meticoloso. Anni di test su farine, idratazioni, tempi di fermentazione e tecniche di impasto hanno portato a un risultato che oggi possiamo definire eccellente. Ogni variabile è stata studiata e ottimizzata: dalla selezione delle materie prime alla gestione della maturazione, fino alla cottura. La ricerca non si ferma mai — ogni giorno cerchiamo di migliorare.",
+  },
+  {
+    icon: Compass,
+    title: "Metodo Timilia",
+    desc: "Non una scorciatoia, ma un percorso costruito prova dopo prova.",
+    body: "Il metodo Timilia non ammette scorciatoie. Ogni passo è studiato e ripetuto fino alla perfezione: dalla scelta delle farine senza glutine alla gestione dell'impasto, dalla maturazione lenta alla cottura ad alta temperatura. È un approccio artigianale che rispetta i tempi naturali e garantisce un risultato costante, digeribile e gustoso. Un metodo che si trasmette dal maestro all'allievo, prova dopo prova.",
+  },
+  {
+    icon: Sun,
+    title: "Pura natura",
+    desc: "Una nuova idea di gluten free: leggera, autentica, memorabile.",
+    body: "TERA nasce da una convinzione semplice: il senza glutine non deve essere un compromesso, ma un'esperienza. Le farine naturali — sorgo, saraceno, miglio, piselli — sono selezionate per le loro proprietà nutrizionali e organolettiche. Niente additivi artificiali, niente mix industriali: solo materia prima di qualità, lavorata con rispetto e tecnica. Il risultato è una pizza leggera, autentica, che si fa ricordare.",
+  },
 ];
 
 export default function TeraPage() {
@@ -39,6 +101,15 @@ export default function TeraPage() {
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
   const logoScale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
+  const [activeCard, setActiveCard] = useState<TeraFeatureContent | null>(null);
+
+  const handleOpenCard = useCallback((card: TeraFeatureContent) => {
+    setActiveCard(card);
+  }, []);
+
+  const handleCloseCard = useCallback(() => {
+    setActiveCard(null);
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ background: "#748470" }}>
@@ -75,7 +146,7 @@ export default function TeraPage() {
         </Link>
       </header>
 
-      <section ref={heroRef} className="relative min-h-[100svh] z-10 overflow-hidden px-5 py-20 md:py-28 lg:px-10">
+      <section ref={heroRef} className="relative min-h-[100svh] z-10 overflow-hidden px-4 py-20 md:py-28 lg:px-10">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
           <Image
             src="/images/tera-experience.png"
@@ -90,8 +161,8 @@ export default function TeraPage() {
           <div className="absolute left-0 top-0 h-full w-[min(62rem,72vw)] bg-[radial-gradient(ellipse_at_left,rgba(8,12,7,0.56),rgba(8,12,7,0.24)_54%,transparent_78%)]" />
         </motion.div>
 
-        <div className="relative z-10 mx-auto grid min-h-[calc(100svh-11rem)] md:min-h-[calc(100svh-14rem)] max-w-7xl items-center gap-8 lg:gap-12 lg:grid-cols-[0.92fr_1.08fr]">
-          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-2xl rounded-[2rem] border border-white/10 bg-[#182015]/30 p-6 shadow-[0_30px_120px_rgba(0,0,0,0.24)] backdrop-blur-[10px] md:p-8">
+        <div className="relative z-10 mx-auto grid min-h-[calc(100svh-11rem)] md:min-h-[calc(100svh-14rem)] max-w-7xl items-center gap-6 lg:gap-12 lg:grid-cols-[0.92fr_1.08fr]">
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-2xl rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-[#182015]/30 p-4 sm:p-6 shadow-[0_30px_120px_rgba(0,0,0,0.24)] backdrop-blur-[10px] md:p-8">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -106,7 +177,7 @@ export default function TeraPage() {
               initial={{ opacity: 0, y: 24, filter: "blur(14px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 1.2, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-6 md:mb-10 w-[min(88vw,35rem)]"
+              className="mb-5 md:mb-10 w-[min(82vw,35rem)]"
             >
               <TeraWordmark priority />
             </motion.div>
@@ -115,7 +186,7 @@ export default function TeraPage() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.72 }}
-              className="mb-5 text-3xl md:text-5xl lg:text-7xl font-light leading-tight tracking-[0.06em] text-white"
+              className="mb-4 text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-light leading-tight tracking-[0.06em] text-white"
             >
               Il senza glutine diventa esperienza.
             </motion.h1>
@@ -124,34 +195,40 @@ export default function TeraPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.9 }}
-              className="max-w-xl text-base font-light leading-relaxed text-white/76 md:text-xl"
+              className="max-w-xl text-sm sm:text-base font-light leading-relaxed text-white/76 md:text-xl"
             >
               TERA è il risultato di anni di studio, prove e sacrifici: un progetto nato per cambiare la percezione della pizza gluten free.
             </motion.p>
           </motion.div>
 
+          {/* Mini cards — visible on all viewports, clickable */}
           <motion.div
             initial={{ opacity: 0, y: 34, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.15, delay: 0.48, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:block"
+            className="flex flex-col gap-3 lg:gap-4"
           >
-            <div className="grid gap-4">
-              {[
-                ["Anni di ricerca", "Studio continuo su farine naturali, tecnica e maturazione."],
-                ["Metodo Timilia", "Non una scorciatoia, ma un percorso costruito prova dopo prova."],
-                ["Pura natura", "Una nuova idea di gluten free: leggera, autentica, memorabile."],
-              ].map(([title, desc]) => (
-                <motion.div
-                  key={title}
-                  whileHover={{ x: 8, scale: 1.02 }}
-                  className="group rounded-3xl border border-white/12 bg-black/18 p-6 backdrop-blur-md transition-colors duration-500 hover:bg-white/[0.08]"
-                >
-                  <h3 className="mb-2 text-xs uppercase tracking-[0.28em] text-white/88">{title}</h3>
-                  <p className="text-sm font-light leading-relaxed text-white/62">{desc}</p>
-                </motion.div>
-              ))}
-            </div>
+            {heroCards.map((card) => (
+              <button
+                key={card.title}
+                onClick={() => handleOpenCard(card)}
+                className="group text-left rounded-2xl sm:rounded-3xl border border-white/12 bg-black/18 p-4 sm:p-6 backdrop-blur-md transition-all duration-500 hover:bg-white/[0.08] hover:border-white/24 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none cursor-pointer"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-white/12 bg-white/10 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110">
+                    <card.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/78 stroke-[1.2]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="mb-1 text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.28em] text-white/88">{card.title}</h3>
+                    <p className="text-xs sm:text-sm font-light leading-relaxed text-white/62">{card.desc}</p>
+                    <div className="mt-2 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500">
+                      <span className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase font-light">Scopri di più</span>
+                      <span className="text-[10px] sm:text-xs transition-transform duration-500 group-hover:translate-x-1">→</span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
           </motion.div>
         </div>
 
@@ -264,7 +341,7 @@ export default function TeraPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {proprieta.map((p, i) => (
-              <ProprietaCard key={p.label} p={p} i={i} isInView={isInView} />
+              <ProprietaCard key={p.title} p={p} i={i} isInView={isInView} onClick={() => handleOpenCard(p)} />
             ))}
           </div>
         </motion.div>
@@ -287,13 +364,13 @@ export default function TeraPage() {
             Le farine che usiamo
           </h2>
           <p className="text-white/50 text-sm font-light mb-10 max-w-xl">
-            Un blend esclusivo studiato da Timilia: teff, miglio e piselli per un impasto
+            Un blend esclusivo studiato da Timilia: sorgo, saraceno, miglio e piselli per un impasto
             leggero, digeribile e gustoso. Il basso contenuto glicemico è dettato dalla presenza
             di questi cereali antichi.
           </p>
           <div className="space-y-5">
             {farine.map((f, i) => (
-              <FarinaCard key={f.nome} f={f} i={i} farineInView={farineInView} />
+              <FarinaCard key={f.title} f={f} i={i} farineInView={farineInView} onClick={() => handleOpenCard(f)} />
             ))}
           </div>
         </motion.div>
@@ -389,6 +466,7 @@ export default function TeraPage() {
           </p>
         </motion.div>
       </div>
+      <TeraFeatureModal content={activeCard} onClose={handleCloseCard} />
     </div>
   );
 }
@@ -398,10 +476,12 @@ function ProprietaCard({
   p,
   i,
   isInView,
+  onClick,
 }: {
-  p: { icon: typeof Heart; label: string; desc: string };
+  p: TeraFeatureContent;
   i: number;
   isInView: boolean;
+  onClick: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -437,9 +517,18 @@ function ProprietaCard({
     >
       <div
         ref={cardRef}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative min-h-44 cursor-default overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.105),rgba(255,255,255,0.035))] p-6 backdrop-blur-md transition-all duration-500 hover:border-white/30 hover:shadow-[0_28px_90px_rgba(0,0,0,0.26)]"
+        className="group relative min-h-44 cursor-pointer overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.105),rgba(255,255,255,0.035))] p-6 backdrop-blur-md transition-all duration-500 hover:border-white/30 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none hover:shadow-[0_28px_90px_rgba(0,0,0,0.26)]"
         style={{ willChange: "transform", transformStyle: "preserve-3d" }}
       >
         <div ref={spotlightRef} className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" />
@@ -455,11 +544,15 @@ function ProprietaCard({
           </div>
           <div className="relative">
             <h3 className="text-white text-sm tracking-wide font-medium mb-1.5 transition-colors duration-500 group-hover:text-white">
-              {p.label}
+              {p.title}
             </h3>
             <p className="text-white/55 text-sm font-light leading-relaxed transition-colors duration-500 group-hover:text-white/72">
               {p.desc}
             </p>
+            <div className="mt-2 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500">
+              <span className="text-[10px] tracking-[0.2em] uppercase font-light">Scopri di più</span>
+              <span className="text-xs transition-transform duration-500 group-hover:translate-x-1">→</span>
+            </div>
           </div>
         </div>
       </div>
@@ -472,10 +565,12 @@ function FarinaCard({
   f,
   i,
   farineInView,
+  onClick,
 }: {
-  f: { nome: string; desc: string };
+  f: TeraFeatureContent;
   i: number;
   farineInView: boolean;
+  onClick: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -511,9 +606,18 @@ function FarinaCard({
     >
       <div
         ref={cardRef}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative flex flex-col gap-4 overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-5 sm:p-7 transition-all duration-500 hover:border-white/28 hover:shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:flex-row"
+        className="group relative flex flex-col gap-4 cursor-pointer overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-5 sm:p-7 transition-all duration-500 hover:border-white/28 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none hover:shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:flex-row"
         style={{ willChange: "transform", transformStyle: "preserve-3d" }}
       >
         <div ref={spotlightRef} className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" />
@@ -527,12 +631,19 @@ function FarinaCard({
             <span className="relative">{String(i + 1).padStart(2, "0")}</span>
           </div>
           <h3 className="text-white text-lg font-light tracking-wide transition-colors duration-500 group-hover:text-white">
-            {f.nome}
+            {f.title}
           </h3>
+          {f.emoji && <span className="text-lg sm:text-xl ml-0.5">{f.emoji}</span>}
         </div>
-        <p className="relative text-white/60 text-sm md:text-base font-light leading-relaxed flex-1 transition-colors duration-500 group-hover:text-white/76" style={{ transform: "translateZ(15px)" }}>
-          {f.desc}
-        </p>
+        <div className="relative flex-1" style={{ transform: "translateZ(15px)" }}>
+          <p className="text-white/60 text-sm md:text-base font-light leading-relaxed transition-colors duration-500 group-hover:text-white/76">
+            {f.desc}
+          </p>
+          <div className="mt-2 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500">
+            <span className="text-[10px] tracking-[0.2em] uppercase font-light">Scopri di più</span>
+            <span className="text-xs transition-transform duration-500 group-hover:translate-x-1">→</span>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
