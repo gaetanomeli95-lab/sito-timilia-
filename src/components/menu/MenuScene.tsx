@@ -52,7 +52,7 @@ const categoryDescriptions: Record<string, string> = {
 
 export default function MenuScene() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [selectedCat, setSelectedCat] = useState<number | null>(null);
+  const [selectedCat, setSelectedCat] = useState<number | null>(0);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [selectedCatTitle, setSelectedCatTitle] = useState("");
 

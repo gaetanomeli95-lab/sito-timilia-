@@ -85,7 +85,7 @@ export default function ProductModal({
             animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.96, y: 20, filter: "blur(8px)" }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-[#0a0a0a] border border-white/[0.08] rounded-lg shadow-2xl"
+            className="relative z-10 w-full max-w-4xl max-h-[90vh] md:max-h-[80vh] overflow-y-auto md:overflow-hidden bg-[#0a0a0a] border border-white/[0.08] rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             style={{
               boxShadow:
@@ -100,10 +100,12 @@ export default function ProductModal({
               <X className="w-5 h-5" />
             </button>
 
+            {/* Image Gallery + Content — side by side on desktop */}
+            <div className="flex flex-col md:flex-row md:h-[80vh]">
             {/* Image Gallery */}
             {allImages.length > 0 && (
-              <div className="relative w-full overflow-hidden rounded-t-lg bg-[#111]">
-                <div className="relative w-full h-72 md:h-96 flex items-center justify-center">
+              <div className="relative w-full md:w-1/2 md:h-full overflow-hidden rounded-t-lg md:rounded-tl-lg md:rounded-tr-none bg-[#111] flex flex-col">
+                <div className="relative w-full h-60 md:h-full flex items-center justify-center flex-1">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentImageIdx}
@@ -153,7 +155,7 @@ export default function ProductModal({
                 </div>
 
                 {hasMultipleImages && (
-                  <div className="flex gap-2 p-3 bg-[#0a0a0a] overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-2 p-3 bg-[#0a0a0a] overflow-x-auto scrollbar-hide flex-shrink-0">
                     {allImages.map((img, idx) => (
                       <button
                         key={idx}
@@ -179,7 +181,7 @@ export default function ProductModal({
             )}
 
             {/* Content */}
-            <div className="p-6 md:p-10">
+            <div className="flex-1 md:w-1/2 p-6 md:p-8 lg:p-10 overflow-y-auto md:overflow-y-auto scrollbar-hide">
               <span className="text-gold/70 text-[10px] tracking-[0.3em] uppercase font-medium block mb-3">
                 {categoryTitle}
               </span>
@@ -236,6 +238,7 @@ export default function ProductModal({
                   {item.note}
                 </p>
               )}
+            </div>
             </div>
           </motion.div>
         </motion.div>
