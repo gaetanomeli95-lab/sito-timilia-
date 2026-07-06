@@ -34,7 +34,7 @@ export default function TeraSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="tera" ref={ref} className="relative overflow-hidden py-24 md:py-40">
+    <section id="tera" ref={ref} className="relative overflow-hidden py-16 md:py-24 lg:py-40">
       <div
         className="absolute inset-0"
         style={{
@@ -61,10 +61,10 @@ export default function TeraSection() {
             <div className="mb-8 w-[min(88vw,32rem)]">
               <TeraWordmark compact />
             </div>
-            <h2 className="text-4xl md:text-6xl font-light leading-tight tracking-[0.04em] text-white mb-6">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-tight tracking-[0.04em] text-white mb-6">
               Una ricerca diventata identità.
             </h2>
-            <p className="text-white/72 text-lg font-light leading-relaxed mb-4">
+            <p className="text-white/72 text-base md:text-lg font-light leading-relaxed mb-4">
               TERA è il progetto gluten free di TIMILIA: anni di prove, studio e sacrifici per trasformare il senza glutine in un&apos;esperienza di altissimo livello.
             </p>
             <p className="text-white/58 text-base font-light leading-relaxed mb-8">
@@ -95,7 +95,7 @@ export default function TeraSection() {
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="order-1 lg:order-2 relative overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-3 shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-transform duration-700 hover:scale-[1.015]"
           >
-            <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-black/40">
+            <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-[1.5rem] bg-black/40">
               <Image
                 src="/images/tera-experience.png"
                 alt="Progetto TERA senza glutine"

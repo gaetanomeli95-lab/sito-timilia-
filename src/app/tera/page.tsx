@@ -75,7 +75,7 @@ export default function TeraPage() {
         </Link>
       </header>
 
-      <section ref={heroRef} className="relative min-h-[100svh] z-10 overflow-hidden px-5 py-28 lg:px-10">
+      <section ref={heroRef} className="relative min-h-[100svh] z-10 overflow-hidden px-5 py-20 md:py-28 lg:px-10">
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
           <Image
             src="/images/tera-experience.png"
@@ -90,13 +90,13 @@ export default function TeraPage() {
           <div className="absolute left-0 top-0 h-full w-[min(62rem,72vw)] bg-[radial-gradient(ellipse_at_left,rgba(8,12,7,0.56),rgba(8,12,7,0.24)_54%,transparent_78%)]" />
         </motion.div>
 
-        <div className="relative z-10 mx-auto grid min-h-[calc(100svh-14rem)] max-w-7xl items-center gap-12 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="relative z-10 mx-auto grid min-h-[calc(100svh-11rem)] md:min-h-[calc(100svh-14rem)] max-w-7xl items-center gap-8 lg:gap-12 lg:grid-cols-[0.92fr_1.08fr]">
           <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-2xl rounded-[2rem] border border-white/10 bg-[#182015]/30 p-6 shadow-[0_30px_120px_rgba(0,0,0,0.24)] backdrop-blur-[10px] md:p-8">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.15 }}
-              className="mb-8 block text-[10px] font-medium uppercase tracking-[0.46em] text-white/72 md:text-xs"
+              className="mb-5 md:mb-8 block text-[10px] font-medium uppercase tracking-[0.46em] text-white/72 md:text-xs"
             >
               Timilia presenta
             </motion.span>
@@ -106,7 +106,7 @@ export default function TeraPage() {
               initial={{ opacity: 0, y: 24, filter: "blur(14px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 1.2, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-10 w-[min(88vw,35rem)]"
+              className="mb-6 md:mb-10 w-[min(88vw,35rem)]"
             >
               <TeraWordmark priority />
             </motion.div>
@@ -115,7 +115,7 @@ export default function TeraPage() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.72 }}
-              className="mb-6 text-4xl font-light leading-tight tracking-[0.06em] text-white md:text-7xl"
+              className="mb-5 text-3xl md:text-5xl lg:text-7xl font-light leading-tight tracking-[0.06em] text-white"
             >
               Il senza glutine diventa esperienza.
             </motion.h1>
@@ -178,7 +178,7 @@ export default function TeraPage() {
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 1.5, ease: "easeOut" }}
-        className="relative z-10 w-full h-[60vh] md:h-[80vh] overflow-hidden"
+        className="relative z-10 w-full h-[50vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
         style={{
           WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
           maskImage: "linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
@@ -515,7 +515,7 @@ function FarinaCard({
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="group relative flex flex-col gap-4 overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-7 transition-all duration-500 hover:border-white/28 hover:shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:flex-row"
+        className="group relative flex flex-col gap-4 overflow-hidden rounded-[1.7rem] border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-5 sm:p-7 transition-all duration-500 hover:border-white/28 hover:shadow-[0_28px_90px_rgba(0,0,0,0.24)] sm:flex-row"
         style={{ willChange: "transform", transformStyle: "preserve-3d" }}
       >
         <div ref={spotlightRef} className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" />

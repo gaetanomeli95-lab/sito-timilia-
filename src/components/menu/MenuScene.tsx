@@ -175,7 +175,7 @@ export default function MenuScene() {
       </header>
 
       {/* Category banner strip — rectangular, horizontal */}
-      <div className="relative z-10 mx-4 lg:mx-8 h-[150px] sm:h-[170px] lg:h-[215px] flex-shrink-0 overflow-hidden rounded-[1.6rem] border border-white/[0.08] shadow-[0_24px_90px_rgba(0,0,0,0.4)]" data-enter>
+      <div className="relative z-10 mx-4 lg:mx-8 h-[130px] sm:h-[170px] lg:h-[215px] flex-shrink-0 overflow-hidden rounded-[1.6rem] border border-white/[0.08] shadow-[0_24px_90px_rgba(0,0,0,0.4)]" data-enter>
         <div ref={bannerRef} className="absolute inset-0 transition-opacity duration-500" style={{ willChange: "transform" }}>
           <Image
             src={imageSrc}
@@ -196,10 +196,10 @@ export default function MenuScene() {
             <span className="text-gold/80 text-[10px] tracking-[0.3em] uppercase font-medium block mb-1.5">
               {String(displayIdx + 1).padStart(2, "0")} — Categoria
             </span>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-light tracking-wide text-[#f5f0e8]">
+            <h2 className="text-lg sm:text-2xl lg:text-3xl font-light tracking-wide text-[#f5f0e8]">
               {category?.title}
             </h2>
-            <p className="text-[#f5f0e8]/45 text-xs lg:text-sm font-light leading-relaxed line-clamp-1 mt-1 max-w-md">
+            <p className="text-[#f5f0e8]/45 text-[11px] lg:text-sm font-light leading-relaxed line-clamp-1 mt-1 max-w-[60vw] lg:max-w-md">
               {categoryDescriptions[category?.id] ?? category?.subtitle}
             </p>
           </div>
@@ -502,19 +502,19 @@ function LargeProductCard({
       </div>
 
       {/* Content — right side on desktop, below on mobile */}
-      <div className="relative flex-1 p-5 lg:p-7 flex flex-col justify-center" style={{ transform: "translateZ(25px)" }}>
+      <div className="relative flex-1 p-4 sm:p-5 lg:p-7 flex flex-col justify-center" style={{ transform: "translateZ(25px)" }}>
         <div className="flex justify-between items-start gap-3 mb-3">
-          <h4 className="relative text-[#f5f0e8] text-lg lg:text-2xl font-light tracking-wide leading-tight group-hover:text-gold transition-colors duration-500">
+          <h4 className="relative text-[#f5f0e8] text-base sm:text-lg lg:text-2xl font-light tracking-wide leading-tight group-hover:text-gold transition-colors duration-500">
             {item.name}
           </h4>
           {item.price !== undefined && (
-            <span className="relative text-gold text-lg lg:text-2xl font-light whitespace-nowrap shrink-0">
+            <span className="relative text-gold text-base sm:text-lg lg:text-2xl font-light whitespace-nowrap shrink-0">
               €{item.price.toFixed(2)}
             </span>
           )}
         </div>
         {item.description && (
-          <p className="relative text-[#f5f0e8]/55 text-sm font-light leading-relaxed group-hover:text-[#f5f0e8]/72 transition-colors duration-500">
+          <p className="relative text-[#f5f0e8]/55 text-sm font-light leading-relaxed group-hover:text-[#f5f0e8]/72 transition-colors duration-500 line-clamp-3">
             {item.description}
           </p>
         )}

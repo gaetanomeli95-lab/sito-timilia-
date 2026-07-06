@@ -173,11 +173,12 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                   initial={{ opacity: 0, y: 18, scale: 0.86 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: shouldReduceMotion ? 0.28 : 1.0, delay: shouldReduceMotion ? 0 : 0.38, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative h-[clamp(10rem,32svh,20rem)] w-[clamp(10rem,32svh,20rem)]"
+                  className="relative h-[clamp(10rem,32svh,20rem)] w-[clamp(10rem,32svh,20rem)] rounded-full overflow-hidden"
                   style={{
                     mixBlendMode: "screen",
-                    WebkitMaskImage: "radial-gradient(ellipse 72% 72% at 50% 50%, black 40%, rgba(0,0,0,0.5) 72%, transparent 100%)",
-                    maskImage: "radial-gradient(ellipse 72% 72% at 50% 50%, black 40%, rgba(0,0,0,0.5) 72%, transparent 100%)",
+                    borderRadius: "50%",
+                    WebkitMaskImage: "radial-gradient(circle at 50% 50%, black 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.2) 85%, transparent 100%)",
+                    maskImage: "radial-gradient(circle at 50% 50%, black 30%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.2) 85%, transparent 100%)",
                   }}
                 >
                   <Image
