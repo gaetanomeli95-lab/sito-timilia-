@@ -134,7 +134,7 @@ export default function MenuScene() {
   const expandedCategory = selectedCat !== null ? menuCategories[selectedCat] : null;
 
   return (
-    <div ref={sceneRef} className="relative min-h-screen bg-background overflow-hidden flex flex-col">
+    <div ref={sceneRef} className="relative min-h-screen bg-background flex flex-col">
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
         style={{
@@ -192,8 +192,8 @@ export default function MenuScene() {
         </div>
       </div>
 
-      {/* Mobile: horizontal scrollable category tabs */}
-      <nav className="lg:hidden flex-shrink-0 px-5 py-3 overflow-x-auto scrollbar-hide border-b border-white/[0.04] z-10">
+      {/* Mobile: sticky horizontal scrollable category tabs */}
+      <nav className="lg:hidden sticky top-0 flex-shrink-0 px-5 py-3 overflow-x-auto scrollbar-hide border-b border-white/[0.04] z-20 bg-background/95 backdrop-blur-md">
         <div className="flex gap-1.5">
           {menuCategories.map((cat, idx) => (
             <button
@@ -213,8 +213,8 @@ export default function MenuScene() {
 
       {/* Main content area */}
       <div className="relative z-10 flex-1 flex flex-col lg:flex-row min-h-0">
-        {/* Desktop left: category list */}
-        <nav className="hidden lg:flex lg:w-[22%] flex-shrink-0 px-6 py-6 flex-col justify-start overflow-y-auto scrollbar-hide">
+        {/* Desktop left: sticky category list */}
+        <nav className="hidden lg:flex lg:w-[22%] flex-shrink-0 px-6 py-6 flex-col justify-start overflow-y-auto scrollbar-hide sticky top-0 self-start max-h-[calc(100vh-0px)]">
           <div data-enter className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-[1px] w-8 bg-gold/30" />

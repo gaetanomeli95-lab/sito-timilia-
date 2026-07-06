@@ -128,7 +128,7 @@ export default function Footer() {
               {[
                 { label: "Home", href: "#hero" },
                 { label: "Tera", href: "#tera" },
-                { label: "Menu", href: "#menu" },
+                { label: "Menu", href: "/menu" },
                 { label: "Contatti", href: "#contatti" },
               ].map((link) => (
                 <a
