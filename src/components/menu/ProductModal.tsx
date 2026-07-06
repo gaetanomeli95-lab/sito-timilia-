@@ -105,7 +105,7 @@ export default function ProductModal({
             {/* Image Gallery */}
             {allImages.length > 0 && (
               <div className="relative w-full md:w-[60%] md:h-full overflow-hidden rounded-t-lg md:rounded-tl-lg md:rounded-tr-none bg-[#111] flex flex-col">
-                <div className="relative w-full h-80 sm:h-96 md:h-full flex items-center justify-center flex-1">
+                <div className="relative w-full h-80 sm:h-96 md:h-full flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentImageIdx}
