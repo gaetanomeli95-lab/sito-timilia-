@@ -36,7 +36,7 @@ export default function Footer() {
         >
           <div className="lg:col-span-1">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-timilia-original.jpg"
               alt="TIMILIA"
               width={50}
               height={50}

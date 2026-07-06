@@ -72,7 +72,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             <a href="#hero" className="flex items-center gap-3 group">
               <Image
-                src="/images/logo.png"
+                src="/images/logo-timilia-original.jpg"
                 alt="TIMILIA"
                 width={40}
                 height={40}

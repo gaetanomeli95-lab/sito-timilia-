@@ -115,7 +115,7 @@ export default function ProductCard({
         ) : (
           <div className="relative aspect-[4/3] flex items-center justify-center bg-white/[0.01]">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-timilia-original.jpg"
               alt=""
               fill
               className="object-contain p-10 opacity-15"

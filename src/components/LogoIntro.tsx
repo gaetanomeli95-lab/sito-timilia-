@@ -1,36 +1,25 @@
 "use client";
 
-import type { PointerEvent } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import {
-  AnimatePresence,
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-} from "framer-motion";
 
-const introParticles = Array.from({ length: 46 }, (_, index) => {
-  const angle = (index / 46) * Math.PI * 2;
-  const radius = 82 + (index % 6) * 34;
+const dust = Array.from({ length: 22 }, (_, index) => ({
+  id: index,
+  left: `${8 + ((index * 43) % 84)}%`,
+  top: `${14 + ((index * 31) % 72)}%`,
+  size: 1.5 + (index % 3),
+  delay: 0.18 + (index % 9) * 0.09,
+  duration: 1.35 + (index % 5) * 0.16,
+  driftX: -18 + (index % 7) * 6,
+  driftY: 20 + (index % 6) * 12,
+}));
 
-  return {
-    id: index,
-    x: Math.cos(angle) * radius,
-    y: Math.sin(angle) * radius,
-    size: 2 + (index % 3),
-    delay: (index % 12) * 0.08,
-    duration: 2.4 + (index % 7) * 0.2,
-  };
-});
-
-const orbitalLights = [
-  { size: 250, duration: 18, delay: 0, opacity: 0.36 },
-  { size: 330, duration: 24, delay: 0.4, opacity: 0.24 },
-  { size: 430, duration: 32, delay: 0.8, opacity: 0.18 },
+const words = [
+  "Farina",
+  "Fuoco",
+  "Sicilia",
+  "Ricerca",
 ];
 
 type LogoIntroProps = {
@@ -40,31 +29,33 @@ type LogoIntroProps = {
 export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
   const prefersReducedMotion = useReducedMotion();
   const shouldReduceMotion = prefersReducedMotion === true;
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(initiallyVisible);
+
+  const completeIntro = useCallback(() => {
+    try {
+      sessionStorage.setItem("timilia_intro_seen", "1");
+    } catch {
+    }
+
+    setVisible(false);
+  }, []);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("timilia_intro_seen");
-    if (!seen && initiallyVisible) {
-      setVisible(true);
+    if (!initiallyVisible) {
+      setVisible(false);
+      return;
     }
+
+    try {
+      if (sessionStorage.getItem("timilia_intro_seen")) {
+        setVisible(false);
+        return;
+      }
+    } catch {
+    }
+
+    setVisible(true);
   }, [initiallyVisible]);
-
-  const enterSite = () => {
-    sessionStorage.setItem("timilia_intro_seen", "1");
-    setVisible(false);
-  };
-
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const springX = useSpring(cursorX, { stiffness: 90, damping: 24, mass: 0.6 });
-  const springY = useSpring(cursorY, { stiffness: 90, damping: 24, mass: 0.6 });
-  const rotateX = useTransform(springY, [-0.5, 0.5], [9, -9]);
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-9, 9]);
-  const logoX = useTransform(springX, [-0.5, 0.5], [-18, 18]);
-  const logoY = useTransform(springY, [-0.5, 0.5], [-18, 18]);
-  const glowX = useTransform(springX, [-0.5, 0.5], ["28%", "72%"]);
-  const glowY = useTransform(springY, [-0.5, 0.5], ["24%", "76%"]);
-  const cursorGlow = useMotionTemplate`radial-gradient(circle at ${glowX} ${glowY}, rgba(200, 169, 126, 0.3), transparent 30%), radial-gradient(circle at 50% 44%, rgba(212, 165, 116, 0.18), transparent 34%), linear-gradient(135deg, #050505 0%, #130f0a 48%, #050505 100%)`;
 
   useEffect(() => {
     if (!visible) {
@@ -72,27 +63,18 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
     }
 
     const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction;
     document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
+    const timer = window.setTimeout(completeIntro, shouldReduceMotion ? 850 : 3450);
 
     return () => {
+      window.clearTimeout(timer);
       document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
     };
-  }, [visible]);
-
-  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (shouldReduceMotion) {
-      return;
-    }
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-    cursorX.set((event.clientX - bounds.left) / bounds.width - 0.5);
-    cursorY.set((event.clientY - bounds.top) / bounds.height - 0.5);
-  };
-
-  const handlePointerLeave = () => {
-    cursorX.set(0);
-    cursorY.set(0);
-  };
+  }, [completeIntro, shouldReduceMotion, visible]);
 
   return (
     <AnimatePresence>
@@ -101,132 +83,195 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Ingresso TIMILIA"
-          className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center overflow-hidden bg-background text-foreground [perspective:1400px]"
+          className="fixed inset-0 z-[100] flex h-[100dvh] min-h-[100svh] touch-none items-center justify-center overflow-hidden bg-background text-foreground"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.04, filter: "blur(18px)" }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          onPointerMove={handlePointerMove}
-          onPointerLeave={handlePointerLeave}
+          exit={{ opacity: 0, scale: 1.025, filter: shouldReduceMotion ? "none" : "blur(14px)" }}
+          transition={{ duration: shouldReduceMotion ? 0.22 : 0.82, ease: [0.22, 1, 0.36, 1] }}
+          onPointerUp={completeIntro}
         >
-          <motion.div className="absolute inset-0" style={{ background: cursorGlow }} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(5,5,5,0.18)_42%,rgba(5,5,5,0.94)_100%)]" />
           <motion.div
-            className="absolute -inset-[72%] rounded-full opacity-30 mix-blend-screen"
-            style={{ background: "conic-gradient(from 90deg, transparent, rgba(200, 169, 126, 0.22), transparent, rgba(212, 165, 116, 0.16), transparent)" }}
-            animate={shouldReduceMotion ? {} : { rotate: 360 }}
-            transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div
-            className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-gold/45 to-transparent"
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: [0, 1, 0.35], opacity: [0, 0.9, 0.18] }}
-            transition={{ duration: shouldReduceMotion ? 0.8 : 2.4, ease: "easeOut" }}
+            aria-hidden="true"
+            className="absolute inset-0"
+            initial={{ scale: 1.08 }}
+            animate={shouldReduceMotion ? { scale: 1 } : { scale: 1 }}
+            transition={{ duration: 3.25, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              background:
+                "radial-gradient(circle at 50% 42%, rgba(200,169,126,0.26), transparent 24%), radial-gradient(circle at 20% 18%, rgba(212,165,116,0.12), transparent 24%), radial-gradient(circle at 80% 78%, rgba(245,240,232,0.08), transparent 26%), linear-gradient(135deg, #010101 0%, #100b06 48%, #050505 100%)",
+            }}
           />
 
           <motion.div
-            className="relative z-10 flex w-full max-w-4xl flex-col items-center px-6 text-center"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          >
+            aria-hidden="true"
+            className="absolute inset-0 opacity-70 mix-blend-screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: shouldReduceMotion ? 0.35 : [0.2, 0.7, 0.42] }}
+            transition={{ duration: 2.4, ease: "easeInOut" }}
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(200,169,126,0.14) 48%, rgba(245,240,232,0.34) 50%, rgba(200,169,126,0.14) 52%, transparent 100%)",
+            }}
+          />
+
+          <motion.div
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 h-px w-[min(88vw,54rem)] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-gold-light to-transparent shadow-[0_0_60px_rgba(212,196,168,0.45)]"
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: shouldReduceMotion ? 0.45 : [0, 1, 0.35], scaleX: [0, 1, 0.72] }}
+            transition={{ duration: shouldReduceMotion ? 0.55 : 1.85, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          <motion.div
+            aria-hidden="true"
+            className="absolute left-1/2 top-1/2 h-[min(92vw,70svh,42rem)] w-[min(92vw,70svh,42rem)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-gold/10"
+            initial={{ opacity: 0, scale: 0.82 }}
+            animate={{ opacity: [0, 0.42, 0], scale: [0.82, 1.05, 1.2] }}
+            transition={{ duration: shouldReduceMotion ? 0.5 : 2.2, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          {!shouldReduceMotion && dust.map((grain) => (
+            <motion.span
+              key={grain.id}
+              aria-hidden="true"
+              className="absolute rounded-full bg-gold-light shadow-[0_0_14px_rgba(212,196,168,0.72)]"
+              style={{ left: grain.left, top: grain.top, width: grain.size, height: grain.size }}
+              initial={{ opacity: 0, x: 0, y: 0, scale: 0.4 }}
+              animate={{ opacity: [0, 0.85, 0], x: [0, grain.driftX], y: [0, -grain.driftY], scale: [0.35, 1, 0.25] }}
+              transition={{ duration: grain.duration, delay: grain.delay, ease: "easeOut" }}
+            />
+          ))}
+
+          <div className="relative z-10 flex h-full w-full max-w-6xl flex-col items-center justify-center gap-[clamp(0.85rem,2.8svh,1.8rem)] px-5 pb-[max(1.35rem,env(safe-area-inset-bottom))] pt-8 text-center sm:px-8">
             <motion.div
-              className="relative mb-12 h-[21rem] w-[21rem] cursor-none [transform-style:preserve-3d] md:h-[31rem] md:w-[31rem]"
-              style={shouldReduceMotion ? {} : { rotateX, rotateY, x: logoX, y: logoY }}
+              className="relative flex h-[clamp(15rem,48svh,30rem)] w-[min(92vw,44rem)] items-center justify-center"
+              initial={{ opacity: 0, scale: 0.86, y: 18, filter: shouldReduceMotion ? "none" : "blur(18px)" }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: shouldReduceMotion ? 0.3 : 1.05, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
             >
-              {orbitalLights.map((orbital, index) => (
-                <motion.div
-                  key={orbital.size}
-                  aria-hidden="true"
-                  className="absolute left-1/2 top-1/2 rounded-full border border-gold/20 shadow-[0_0_50px_rgba(200,169,126,0.16)]"
-                  style={{
-                    width: orbital.size,
-                    height: orbital.size,
-                    marginLeft: orbital.size / -2,
-                    marginTop: orbital.size / -2,
-                    opacity: orbital.opacity,
-                  }}
-                  initial={{ scale: 0.7, rotate: index * 18 }}
-                  animate={shouldReduceMotion ? { scale: 1 } : { scale: [0.9, 1.08, 0.9], rotate: 360 }}
-                  transition={{
-                    scale: { duration: 3.8 + index, repeat: Infinity, ease: "easeInOut", delay: orbital.delay },
-                    rotate: { duration: orbital.duration, repeat: Infinity, ease: "linear" },
-                  }}
-                />
-              ))}
-
-              {introParticles.map((particle) => (
-                <motion.span
-                  key={particle.id}
-                  aria-hidden="true"
-                  className="absolute left-1/2 top-1/2 rounded-full bg-gold-light shadow-[0_0_14px_rgba(212,196,168,0.85)]"
-                  style={{ width: particle.size, height: particle.size }}
-                  initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-                  animate={shouldReduceMotion ? { opacity: 0 } : {
-                    x: [0, particle.x * 0.35, particle.x],
-                    y: [0, particle.y * 0.35, particle.y],
-                    opacity: [0, 0.9, 0],
-                    scale: [0, 1, 0.25],
-                  }}
-                  transition={{
-                    duration: particle.duration,
-                    delay: particle.delay,
-                    repeat: Infinity,
-                    repeatDelay: 1.1,
-                    ease: "easeOut",
-                  }}
-                />
-              ))}
-
               <motion.div
                 aria-hidden="true"
-                className="absolute inset-8 rounded-full bg-gold/10 blur-3xl md:inset-6"
-                animate={shouldReduceMotion ? { opacity: 0.35 } : { opacity: [0.28, 0.65, 0.28], scale: [0.9, 1.18, 0.9] }}
-                transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-[10%] top-1/2 h-2/3 -translate-y-1/2 rounded-full bg-gold/18 blur-3xl"
+                animate={shouldReduceMotion ? { opacity: 0.38 } : { opacity: [0.16, 0.56, 0.28], scale: [0.88, 1.08, 1] }}
+                transition={{ duration: 2.7, ease: "easeInOut" }}
               />
 
               <motion.div
-                className="absolute -inset-4 md:-inset-8"
-                initial={{ opacity: 0, scale: 0.76, filter: "blur(16px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                transition={{ duration: 1.35, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  WebkitMaskImage: "radial-gradient(ellipse 72% 58% at 50% 53%, black 42%, rgba(0, 0, 0, 0.82) 62%, transparent 86%)",
-                  maskImage: "radial-gradient(ellipse 72% 58% at 50% 53%, black 42%, rgba(0, 0, 0, 0.82) 62%, transparent 86%)",
-                }}
+                aria-hidden="true"
+                className="absolute left-1/2 top-[42%] h-[42%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 blur-2xl mix-blend-screen"
+                initial={{ opacity: 0, scaleX: 0.3 }}
+                animate={{ opacity: shouldReduceMotion ? 0.22 : [0, 0.52, 0.18], scaleX: [0.3, 1, 0.82] }}
+                transition={{ duration: shouldReduceMotion ? 0.45 : 1.4, delay: 0.42, ease: [0.16, 1, 0.3, 1] }}
+              />
+
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.94, clipPath: "inset(45% 18% 45% 18% round 999px)" }}
+                animate={{ opacity: 1, scale: 1, clipPath: "inset(0% 0% 0% 0% round 56px)" }}
+                transition={{ duration: shouldReduceMotion ? 0.32 : 1.12, delay: shouldReduceMotion ? 0 : 0.24, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Image
-                  src="/images/logo.png"
-                  alt="TIMILIA"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 360px, 560px"
-                  className="object-contain mix-blend-screen drop-shadow-[0_0_56px_rgba(212,196,168,0.48)]"
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 18, scale: 0.86 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: shouldReduceMotion ? 0.28 : 0.82, delay: shouldReduceMotion ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative h-[clamp(10rem,32svh,20rem)] w-[clamp(10rem,32svh,20rem)]"
+                  style={{
+                    mixBlendMode: "screen",
+                    WebkitMaskImage: "radial-gradient(ellipse 72% 72% at 50% 50%, black 40%, rgba(0,0,0,0.5) 72%, transparent 100%)",
+                    maskImage: "radial-gradient(ellipse 72% 72% at 50% 50%, black 40%, rgba(0,0,0,0.5) 72%, transparent 100%)",
+                  }}
+                >
+                  <Image
+                    src="/images/logo-timilia-original.jpg"
+                    alt="TIMILIA Pizza di Sicilia"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 80vw, 320px"
+                    priority
+                    style={{ filter: "invert(1) brightness(1.08) contrast(1.12)" }}
+                  />
+                </motion.div>
               </motion.div>
 
               <motion.div
                 aria-hidden="true"
-                className="absolute inset-4 overflow-hidden rounded-full mix-blend-screen md:inset-8"
+                className="absolute left-1/2 top-[58%] h-px w-0 -translate-x-1/2 bg-gold/44"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "62%", opacity: 0.44 }}
+                transition={{ duration: shouldReduceMotion ? 0.25 : 0.92, delay: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
+              />
+
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-x-[3%] top-1/2 h-px -translate-y-1/2 overflow-hidden rounded-full bg-gold/20 mix-blend-screen"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: shouldReduceMotion ? 0 : [0, 1, 0] }}
+                transition={{ duration: 1.2, delay: 0.64, ease: "easeOut" }}
               >
                 <motion.div
-                  className="absolute -left-1/2 top-0 h-full w-1/2 skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/45 to-transparent blur-sm"
-                  animate={shouldReduceMotion ? {} : { x: ["0%", "330%"] }}
-                  transition={{ duration: 1.25, delay: 1.05, repeat: Infinity, repeatDelay: 2.35, ease: "easeInOut" }}
+                  className="absolute -left-1/3 top-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white to-transparent blur-sm"
+                  animate={shouldReduceMotion ? {} : { x: ["0%", "420%"] }}
+                  transition={{ duration: 0.9, delay: 0.66, ease: "easeInOut" }}
                 />
               </motion.div>
             </motion.div>
 
-            <motion.button
-              type="button"
-              onClick={enterSite}
-              className="rounded-full border border-gold/25 bg-background/25 px-8 py-4 text-xs uppercase tracking-[0.34em] text-foreground/72 backdrop-blur-xl transition-colors duration-300 hover:border-gold/70 hover:text-gold focus:outline-none focus:ring-2 focus:ring-gold/50"
+            <motion.div
+              className="flex flex-col items-center gap-3"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.75, ease: "easeOut" }}
+              transition={{ duration: shouldReduceMotion ? 0.24 : 0.72, delay: shouldReduceMotion ? 0.12 : 0.98, ease: [0.16, 1, 0.3, 1] }}
             >
-              Entra
-            </motion.button>
-          </motion.div>
+              <div className="overflow-hidden">
+                <motion.p
+                  className="text-[clamp(0.68rem,2.2vw,0.9rem)] uppercase tracking-[0.36em] text-gold-light/82 sm:tracking-[0.54em]"
+                  initial={{ y: "115%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ duration: shouldReduceMotion ? 0.22 : 0.58, delay: shouldReduceMotion ? 0.14 : 1.08, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  Pizza contemporanea siciliana
+                </motion.p>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-1.5 text-[0.56rem] uppercase tracking-[0.2em] text-foreground/38 sm:gap-2.5 sm:text-xs sm:tracking-[0.24em]">
+                {words.map((word, index) => (
+                  <motion.span
+                    key={word}
+                    className="rounded-full border border-gold/12 bg-white/[0.025] px-2.5 py-1.5 backdrop-blur-sm sm:px-3"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0.16 : 0.38, delay: shouldReduceMotion ? 0.14 : 1.18 + index * 0.055, ease: "easeOut" }}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="w-[min(16rem,68vw)]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.36, delay: shouldReduceMotion ? 0.14 : 1.16 }}
+            >
+              <div className="h-px overflow-hidden rounded-full bg-foreground/10">
+                <motion.div
+                  className="h-full origin-left bg-gradient-to-r from-transparent via-gold-light to-transparent"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: shouldReduceMotion ? 0.65 : 2.75, ease: "easeInOut" }}
+                />
+              </div>
+              <p className="mt-2.5 text-[0.56rem] uppercase tracking-[0.28em] text-foreground/28">tocca per saltare</p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/50 to-transparent"
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: shouldReduceMotion ? 0.35 : [0.55, 0.25, 0.6] }}
+            transition={{ duration: 2.8, ease: "easeInOut" }}
+          />
         </motion.div>
       )}
     </AnimatePresence>
