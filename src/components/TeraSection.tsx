@@ -80,7 +80,7 @@ export default function TeraSection() {
               Un&apos;esperienza che nasce dalla ricerca, dalla leggerezza e dall&apos;innovazione. Un impasto studiato per chi cerca il benessere senza compromessi, dove ogni ingrediente selezionato contribuisce a un&apos;esperienza premium gluten free.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               {features.map((feature, i) => (
                 <motion.div
                   key={feature.title}
@@ -99,6 +99,17 @@ export default function TeraSection() {
                 </motion.div>
               ))}
             </div>
+
+            <motion.a
+              href="/tera"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
+              className="inline-flex items-center gap-3 px-7 py-3.5 border border-gold/60 text-gold text-xs tracking-[0.2em] uppercase font-medium hover:bg-gold hover:text-background transition-all duration-500 group"
+            >
+              Esplora il mondo TERA
+              <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+            </motion.a>
           </motion.div>
 
           <motion.div

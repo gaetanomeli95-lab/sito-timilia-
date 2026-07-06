@@ -104,7 +104,7 @@ export default function ProductModal({
             <div className="flex flex-col md:flex-row md:h-[80vh]">
             {/* Image Gallery */}
             {allImages.length > 0 && (
-              <div className="relative w-full md:w-1/2 md:h-full overflow-hidden rounded-t-lg md:rounded-tl-lg md:rounded-tr-none bg-[#111] flex flex-col">
+              <div className="relative w-full md:w-[60%] md:h-full overflow-hidden rounded-t-lg md:rounded-tl-lg md:rounded-tr-none bg-[#111] flex flex-col">
                 <div className="relative w-full h-60 md:h-full flex items-center justify-center flex-1">
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -181,7 +181,7 @@ export default function ProductModal({
             )}
 
             {/* Content */}
-            <div className="flex-1 md:w-1/2 p-6 md:p-8 lg:p-10 overflow-y-auto md:overflow-y-auto scrollbar-hide">
+            <div className="flex-1 md:w-[40%] p-6 md:p-8 lg:p-10 overflow-y-auto md:overflow-y-auto scrollbar-hide">
               <span className="text-gold/70 text-[10px] tracking-[0.3em] uppercase font-medium block mb-3">
                 {categoryTitle}
               </span>
