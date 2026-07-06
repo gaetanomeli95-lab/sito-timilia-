@@ -180,8 +180,8 @@ export default function TeraPage() {
         transition={{ duration: 1.5, ease: "easeOut" }}
         className="relative z-10 w-full h-[50vh] md:h-[70vh] lg:h-[80vh] overflow-hidden"
         style={{
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%), linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 1%, black 99%, transparent 100%), linear-gradient(to right, transparent 0%, black 1%, black 99%, transparent 100%)",
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 1%, black 99%, transparent 100%), linear-gradient(to right, transparent 0%, black 1%, black 99%, transparent 100%)",
           WebkitMaskComposite: "intersect",
           maskComposite: "intersect",
         }}
@@ -194,8 +194,6 @@ export default function TeraPage() {
           sizes="100vw"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#748470]/40 via-transparent to-[#748470]/40" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#748470]/60 via-transparent to-[#748470]/60" />
 
         <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 max-w-2xl px-6 text-center">
           <span className="text-white/80 text-xs tracking-[0.3em] uppercase font-light">
