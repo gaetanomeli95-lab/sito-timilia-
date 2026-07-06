@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
+import SectionBackground from "./SectionBackground";
 
 const details = [
   { label: "Packaging", desc: "Design minimal e materiali di qualità per un'esperienza che inizia prima del primo assaggio." },
@@ -12,36 +13,12 @@ const details = [
 ];
 
 export default function BrandDetails() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <section id="brand" ref={ref} className="relative py-24 md:py-40 overflow-hidden">
-      <div
-        className="absolute inset-0"
-        style={{
-          WebkitMaskImage:
-            "linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
-          maskImage:
-            "linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
-        }}
-      >
-        <Image
-          src="/images/sfondi/4.png"
-          alt="Sfondo"
-          fill
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.5) 12%, rgba(5,5,5,0.5) 88%, rgba(5,5,5,0.92) 100%)",
-          }}
-        />
-        <div className="section-glow" />
-      </div>
+      <SectionBackground src="/images/sfondi/4.png" />
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col gap-12 lg:gap-20">
           <motion.div

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Phone, MapPin, Clock, Instagram, Facebook, Star, MessageCircle } from "lucide-react";
 
 export default function Footer() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (

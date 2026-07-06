@@ -32,7 +32,7 @@ function AnimatedNumber({ target, suffix = "", trigger }: { target: number; suff
 }
 
 export default function FounderSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (

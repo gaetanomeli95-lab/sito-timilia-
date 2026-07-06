@@ -30,7 +30,7 @@ const features = [
 ];
 
 export default function TeraSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (

@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section id="hero" className="relative h-screen w-full overflow-hidden">
+    <section id="hero" className="relative h-[100svh] w-full overflow-hidden">
       <div
         className="absolute inset-0"
         style={{

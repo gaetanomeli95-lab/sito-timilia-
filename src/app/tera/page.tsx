@@ -30,11 +30,11 @@ const proprieta = [
 ];
 
 export default function TeraPage() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const farineRef = useRef(null);
+  const farineRef = useRef<HTMLDivElement>(null);
   const farineInView = useInView(farineRef, { once: true, margin: "-50px" });
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
