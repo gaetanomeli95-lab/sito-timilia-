@@ -146,7 +146,7 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
               className="relative flex h-[clamp(15rem,48svh,30rem)] w-[min(92vw,44rem)] items-center justify-center"
               initial={{ opacity: 0, scale: 0.86, y: 18, filter: shouldReduceMotion ? "none" : "blur(18px)" }}
               animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: shouldReduceMotion ? 0.3 : 1.05, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: shouldReduceMotion ? 0.3 : 1.25, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
             >
               <motion.div
                 aria-hidden="true"
@@ -160,19 +160,19 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                 className="absolute left-1/2 top-[42%] h-[42%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 blur-2xl mix-blend-screen"
                 initial={{ opacity: 0, scaleX: 0.3 }}
                 animate={{ opacity: shouldReduceMotion ? 0.22 : [0, 0.52, 0.18], scaleX: [0.3, 1, 0.82] }}
-                transition={{ duration: shouldReduceMotion ? 0.45 : 1.4, delay: 0.42, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: shouldReduceMotion ? 0.45 : 1.7, delay: 0.52, ease: [0.16, 1, 0.3, 1] }}
               />
 
               <motion.div
                 className="absolute inset-0 flex items-center justify-center"
                 initial={{ opacity: 0, scale: 0.94, clipPath: "inset(45% 18% 45% 18% round 999px)" }}
                 animate={{ opacity: 1, scale: 1, clipPath: "inset(0% 0% 0% 0% round 56px)" }}
-                transition={{ duration: shouldReduceMotion ? 0.32 : 1.12, delay: shouldReduceMotion ? 0 : 0.24, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: shouldReduceMotion ? 0.32 : 1.35, delay: shouldReduceMotion ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] }}
               >
                 <motion.div
                   initial={{ opacity: 0, y: 18, scale: 0.86 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: shouldReduceMotion ? 0.28 : 0.82, delay: shouldReduceMotion ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: shouldReduceMotion ? 0.28 : 1.0, delay: shouldReduceMotion ? 0 : 0.38, ease: [0.16, 1, 0.3, 1] }}
                   className="relative h-[clamp(10rem,32svh,20rem)] w-[clamp(10rem,32svh,20rem)]"
                   style={{
                     mixBlendMode: "screen",
@@ -187,7 +187,6 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                     className="object-contain"
                     sizes="(max-width: 768px) 80vw, 320px"
                     priority
-                    style={{ filter: "invert(1) brightness(1.08) contrast(1.12)" }}
                   />
                 </motion.div>
               </motion.div>
@@ -197,7 +196,7 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                 className="absolute left-1/2 top-[58%] h-px w-0 -translate-x-1/2 bg-gold/44"
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: "62%", opacity: 0.44 }}
-                transition={{ duration: shouldReduceMotion ? 0.25 : 0.92, delay: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: shouldReduceMotion ? 0.25 : 1.1, delay: shouldReduceMotion ? 0 : 0.72, ease: [0.16, 1, 0.3, 1] }}
               />
 
               <motion.div
@@ -205,12 +204,12 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                 className="absolute inset-x-[3%] top-1/2 h-px -translate-y-1/2 overflow-hidden rounded-full bg-gold/20 mix-blend-screen"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: shouldReduceMotion ? 0 : [0, 1, 0] }}
-                transition={{ duration: 1.2, delay: 0.64, ease: "easeOut" }}
+                transition={{ duration: 1.4, delay: 0.74, ease: "easeOut" }}
               >
                 <motion.div
                   className="absolute -left-1/3 top-0 h-full w-1/3 bg-gradient-to-r from-transparent via-white to-transparent blur-sm"
                   animate={shouldReduceMotion ? {} : { x: ["0%", "420%"] }}
-                  transition={{ duration: 0.9, delay: 0.66, ease: "easeInOut" }}
+                  transition={{ duration: 1.1, delay: 0.76, ease: "easeInOut" }}
                 />
               </motion.div>
             </motion.div>
@@ -219,14 +218,14 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
               className="flex flex-col items-center gap-3"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: shouldReduceMotion ? 0.24 : 0.72, delay: shouldReduceMotion ? 0.12 : 0.98, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: shouldReduceMotion ? 0.24 : 0.82, delay: shouldReduceMotion ? 0.12 : 1.28, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="overflow-hidden">
                 <motion.p
                   className="text-[clamp(0.68rem,2.2vw,0.9rem)] uppercase tracking-[0.36em] text-gold-light/82 sm:tracking-[0.54em]"
                   initial={{ y: "115%" }}
                   animate={{ y: "0%" }}
-                  transition={{ duration: shouldReduceMotion ? 0.22 : 0.58, delay: shouldReduceMotion ? 0.14 : 1.08, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: shouldReduceMotion ? 0.22 : 0.68, delay: shouldReduceMotion ? 0.14 : 1.38, ease: [0.16, 1, 0.3, 1] }}
                 >
                   Pizza contemporanea siciliana
                 </motion.p>
@@ -239,7 +238,7 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
                     className="rounded-full border border-gold/12 bg-white/[0.025] px-2.5 py-1.5 backdrop-blur-sm sm:px-3"
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: shouldReduceMotion ? 0.16 : 0.38, delay: shouldReduceMotion ? 0.14 : 1.18 + index * 0.055, ease: "easeOut" }}
+                    transition={{ duration: shouldReduceMotion ? 0.16 : 0.42, delay: shouldReduceMotion ? 0.14 : 1.48 + index * 0.06, ease: "easeOut" }}
                   >
                     {word}
                   </motion.span>
@@ -251,14 +250,14 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
               className="w-[min(16rem,68vw)]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.36, delay: shouldReduceMotion ? 0.14 : 1.16 }}
+              transition={{ duration: 0.36, delay: shouldReduceMotion ? 0.14 : 1.46 }}
             >
               <div className="h-px overflow-hidden rounded-full bg-foreground/10">
                 <motion.div
                   className="h-full origin-left bg-gradient-to-r from-transparent via-gold-light to-transparent"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ duration: shouldReduceMotion ? 0.65 : 2.75, ease: "easeInOut" }}
+                  transition={{ duration: shouldReduceMotion ? 0.65 : 4.0, ease: "easeInOut" }}
                 />
               </div>
               <p className="mt-2.5 text-[0.56rem] uppercase tracking-[0.28em] text-foreground/28">tocca per saltare</p>
