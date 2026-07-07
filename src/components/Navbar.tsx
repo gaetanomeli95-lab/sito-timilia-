@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu as MenuIcon, X, Instagram, Facebook } from "lucide-react";
+import { Menu as MenuIcon, X, Instagram, Facebook, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import CustomerAuthModal from "./CustomerAuthModal";
+import LanguageSelector from "./LanguageSelector";
 
 const navLinks = [
   { href: "#hero", label: "Home", type: "anchor" },
@@ -12,12 +14,14 @@ const navLinks = [
   { href: "#tera", label: "Tera", type: "anchor" },
   { href: "/menu", label: "Menu", type: "route" },
   { href: "#brand", label: "Brand", type: "anchor" },
+  { href: "#recensioni", label: "Recensioni", type: "anchor" },
   { href: "#contatti", label: "Contatti", type: "anchor" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const router = useRouter();
 
@@ -28,7 +32,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sections = ["hero", "ambient", "tera", "menu", "brand", "contatti"];
+    const sections = ["hero", "ambient", "tera", "menu", "brand", "recensioni", "contatti"];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -50,6 +54,10 @@ export default function Navbar() {
     if (link.type === "route") {
       e.preventDefault();
       setMenuOpen(false);
+      const currentPath = window.location.pathname;
+      if (window.scrollY > 0) {
+        sessionStorage.setItem(`scroll:${currentPath}`, String(window.scrollY));
+      }
       router.push(link.href);
       return;
     }
@@ -68,14 +76,14 @@ export default function Navbar() {
             : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <a href="#hero" className="flex items-center gap-3 group">
               <Image
                 src="/images/logo-timilia-original.jpg"
                 alt="TIMILIA"
-                width={40}
-                height={40}
+                width={52}
+                height={52}
                 className="object-contain transition-transform duration-500 group-hover:scale-110"
               />
               <span className="text-foreground font-semibold tracking-[0.2em] text-sm uppercase">
@@ -107,7 +115,15 @@ export default function Navbar() {
               })}
             </div>
 
-            <div className="hidden md:flex items-center gap-4 ml-2 pl-6 border-l border-white/10">
+            <div className="hidden md:flex items-center gap-3 ml-2 pl-6 border-l border-white/10">
+              <LanguageSelector />
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
+                aria-label="Accedi / Registrati"
+              >
+                <User size={18} strokeWidth={1.5} />
+              </button>
               <a
                 href="https://www.instagram.com/pizzatimilia/"
                 target="_blank"
@@ -187,6 +203,17 @@ export default function Navbar() {
                 transition={{ delay: 0.6 }}
                 className="flex items-center gap-6 mt-4"
               >
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setAuthOpen(true);
+                  }}
+                  className="flex items-center gap-2 text-foreground/50 hover:text-gold transition-colors"
+                  aria-label="Accedi / Registrati"
+                >
+                  <User size={24} strokeWidth={1.5} />
+                  <span className="text-sm tracking-wide">Accedi</span>
+                </button>
                 <a
                   href="https://www.instagram.com/pizzatimilia/"
                   target="_blank"
@@ -206,10 +233,19 @@ export default function Navbar() {
                   <Facebook size={24} strokeWidth={1.5} />
                 </a>
               </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="mt-4"
+              >
+                <LanguageSelector />
+              </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      <CustomerAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }

@@ -4,16 +4,19 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import Image from "next/image";
 import type { MenuItem } from "@/data/menuData";
+import { categoryDietary } from "@/data/menuMeta";
 
 type LargeProductCardProps = {
   item: MenuItem;
   catTitle: string;
+  catId: string;
   onOpen: (item: MenuItem, cat: string) => void;
 };
 
 export default function LargeProductCard({
   item,
   catTitle,
+  catId,
   onOpen,
 }: LargeProductCardProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -132,6 +135,26 @@ export default function LargeProductCard({
           <p className="relative text-[#f5f0e8]/30 text-[10px] tracking-wide mt-3 font-light">
             {item.note}
           </p>
+        )}
+        {categoryDietary[catId] && (
+          <div className="relative flex flex-wrap gap-1.5 sm:gap-2 mt-3">
+            {categoryDietary[catId].map((badge, i) => {
+              const isGuaranteed = badge.type === "gf" || badge.type === "lf";
+              return (
+                <span
+                  key={i}
+                  className={`inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs tracking-wide font-medium border ${
+                    isGuaranteed
+                      ? "bg-gold/12 border-gold/35 text-[#f5f0e8]/90"
+                      : "bg-white/[0.03] border-white/12 text-[#f5f0e8]/50"
+                  }`}
+                >
+                  <span className="text-sm leading-none">{badge.emoji}</span>
+                  {badge.label}
+                </span>
+              );
+            })}
+          </div>
         )}
         <div className="relative mt-4 flex items-center gap-2 text-gold/0 group-hover:text-gold/60 transition-colors duration-500">
           <span className="text-[10px] tracking-[0.2em] uppercase font-light">Scopri</span>

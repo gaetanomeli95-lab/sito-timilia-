@@ -1,13 +1,16 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Phone, MapPin, Clock, Instagram, Facebook, Star, MessageCircle } from "lucide-react";
+import NewsletterSignup from "./NewsletterSignup";
+import CustomerAuthModal from "./CustomerAuthModal";
 
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <footer id="contatti" ref={ref} className="relative overflow-hidden border-t border-white/5">
@@ -27,12 +30,12 @@ export default function Footer() {
           }}
         />
       </div>
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-24 md:py-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-6"
         >
           <div className="lg:col-span-1">
             <Image
@@ -100,11 +103,27 @@ export default function Footer() {
               <div className="flex items-start gap-3 text-foreground/50">
                 <MapPin size={16} strokeWidth={1.5} className="text-gold/60 mt-1 shrink-0" />
                 <span className="text-sm font-light">
-                  Via Maqueda, 213<br />
+                  Via Maqueda, 221<br />
                   90133 Palermo PA
                 </span>
               </div>
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-foreground text-xs tracking-[0.2em] uppercase font-medium mb-6">
+              Newsletter
+            </h3>
+            <p className="text-foreground/40 text-xs font-light mb-4 leading-relaxed">
+              Novità, eventi e offerte speciali.
+            </p>
+            <NewsletterSignup />
+            <button
+              onClick={() => setAuthOpen(true)}
+              className="mt-4 text-foreground/40 text-xs font-light hover:text-gold transition-colors"
+            >
+              Registrati / Accedi
+            </button>
           </div>
 
           <div>
@@ -129,6 +148,7 @@ export default function Footer() {
                 { label: "Home", href: "#hero" },
                 { label: "Tera", href: "#tera" },
                 { label: "Menu", href: "/menu" },
+                { label: "Recensioni", href: "#recensioni" },
                 { label: "Contatti", href: "#contatti" },
               ].map((link) => (
                 <a
@@ -153,10 +173,11 @@ export default function Footer() {
             © {new Date().getFullYear()} TIMILIA – Pizza di Sicilia. Tutti i diritti riservati.
           </p>
           <p className="text-foreground/20 text-xs font-light">
-            Via Maqueda 213, Palermo
+            Via Maqueda 221, Palermo
           </p>
         </motion.div>
       </div>
+      <CustomerAuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </footer>
   );
 }

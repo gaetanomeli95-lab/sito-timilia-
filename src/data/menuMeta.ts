@@ -60,3 +60,57 @@ export const categoryDescriptions: Record<string, string> = {
   cocktail: "Spritz, cocktail classici e signature.",
   aggiunzioni: "Aggiunte e personalizzazioni per la tua pizza.",
 };
+
+export type DietaryBadge = {
+  label: string;
+  type: "gf" | "gf-option" | "lf" | "lf-option";
+  emoji: string;
+};
+
+export const categoryDietary: Record<string, DietaryBadge[]> = {
+  antipasti: [
+    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
+    { label: "Senza Lattosio", type: "lf", emoji: "🥛" },
+  ],
+  "passi-dautore": [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  "le-storiche": [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  "le-classiche": [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  buffalotti: [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  crusta: [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  "le-vegane": [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  "rotundi-casseruola": [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  insalate: [
+    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
+    { label: "Pane anche senza glutine", type: "gf-option", emoji: "🍞" },
+  ],
+  hamburger: [
+    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
+    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+  ],
+  dolci: [
+    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
+    { label: "Senza Lattosio", type: "lf", emoji: "🥛" },
+  ],
+  "birre-sg": [{ label: "Senza Glutine", type: "gf", emoji: "🌾" }],
+};

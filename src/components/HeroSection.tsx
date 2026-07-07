@@ -80,7 +80,7 @@ export default function HeroSection() {
           className="flex flex-col sm:flex-row gap-4"
         >
           <a
-            href="https://maps.google.com/?q=Via+Maqueda+213+Palermo"
+            href="https://maps.google.com/?q=Via+Maqueda+221+Palermo"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-4 bg-gold text-background text-xs tracking-[0.2em] uppercase font-semibold hover:bg-gold-light transition-colors duration-300"
@@ -101,7 +101,7 @@ export default function HeroSection() {
           transition={{ duration: 1, delay: 1.9, ease: "easeOut" }}
           className="mt-6 text-foreground/40 text-xs font-light tracking-[0.1em]"
         >
-          Turno unico, posti limitati. Via Maqueda 213, Palermo.
+          Turno unico, posti limitati. Via Maqueda 221, Palermo.
         </motion.p>
       </div>
 

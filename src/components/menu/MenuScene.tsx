@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowLeft, ChevronUp } from "lucide-react";
 import { menuCategories, MenuItem } from "@/data/menuData";
-import { previewImages, categoryDescriptions } from "@/data/menuMeta";
+import { previewImages, categoryDescriptions, categoryDietary } from "@/data/menuMeta";
 import ProductModal from "./ProductModal";
 import CategoryRow from "./CategoryRow";
 import LargeProductCard from "./LargeProductCard";
 
 export default function MenuScene() {
+  const router = useRouter();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [selectedCat, setSelectedCat] = useState<number | null>(0);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
@@ -102,10 +103,13 @@ export default function MenuScene() {
       />
 
       <header className="relative z-20 flex items-center justify-between px-5 lg:px-10 pt-5 pb-3" data-enter>
-        <Link href="/" className="flex items-center gap-2 text-[#f5f0e8]/55 hover:text-gold transition-colors text-[10px] tracking-[0.2em] uppercase font-medium">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-[#f5f0e8]/55 hover:text-gold transition-colors text-[10px] tracking-[0.2em] uppercase font-medium"
+        >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Torna al sito</span>
-        </Link>
+        </button>
         <span className="text-gold/70 text-[10px] tracking-[0.4em] uppercase font-medium">
           Timilia
         </span>
@@ -142,6 +146,26 @@ export default function MenuScene() {
             <p className="text-[#f5f0e8]/45 text-[11px] lg:text-sm font-light leading-relaxed line-clamp-1 mt-1 max-w-[60vw] lg:max-w-md">
               {categoryDescriptions[category?.id] ?? category?.subtitle}
             </p>
+            {categoryDietary[category?.id] && (
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 mt-3 sm:mt-4">
+                {categoryDietary[category.id].map((badge, i) => {
+                  const isGuaranteed = badge.type === "gf" || badge.type === "lf";
+                  return (
+                    <span
+                      key={i}
+                      className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm tracking-wide font-medium border transition-all ${
+                        isGuaranteed
+                          ? "bg-gold/15 border-gold/40 text-[#f5f0e8] shadow-[0_0_20px_rgba(200,169,126,0.15)]"
+                          : "bg-white/[0.04] border-white/15 text-[#f5f0e8]/60"
+                      }`}
+                    >
+                      <span className="text-sm sm:text-base leading-none">{badge.emoji}</span>
+                      {badge.label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div className="hidden sm:flex flex-col items-end gap-1">
             <span className="text-gold/70 text-xs font-light">
@@ -225,6 +249,7 @@ export default function MenuScene() {
                     key={i}
                     item={item}
                     catTitle={expandedCategory.title}
+                    catId={expandedCategory.id}
                     onOpen={handleOpenProduct}
                   />
                 ))}

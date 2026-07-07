@@ -28,7 +28,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "antipasti",
     title: "Antipasti",
-    subtitle: 'Con il nostro "Stritti Fuddi" potrai gustare la vera essenza dello street food siciliano.',
+    subtitle: 'Con il nostro "Stritti Fuddi" potrai gustare la vera essenza dello street food siciliano. Tutti gli antipasti sono senza glutine e senza lattosio.',
     items: [
       { name: '"U STRITTI FUDDI PALERMITANO"', description: "Arancine carne e burro, panelle*, crocchè*", price: 9.0, note: "Allergeni 6-7-9", image: "/images/menu/nuovo-antipasti-stritti-fuddi.png", images: ["/images/menu/nuovo-antipasti-stritti-fuddi.png", "/images/menu/nuovo-antipasti-stritti-fuddi-2.png"] },
       { name: "FOCACCINE VASTASE (4PZ)", description: "Focaccine farcite con ingredienti scelti e particolarmente golosi", price: 14.0, note: "Allergene 1", image: "/images/menu/antipasti-FOCACCINE_VASTASE_4PZ.jpg" },
@@ -48,7 +48,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "passi-dautore",
     title: "Passi d'Autore",
-    subtitle: "Abbiamo studiato con cura ogni ingrediente, cercando l'equilibrio perfetto tra qualità e gusto.",
+    subtitle: "Abbiamo studiato con cura ogni ingrediente, cercando l'equilibrio perfetto tra qualità e gusto. Tutte le pizze sono disponibili anche senza glutine.",
     items: [
       { name: "CAMURRIA", description: "Fiordilatte belmontese. In uscita: prosciutto crudo 30 mesi, burrata, pomodorini confit, basilico cristallizzato, miele di acacia", price: 17.0, note: "Allergeni 1-7", image: "/images/menu/passi-CAMURRIA.jpg" },
       { name: "MUNZIGNARA", description: "Datterino giallo e rosso in salsa di basilico. In uscita: bufala DOP a stracci, prosciutto crudo 30 mesi, scaglie di pecorino maremmano", price: 17.5, note: "Allergeni 1-7", image: "/images/menu/passi-MUNZIGNARA.jpg" },
@@ -68,7 +68,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "le-storiche",
     title: "Le Storiche",
-    subtitle: "Le pizze che hanno scritto la nostra storia: intramontabili, riconoscibili, amate da sempre.",
+    subtitle: "Le pizze che hanno scritto la nostra storia: intramontabili, riconoscibili, amate da sempre. Tutte le pizze sono disponibili anche senza glutine.",
     items: [
       { name: "PANORMUS", description: "Fiordilatte belmontese, provola Valpadana DOP, patate novelle cotte al forno. In uscita: pesto di pistacchio NP", price: 13.5, note: "Allergeni 1-5-7-8", image: "/images/menu/storiche-PANORMUS.jpg" },
       { name: "FILICUDI", description: "Fiordilatte belmontese, zucca rossa agrodolce, cipolla di Giarratana. In uscita: burrata, prosciutto crudo 30 mesi", price: 17.0, note: "Allergeni 1-7-12", image: "/images/menu/storiche-FILICUDI.jpg" },
@@ -84,6 +84,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "le-classiche",
     title: "Le Classiche",
+    subtitle: "Le pizze classiche che non deludono mai. Tutte le pizze sono disponibili anche senza glutine.",
     items: [
       { name: "MARINARA", description: "Pomodoro pelato siccagno, filetti di acciughe di Sciacca, aglio, olio EVO, origano. A scelta: filetti di alici lavorati a mano e rifilati a forbice servita a parte +7€", price: 9.0, note: "Allergeni 1-4", image: "/images/menu/classiche-MARINARA.jpg" },
       { name: "MARGHERITA", description: "Fiordilatte belmontese, pomodoro pelato siccagno, basilico", price: 9.5, note: "Allergeni 1-7", image: "/images/menu/classiche-MARGHERITA.jpg" },
@@ -100,7 +101,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "buffalotti",
     title: "Buffalotti",
-    subtitle: "I Buffalotti sono calzoni dal gusto ricco e irresistibile, caratterizzati da una doppia farcitura sia interna che esterna.",
+    subtitle: "I Buffalotti sono calzoni dal gusto ricco e irresistibile, caratterizzati da una doppia farcitura sia interna che esterna. Tutti i buffalotti sono disponibili anche senza glutine.",
     items: [
       { name: "CU CRUDU", description: "Bufala DOP, pomodorini confit, philadelphia. In uscita: crema di funghi, prosciutto crudo 30 mesi, Grana Padano 24 mesi, rucola", price: 19.5, note: "Allergeni 1-3-7", image: "/images/menu/buffalotti-CU_CRUDU.jpg" },
       { name: "FINOCCHIONE", description: "Bufala DOP, mascarpone, pomodorini confit. In uscita: stracciatella, finocchiona, cacio di Caterina, fichi", price: 21.0, note: "Allergeni 1-7", image: "/images/menu/buffalotti-FINOCCHIONE.jpg" },
@@ -110,7 +111,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "crusta",
     title: "Crusta",
-    subtitle: "La pizza crusta, con la sua base croccante e leggera, è una reinterpretazione moderna della tradizione.",
+    subtitle: "La pizza crusta, con la sua base croccante e leggera, è una reinterpretazione moderna della tradizione. Tutte le crusta sono disponibili anche senza glutine.",
     items: [
       { name: "CAZZICATUMMULA", description: "Provola di Agerola. In uscita: coppata dei Nebrodi, pomodorini confit, Riserva del Fondatore DOP, confettura di fichi", price: 15.0, note: "Allergeni 1-7", image: "/images/menu/crusta-CAZZICATUMMULA.jpg" },
       { name: "TIMPULATA", description: "Fiordilatte, crema di melanzane. In uscita: coppata, fonduta di Grana Padano 24 mesi, scaglie di tartufo", price: 19.0, note: "Allergeni 1-3-7", image: "/images/menu/nuovo-crusta-timpulata.png", images: ["/images/menu/nuovo-crusta-timpulata.png", "/images/menu/nuovo-crusta-timpulata-2.png", "/images/menu/nuovo-crusta-timpulata-3.png", "/images/menu/nuovo-crusta-timpulata-4.png"] },
@@ -121,7 +122,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "le-vegane",
     title: "Le Vegane",
-    subtitle: "Le nostre pizze vegane nascono dal desiderio di offrire proposte che rispettino le diverse esigenze alimentari, senza rinunciare alla qualità e al piacere della tavola.",
+    subtitle: "Le nostre pizze vegane nascono dal desiderio di offrire proposte che rispettino le diverse esigenze alimentari, senza rinunciare alla qualità e al piacere della tavola. Tutte le pizze sono disponibili anche senza glutine.",
     items: [
       { name: "ATTUMMULIATA", description: "Salsa di noci, besciamella vegetale, funghi champignon e porcini, aglio, olio al tartufo a fine cottura", price: 15.0, note: "Allergeni 1-8" },
       { name: "PATATÌ", description: "Patate novelle cotte al forno. In uscita: pesto di pistacchio NP", price: 9.5, note: "Allergeni 1-5-8-12", image: "/images/menu/vegane-PATAT.jpg" },
@@ -131,6 +132,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "rotundi-casseruola",
     title: "I Rotundi in Casseruola",
+    subtitle: "Tutti i rotundi sono disponibili anche senza glutine.",
     items: [
       { name: "AL COTTO", description: "Prosciutto cotto scelto lenta cottura, provola di Agerola, burro fresco", price: 9.5, note: "Allergeni 1-7" },
       { name: "AL POLLO", description: "Pollo grigliato, caciotta fresca di vaccino, iceberg, pomodoro a fette, maionese", price: 10.5, note: "Allergeni 1-3-7-12" },
@@ -140,6 +142,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "insalate",
     title: "Insalate",
+    subtitle: "Tutte le insalate sono senza glutine. Il pane è disponibile anche senza glutine.",
     items: [
       { name: "POLLO E SCAGLIE", description: "Iceberg, pomodorini confit, bufala DOP, pollo arrosto, crostini di pane tostato al burro, scaglie di pecorino maremmano", price: 14.5, note: "Allergeni 1-7", image: "/images/menu/insalate-POLLO_E_SCAGLIE.jpg" },
       { name: "INSALATA PANORMUS", description: "Patate novelle dorate al forno, olive nere denocciolate, straccetti di pomodoro semi-secco, chips fritte di zucchine genovesi, letto di fonduta di pistacchio NP", price: 13.5, note: "Allergeni 5-8-12" },
@@ -149,6 +152,7 @@ export const menuCategories: MenuCategory[] = [
   {
     id: "hamburger",
     title: "Burger d'Autore",
+    subtitle: "Tutti i burger sono disponibili anche senza glutine.",
     items: [
       { name: "FRUSCIU", description: "Hamburger di Scottona 180g, provola di Agerola, bacon croccante, pomodoro a fette, lattuga, maionese", price: 11.0, note: "Allergeni 1-3-7-12" },
       { name: "CURTIGGHIARU", description: "Hamburger di Scottona 180g, scamorza affumicata, coppata dei Nebrodi, cipolla caramellata, miele di acacia", price: 12.0, note: "Allergeni 1-7" },

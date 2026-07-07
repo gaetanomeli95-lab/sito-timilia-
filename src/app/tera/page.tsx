@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import TeraWordmark from "@/components/TeraWordmark";
 import TeraFeatureModal, { type TeraFeatureContent } from "@/components/TeraFeatureModal";
+import TeraShop from "@/components/TeraShop";
 import { ArrowLeft, WheatOff, FlaskConical, Leaf, Heart, Sparkles, ArrowRight, Microscope, Compass, Sun, Sprout } from "lucide-react";
 
 const farine: TeraFeatureContent[] = [
@@ -272,24 +273,16 @@ export default function TeraPage() {
           priority
         />
 
-        <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 max-w-2xl px-6 text-center">
-          <span className="text-white/80 text-xs tracking-[0.3em] uppercase font-light">
-            Timilia · Tera
-          </span>
-          <p className="mt-3 text-white/70 text-sm md:text-base font-light leading-relaxed">
-            L&apos;incontro tra il fuoco di Timilia e la purezza di TERA: una ricerca che diventa identità.
-          </p>
-        </div>
       </motion.div>
 
       {/* Contenuto */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8 pb-24">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
         {/* Racconto — La storia */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-          className="space-y-6 mb-24"
+          className="space-y-5 md:space-y-6 mb-16 md:mb-24"
         >
           <div className="flex items-center gap-3 mb-2">
             <div className="h-px w-10 bg-white/30" />
@@ -297,34 +290,40 @@ export default function TeraPage() {
               La storia
             </span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-wide text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-light tracking-wide text-white mb-4 md:mb-6">
             Quando la pizza senza glutine<br />diventa gourmet
           </h2>
-          <p className="text-white/70 text-base md:text-lg font-light leading-relaxed">
+          <p className="text-white/70 text-sm md:text-base lg:text-lg font-light leading-relaxed">
             C'è una cosa che sicuramente preoccupa il 90% delle persone intolleranti al glutine:
             non poter mangiare più una vera pizza! Fino a pochi anni fa era impossibile poterne
             mangiare una gluten-free che avesse lo stesso sapore e l'identico aspetto di una pizza
             contenente glutine.
           </p>
-          <p className="text-white/70 text-base md:text-lg font-light leading-relaxed">
+          <p className="text-white/70 text-sm md:text-base lg:text-lg font-light leading-relaxed">
             Inizialmente, la scarsa conoscenza di prodotti naturali, freschi e genuini da poter
             utilizzare per la realizzazione di impasti di buona qualità ha fatto sì che la pizza
             per celiaci fosse considerata da tutti non buona, non appetibile e diversa.
           </p>
-          <p className="text-white/70 text-base md:text-lg font-light leading-relaxed">
+          <p className="text-white/70 text-sm md:text-base lg:text-lg font-light leading-relaxed">
             Grazie all'evoluzione e alla ricerca scientifica si è continuato a lavorare sodo. Ad
             oggi, Timilia è assolutamente in grado di offrire una soluzione degna di essere
             considerata gourmet: la pizza senza glutine può essere di altissimo livello. È proprio
             questa l'essenza di Tera: <span className="text-white font-medium">raggiungere l'eccellenza del gluten-free</span>.
           </p>
         </motion.div>
+      </div>
 
+      {/* Shop TERA — blend senza glutine, dopo la storia */}
+      <TeraShop />
+
+      {/* Contenuto — proprietà e farine */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
         {/* Proprietà nutrizionali — card moderne */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-          className="mb-24"
+          className="mb-16 md:mb-24"
         >
           <div className="flex items-center gap-3 mb-2">
             <div className="h-px w-10 bg-white/30" />
@@ -332,10 +331,10 @@ export default function TeraPage() {
               Proprietà
             </span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-wide text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-light tracking-wide text-white mb-3 md:mb-4">
             Nutrizione d'eccellenza
           </h2>
-          <p className="text-white/50 text-sm font-light mb-10 max-w-xl">
+          <p className="text-white/50 text-sm font-light mb-8 md:mb-10 max-w-xl">
             Tera possiede un ricco quantitativo di vitamine quali calcio, magnesio, zinco, fosforo e ferro.
             Un notevole apporto di fibre e un basso contenuto glicemico.
           </p>
@@ -352,7 +351,7 @@ export default function TeraPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={farineInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="mb-24"
+          className="mb-16 md:mb-24"
         >
           <div className="flex items-center gap-3 mb-2">
             <Sparkles className="w-4 h-4 text-white/60" />
@@ -360,10 +359,10 @@ export default function TeraPage() {
               Il blend Timilia
             </span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-light tracking-wide text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-light tracking-wide text-white mb-3 md:mb-4">
             Le farine che usiamo
           </h2>
-          <p className="text-white/50 text-sm font-light mb-10 max-w-xl">
+          <p className="text-white/50 text-sm font-light mb-8 md:mb-10 max-w-xl">
             Un blend esclusivo studiato da Timilia: sorgo, saraceno, miglio e piselli per un impasto
             leggero, digeribile e gustoso. Il basso contenuto glicemico è dettato dalla presenza
             di questi cereali antichi.
@@ -380,14 +379,14 @@ export default function TeraPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={farineInView ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-          className="text-center py-20 mb-20 relative"
+          className="text-center py-12 md:py-20 mb-12 md:mb-20 relative"
         >
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-[120px] md:text-[200px] font-light text-white/[0.04] leading-none select-none">
               "
             </div>
           </div>
-          <p className="relative text-white/90 text-2xl md:text-4xl font-light italic leading-relaxed max-w-3xl mx-auto">
+          <p className="relative text-white/90 text-xl sm:text-2xl md:text-4xl font-light italic leading-relaxed max-w-3xl mx-auto">
             Ma siamo sicuri che sia senza glutine?
           </p>
           <p className="text-white/50 text-sm md:text-base font-light mt-6 max-w-xl mx-auto leading-relaxed">
@@ -402,7 +401,7 @@ export default function TeraPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={farineInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-          className="border-t border-white/10 pt-16 mb-16"
+          className="border-t border-white/10 pt-12 md:pt-16 mb-12 md:mb-16"
         >
           <div className="flex items-center gap-3 mb-8">
             <div className="h-px w-10 bg-white/30" />
@@ -410,7 +409,7 @@ export default function TeraPage() {
               Il Maestro Giuseppe D&apos;Angelo
             </span>
           </div>
-          <div className="flex flex-col md:flex-row gap-10">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-10">
             <div className="md:w-1/3">
               <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-white/5">
                 <Image
@@ -446,8 +445,10 @@ export default function TeraPage() {
             </div>
           </div>
         </motion.div>
+      </div>
 
-        {/* CTA finale */}
+      {/* CTA finale */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={farineInView ? { opacity: 1, y: 0 } : {}}
