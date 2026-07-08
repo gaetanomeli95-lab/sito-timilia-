@@ -31,6 +31,28 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Save active section to localStorage when it changes
+  useEffect(() => {
+    if (activeSection && window.location.pathname === "/") {
+      localStorage.setItem('timilia_active_section', activeSection);
+    }
+  }, [activeSection]);
+
+  // Restore scroll to saved section when returning to homepage
+  useEffect(() => {
+    if (window.location.pathname === "/") {
+      const savedSection = localStorage.getItem('timilia_active_section');
+      if (savedSection && savedSection !== "hero") {
+        const element = document.getElementById(savedSection);
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }, 300);
+        }
+      }
+    }
+  }, []);
+
 
   useEffect(() => {
     const sections = ["hero", "ambient", "tera", "menu", "brand", "recensioni", "contatti"];

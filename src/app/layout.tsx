@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import ScrollRestoration from "@/components/ScrollRestoration";
 import GoogleTranslateScript from "@/components/GoogleTranslateScript";
 
 const outfit = Outfit({
@@ -60,7 +59,6 @@ export default function RootLayout({
       className={`${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ScrollRestoration />
         <GoogleTranslateScript />
         <script
           type="application/ld+json"
