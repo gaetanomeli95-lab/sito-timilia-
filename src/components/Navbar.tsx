@@ -26,61 +26,11 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-      // Save scroll position continuously
-      if (window.location.pathname === "/") {
-        localStorage.setItem('timilia_home_scroll', String(window.scrollY));
-      }
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Restore scroll position when returning to homepage
-  useEffect(() => {
-    const restoreScroll = () => {
-      const currentPath = window.location.pathname;
-      if (currentPath === "/") {
-        const savedScroll = localStorage.getItem('timilia_home_scroll');
-        
-        if (savedScroll) {
-          const scrollY = parseInt(savedScroll, 10);
-          
-          if (scrollY > 0) {
-            console.log('[Scroll Restore] Restoring to:', scrollY);
-            // Force scroll restoration with multiple attempts
-            const forceScroll = () => {
-              window.scrollTo(0, scrollY);
-              document.documentElement.scrollTop = scrollY;
-              document.body.scrollTop = scrollY;
-            };
-            
-            forceScroll();
-            setTimeout(forceScroll, 100);
-            setTimeout(forceScroll, 300);
-            setTimeout(forceScroll, 500);
-          }
-        }
-      }
-    };
-
-    // Try to restore on mount
-    restoreScroll();
-    
-    // Also try on route changes
-    const handleRouteChange = () => {
-      setTimeout(restoreScroll, 50);
-    };
-
-    window.addEventListener('popstate', handleRouteChange);
-    window.addEventListener('pageshow', handleRouteChange);
-    
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-      window.removeEventListener('pageshow', handleRouteChange);
-    };
-  }, []);
 
   useEffect(() => {
     const sections = ["hero", "ambient", "tera", "menu", "brand", "recensioni", "contatti"];

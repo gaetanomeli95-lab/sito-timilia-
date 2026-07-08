@@ -26,10 +26,34 @@ export default function ScrollRestoration() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const storageKey = `scroll:${pathname}`;
-    const saved = sessionStorage.getItem(storageKey);
     const wasBack = isBack.current;
     isBack.current = false;
+
+    // For homepage, use the localStorage key from Navbar
+    if (pathname === "/" && wasBack) {
+      const saved = localStorage.getItem('timilia_home_scroll');
+      if (saved) {
+        const pos = parseInt(saved, 10);
+        if (pos > 0) {
+          console.log('[ScrollRestoration] Restoring homepage to:', pos);
+          const tryRestore = (attempts = 0) => {
+            if (document.body.scrollHeight >= pos || attempts >= 20) {
+              window.scrollTo(0, pos);
+              document.documentElement.scrollTop = pos;
+              document.body.scrollTop = pos;
+            } else {
+              requestAnimationFrame(() => tryRestore(attempts + 1));
+            }
+          };
+          requestAnimationFrame(() => requestAnimationFrame(() => tryRestore()));
+          return;
+        }
+      }
+    }
+
+    // For other pages, use sessionStorage
+    const storageKey = `scroll:${pathname}`;
+    const saved = sessionStorage.getItem(storageKey);
 
     if (wasBack && saved !== null) {
       const pos = parseInt(saved, 10);
@@ -53,13 +77,16 @@ export default function ScrollRestoration() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const storageKey = `scroll:${pathname}`;
-
     const onScroll = () => {
       const y = window.scrollY;
       lastScrollY.current = y;
       if (y > 0) {
-        sessionStorage.setItem(storageKey, String(y));
+        if (pathname === "/") {
+          localStorage.setItem('timilia_home_scroll', String(y));
+        } else {
+          const storageKey = `scroll:${pathname}`;
+          sessionStorage.setItem(storageKey, String(y));
+        }
       }
     };
 
@@ -68,7 +95,12 @@ export default function ScrollRestoration() {
     return () => {
       const finalPos = lastScrollY.current || window.scrollY;
       if (finalPos > 0) {
-        sessionStorage.setItem(storageKey, String(finalPos));
+        if (pathname === "/") {
+          localStorage.setItem('timilia_home_scroll', String(finalPos));
+        } else {
+          const storageKey = `scroll:${pathname}`;
+          sessionStorage.setItem(storageKey, String(finalPos));
+        }
       }
     };
   }, [pathname]);
