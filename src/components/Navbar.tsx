@@ -36,22 +36,41 @@ export default function Navbar() {
     const restoreScroll = () => {
       const currentPath = window.location.pathname;
       if (currentPath === "/") {
-        const savedScroll = sessionStorage.getItem(`scroll:${currentPath}`);
-        if (savedScroll) {
+        const savedScroll = localStorage.getItem(`timilia_scroll_${currentPath}`);
+        const savedTimestamp = localStorage.getItem(`timilia_scroll_timestamp`);
+        
+        if (savedScroll && savedTimestamp) {
           const scrollY = parseInt(savedScroll, 10);
-          if (scrollY > 0) {
+          const timestamp = parseInt(savedTimestamp, 10);
+          const now = Date.now();
+          
+          // Only restore if saved within last 5 minutes
+          if (scrollY > 0 && (now - timestamp) < 300000) {
             setTimeout(() => {
               window.scrollTo(0, scrollY);
-              sessionStorage.removeItem(`scroll:${currentPath}`);
-            }, 100);
+              localStorage.removeItem(`timilia_scroll_${currentPath}`);
+              localStorage.removeItem(`timilia_scroll_timestamp`);
+            }, 150);
           }
         }
       }
     };
 
+    // Try to restore on mount
     restoreScroll();
-    window.addEventListener('popstate', restoreScroll);
-    return () => window.removeEventListener('popstate', restoreScroll);
+    
+    // Also try on route changes
+    const handleRouteChange = () => {
+      setTimeout(restoreScroll, 200);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('pageshow', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('pageshow', handleRouteChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -78,8 +97,10 @@ export default function Navbar() {
       e.preventDefault();
       setMenuOpen(false);
       const currentPath = window.location.pathname;
-      if (window.scrollY > 0) {
-        sessionStorage.setItem(`scroll:${currentPath}`, String(window.scrollY));
+      const scrollY = window.scrollY;
+      if (scrollY > 0) {
+        localStorage.setItem(`timilia_scroll_${currentPath}`, String(scrollY));
+        localStorage.setItem(`timilia_scroll_timestamp`, String(Date.now()));
       }
       router.push(link.href);
       return;
