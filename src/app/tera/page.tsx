@@ -2,6 +2,7 @@
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import TeraWordmark from "@/components/TeraWordmark";
@@ -93,6 +94,7 @@ const heroCards: TeraFeatureContent[] = [
 ];
 
 export default function TeraPage() {
+  const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const farineRef = useRef<HTMLDivElement>(null);
@@ -132,13 +134,13 @@ export default function TeraPage() {
       </div>
 
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 lg:px-10 py-4 backdrop-blur-md" style={{ background: "rgba(38, 46, 36, 0.38)" }}>
-        <Link
-          href="/"
+        <button
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-[10px] tracking-[0.2em] uppercase font-medium"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Torna al sito</span>
-        </Link>
+        </button>
         <span className="text-white/78 text-[10px] tracking-[0.34em] uppercase font-light">
           Tera · Pura Natura
         </span>
@@ -206,7 +208,7 @@ export default function TeraPage() {
           <motion.div
             initial={{ opacity: 0, y: 34, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.15, delay: 0.48, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col gap-3 lg:gap-4"
           >
             {heroCards.map((card) => (

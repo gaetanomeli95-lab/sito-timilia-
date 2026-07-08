@@ -104,7 +104,7 @@ export default function LanguageSelector() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-44 rounded-xl border border-gold/20 bg-[#0c0a08]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] py-1.5 z-[100]">
+        <div className="absolute right-0 top-full mt-2 w-44 max-h-[60vh] overflow-y-auto rounded-xl border border-gold/20 bg-[#0c0a08]/98 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] py-1.5 z-[100]">
           {languages.map((lang) => (
             <button
               key={lang.code}

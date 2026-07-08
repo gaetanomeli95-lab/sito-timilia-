@@ -31,6 +31,21 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Restore scroll position when returning to homepage
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    if (currentPath === "/") {
+      const savedScroll = sessionStorage.getItem(`scroll:${currentPath}`);
+      if (savedScroll) {
+        const scrollY = parseInt(savedScroll, 10);
+        if (scrollY > 0) {
+          window.scrollTo(0, scrollY);
+          sessionStorage.removeItem(`scroll:${currentPath}`);
+        }
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const sections = ["hero", "ambient", "tera", "menu", "brand", "recensioni", "contatti"];
     const observer = new IntersectionObserver(
