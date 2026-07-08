@@ -33,17 +33,25 @@ export default function Navbar() {
 
   // Restore scroll position when returning to homepage
   useEffect(() => {
-    const currentPath = window.location.pathname;
-    if (currentPath === "/") {
-      const savedScroll = sessionStorage.getItem(`scroll:${currentPath}`);
-      if (savedScroll) {
-        const scrollY = parseInt(savedScroll, 10);
-        if (scrollY > 0) {
-          window.scrollTo(0, scrollY);
-          sessionStorage.removeItem(`scroll:${currentPath}`);
+    const restoreScroll = () => {
+      const currentPath = window.location.pathname;
+      if (currentPath === "/") {
+        const savedScroll = sessionStorage.getItem(`scroll:${currentPath}`);
+        if (savedScroll) {
+          const scrollY = parseInt(savedScroll, 10);
+          if (scrollY > 0) {
+            setTimeout(() => {
+              window.scrollTo(0, scrollY);
+              sessionStorage.removeItem(`scroll:${currentPath}`);
+            }, 100);
+          }
         }
       }
-    }
+    };
+
+    restoreScroll();
+    window.addEventListener('popstate', restoreScroll);
+    return () => window.removeEventListener('popstate', restoreScroll);
   }, []);
 
   useEffect(() => {
