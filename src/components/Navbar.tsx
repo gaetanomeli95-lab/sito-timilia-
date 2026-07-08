@@ -26,7 +26,13 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      // Save scroll position continuously
+      if (window.location.pathname === "/") {
+        localStorage.setItem('timilia_home_scroll', String(window.scrollY));
+      }
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -36,21 +42,24 @@ export default function Navbar() {
     const restoreScroll = () => {
       const currentPath = window.location.pathname;
       if (currentPath === "/") {
-        const savedScroll = localStorage.getItem(`timilia_scroll_${currentPath}`);
-        const savedTimestamp = localStorage.getItem(`timilia_scroll_timestamp`);
+        const savedScroll = localStorage.getItem('timilia_home_scroll');
         
-        if (savedScroll && savedTimestamp) {
+        if (savedScroll) {
           const scrollY = parseInt(savedScroll, 10);
-          const timestamp = parseInt(savedTimestamp, 10);
-          const now = Date.now();
           
-          // Only restore if saved within last 5 minutes
-          if (scrollY > 0 && (now - timestamp) < 300000) {
-            setTimeout(() => {
+          if (scrollY > 0) {
+            console.log('[Scroll Restore] Restoring to:', scrollY);
+            // Force scroll restoration with multiple attempts
+            const forceScroll = () => {
               window.scrollTo(0, scrollY);
-              localStorage.removeItem(`timilia_scroll_${currentPath}`);
-              localStorage.removeItem(`timilia_scroll_timestamp`);
-            }, 150);
+              document.documentElement.scrollTop = scrollY;
+              document.body.scrollTop = scrollY;
+            };
+            
+            forceScroll();
+            setTimeout(forceScroll, 100);
+            setTimeout(forceScroll, 300);
+            setTimeout(forceScroll, 500);
           }
         }
       }
@@ -61,7 +70,7 @@ export default function Navbar() {
     
     // Also try on route changes
     const handleRouteChange = () => {
-      setTimeout(restoreScroll, 200);
+      setTimeout(restoreScroll, 50);
     };
 
     window.addEventListener('popstate', handleRouteChange);
@@ -96,12 +105,6 @@ export default function Navbar() {
     if (link.type === "route") {
       e.preventDefault();
       setMenuOpen(false);
-      const currentPath = window.location.pathname;
-      const scrollY = window.scrollY;
-      if (scrollY > 0) {
-        localStorage.setItem(`timilia_scroll_${currentPath}`, String(scrollY));
-        localStorage.setItem(`timilia_scroll_timestamp`, String(Date.now()));
-      }
       router.push(link.href);
       return;
     }
