@@ -35,52 +35,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(200,169,126,0.16),transparent_34%),radial-gradient(circle_at_18%_72%,rgba(212,165,116,0.10),transparent_28%)] mix-blend-screen" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-          className="mb-6"
-        >
-          <span className="text-gold text-xs tracking-[0.3em] uppercase font-medium">
-            Pizzeria Palermo
-          </span>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.4, delay: 0.5, ease: "easeOut" }}
-          className="text-6xl md:text-8xl lg:text-9xl font-light tracking-[0.1em] text-foreground mb-4"
-        >
-          TIMILIA
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-          className="text-xl md:text-2xl font-light tracking-[0.25em] text-foreground/90 mb-6"
-        >
-          Pizza di Sicilia
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.1, ease: "easeOut" }}
-          className="w-16 h-[1px] bg-gold/60 mb-8"
-        />
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.3, ease: "easeOut" }}
-          className="text-foreground/60 text-sm md:text-base font-light tracking-[0.1em] max-w-md mb-12"
-        >
-          Tradizione siciliana contemporanea.
-        </motion.p>
-
+      <div className="relative z-10 flex flex-col items-center justify-end h-full text-center px-6 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
