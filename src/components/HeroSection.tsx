@@ -27,7 +27,7 @@ export default function HeroSection() {
           src="/images/hero-iniziale-mobile.png"
           alt="TIMILIA Pizza di Sicilia"
           fill
-          className="object-cover object-top md:hidden"
+          className="object-cover object-center md:hidden"
           priority
           sizes="100vw"
         />
