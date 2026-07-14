@@ -104,7 +104,7 @@ export default function LanguageSelector() {
       </button>
 
       {open && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[90vw] max-w-[320px] max-h-[50vh] overflow-y-auto rounded-xl border border-gold/20 bg-black/40 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] py-1.5 z-[200] sm:absolute sm:right-0 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:top-full sm:mt-2 sm:w-44 sm:max-h-[60vh] sm:z-[100]">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[90vw] max-w-[320px] max-h-[50vh] overflow-y-auto rounded-xl border border-gold/20 bg-black/70 backdrop-blur-3xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] py-1.5 z-[200] sm:absolute sm:right-0 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:top-full sm:mt-2 sm:w-44 sm:max-h-[60vh] sm:z-[100]">
           {languages.map((lang) => (
             <button
               key={lang.code}
