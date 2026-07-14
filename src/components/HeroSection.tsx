@@ -35,7 +35,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(200,169,126,0.16),transparent_34%),radial-gradient(circle_at_18%_72%,rgba(212,165,116,0.10),transparent_28%)] mix-blend-screen" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 pb-[35vh] md:justify-end md:pb-20">
+      <div className="relative z-10 flex flex-col items-center justify-end h-full text-center px-6 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
