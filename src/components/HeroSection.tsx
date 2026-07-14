@@ -16,10 +16,18 @@ export default function HeroSection() {
         }}
       >
         <Image
-          src="/images/hero-banner-nuova.png"
+          src="/images/hero-iniziale-desktop.png"
           alt="TIMILIA Pizza di Sicilia"
           fill
-          className="object-cover object-top"
+          className="object-cover object-top hidden md:block"
+          priority
+          sizes="100vw"
+        />
+        <Image
+          src="/images/hero-iniziale-mobile.png"
+          alt="TIMILIA Pizza di Sicilia"
+          fill
+          className="object-cover object-top md:hidden"
           priority
           sizes="100vw"
         />

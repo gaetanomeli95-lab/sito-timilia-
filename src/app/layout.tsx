@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description: "Tradizione siciliana contemporanea. Pizzeria nel cuore di Palermo.",
     type: "website",
     locale: "it_IT",
-    images: ["/images/hero-banner-nuova.png"],
+    images: ["/images/hero-iniziale-desktop.png"],
   },
 };
 
