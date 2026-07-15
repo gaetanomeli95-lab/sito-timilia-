@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck, Clock } from "lucide-react";
 import Image from "next/image";
 import { teraProducts } from "@/data/teraProducts";
 import { supabase } from "@/lib/supabase-client";
@@ -146,6 +146,16 @@ export default function TeraShop() {
           </div>
         )}
 
+        {/* Coming soon banner */}
+        <div className="mb-8 rounded-2xl border border-white/15 bg-white/[0.04] p-6 backdrop-blur-sm">
+          <p className="text-white/80 text-sm font-light text-center tracking-wide">
+            Lo shop online sarà disponibile a breve. Stiamo finalizzando prezzi e logistica.
+          </p>
+          <p className="text-white/40 text-xs font-light text-center mt-2">
+            Per ordini anticipati, contattaci direttamente · info@pizzeriatimilia.com
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {teraProducts.map((product) => (
             <motion.div
@@ -178,11 +188,6 @@ export default function TeraShop() {
                     </h3>
                     <p className="text-white/45 text-xs font-light">{product.weight}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white text-2xl font-light">
-                      &euro;{product.price.toFixed(2)}
-                    </p>
-                  </div>
                 </div>
 
                 <p className="text-white/60 text-sm font-light leading-relaxed mb-4">
@@ -198,13 +203,10 @@ export default function TeraShop() {
                   ))}
                 </ul>
 
-                <button
-                  onClick={() => addToCart(product.id)}
-                  className="w-full py-3 bg-white/10 border border-white/20 text-white text-xs tracking-[0.2em] uppercase font-medium hover:bg-white/20 hover:border-white/40 transition-all duration-500 flex items-center justify-center gap-2 rounded-full"
-                >
-                  <ShoppingBag size={14} strokeWidth={1.5} />
-                  Aggiungi al carrello
-                </button>
+                <div className="w-full py-3 bg-white/[0.04] border border-white/10 text-white/40 text-xs tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-2 rounded-full">
+                  <Clock size={14} strokeWidth={1.5} />
+                  A breve disponibile
+                </div>
               </div>
             </motion.div>
           ))}
@@ -222,20 +224,7 @@ export default function TeraShop() {
         </div>
       </section>
 
-      {/* Floating Cart Button */}
-      {cartCount > 0 && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          onClick={() => setCartOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-white/15 border border-white/25 backdrop-blur-md px-5 py-3 text-white text-xs tracking-wide hover:bg-white/25 transition-colors"
-        >
-          <ShoppingBag size={16} strokeWidth={1.5} />
-          <span>{cartCount} {cartCount === 1 ? "articolo" : "articoli"}</span>
-          <span className="text-white/60">·</span>
-          <span>&euro;{cartTotal.toFixed(2)}</span>
-        </motion.button>
-      )}
+      {/* Floating Cart Button — disabled while shop is in coming soon mode */}
 
       {/* Cart Drawer */}
       <AnimatePresence>

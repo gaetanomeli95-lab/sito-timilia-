@@ -8,6 +8,14 @@ function cleanString(value: unknown, maxLength: number): string {
 }
 
 export async function POST(request: NextRequest) {
+  return NextResponse.json(
+    { error: "Lo shop online sarà disponibile a breve." },
+    { status: 503 }
+  );
+}
+
+/* eslint-disable */
+async function _POST(request: NextRequest) {
   try {
     const body = await request.json();
     const customerName = cleanString(body.customerName, 120);
