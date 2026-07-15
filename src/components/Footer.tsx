@@ -172,6 +172,17 @@ export default function Footer() {
           <p className="text-foreground/30 text-xs font-light tracking-wide">
             © {new Date().getFullYear()} TIMILIA – Pizza di Sicilia. Tutti i diritti riservati.
           </p>
+          <div className="flex items-center gap-4">
+            <a href="/privacy" className="text-foreground/25 text-xs font-light hover:text-gold transition-colors">
+              Privacy
+            </a>
+            <a href="/cookie" className="text-foreground/25 text-xs font-light hover:text-gold transition-colors">
+              Cookie
+            </a>
+            <a href="/termini" className="text-foreground/25 text-xs font-light hover:text-gold transition-colors">
+              Termini
+            </a>
+          </div>
           <p className="text-foreground/20 text-xs font-light">
             Via Maqueda 221, Palermo
           </p>

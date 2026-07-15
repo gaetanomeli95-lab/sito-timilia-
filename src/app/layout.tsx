@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import GoogleTranslateScript from "@/components/GoogleTranslateScript";
+import CookieBanner from "@/components/CookieBanner";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -66,6 +67,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(restaurantJsonLd) }}
         />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );
