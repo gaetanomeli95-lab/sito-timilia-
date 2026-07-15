@@ -27,6 +27,8 @@ interface Order {
   id: string;
   total: number;
   status: string;
+  payment_status: string;
+  tracking_number: string | null;
   created_at: string;
   items: { productName: string; quantity: number; price: number }[];
 }
@@ -72,6 +74,7 @@ export default function AccountPage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,18 +85,25 @@ export default function AccountPage() {
         return;
       }
       setUser(session.user);
+      setAuthToken(session.access_token);
 
-      const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+      const res = await fetch("/api/customers/profile", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       const profileData = res.ok ? (await res.json()).profile : null;
 
       setProfile(profileData as CustomerProfile | null);
 
       if (profileData) {
-        const ordersRes = await fetch(`/api/customers/orders?customerId=${profileData.id}`);
+        const ordersRes = await fetch("/api/customers/orders", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         const ordersData = ordersRes.ok ? (await ordersRes.json()).orders : [];
         setOrders(ordersData as Order[] || []);
 
-        const reviewsRes = await fetch(`/api/customers/reviews?customerId=${profileData.id}`);
+        const reviewsRes = await fetch("/api/customers/reviews", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         const reviewsData = reviewsRes.ok ? (await reviewsRes.json()).reviews : [];
         setReviews(reviewsData as Review[] || []);
       }
@@ -132,8 +142,11 @@ export default function AccountPage() {
 
       await fetch("/api/customers/profile", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authId: user.id, avatar_url: avatarUrl }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ avatar_url: avatarUrl }),
       });
 
       setProfile({ ...profile, avatar_url: avatarUrl });
@@ -148,7 +161,10 @@ export default function AccountPage() {
     if (!user) return;
     setDeletingAccount(true);
     try {
-      await fetch(`/api/customers/profile?authId=${user.id}`, { method: "DELETE" });
+      await fetch("/api/customers/profile", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
       await supabase.auth.signOut();
       router.push("/");
     } catch {
@@ -160,8 +176,13 @@ export default function AccountPage() {
   const handleDeleteReview = async (reviewId: string) => {
     if (!profile) return;
     try {
-      await fetch(`/api/customers/reviews?id=${reviewId}`, { method: "DELETE" });
-      const reviewsRes = await fetch(`/api/customers/reviews?customerId=${profile.id}`);
+      await fetch(`/api/customers/reviews?id=${reviewId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const reviewsRes = await fetch("/api/customers/reviews", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
       const newReviews = reviewsRes.ok ? (await reviewsRes.json()).reviews : [];
       setReviews(newReviews as Review[] || []);
     } catch {
@@ -177,9 +198,11 @@ export default function AccountPage() {
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({
-          customerEmail: profile.email,
           rating: reviewForm.rating,
           text: reviewForm.text,
         }),
@@ -190,7 +213,9 @@ export default function AccountPage() {
         setReviewForm({ rating: 5, text: "" });
         setTimeout(() => setReviewSuccess(false), 3000);
 
-        const reviewsRes2 = await fetch(`/api/customers/reviews?customerId=${profile.id}`);
+        const reviewsRes2 = await fetch("/api/customers/reviews", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
         const newReviews = reviewsRes2.ok ? (await reviewsRes2.json()).reviews : [];
         setReviews(newReviews as Review[] || []);
       }
@@ -588,12 +613,16 @@ export default function AccountPage() {
                           <Calendar size={12} strokeWidth={1.5} className="text-foreground/30" />
                           <p className="text-foreground/60 text-xs">{new Date(order.created_at).toLocaleDateString("it-IT")}</p>
                         </div>
-                        <span className={`text-[10px] px-2.5 py-1 rounded-full ${
-                          order.status === "pending"
-                            ? "bg-gold/10 text-gold/70 border border-gold/20"
-                            : "bg-green-500/10 text-green-400/70 border border-green-500/20"
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full border ${
+                          order.status === "delivered"
+                            ? "bg-green-500/10 text-green-400/70 border-green-500/20"
+                            : order.status === "shipped"
+                              ? "bg-blue-500/10 text-blue-400/70 border-blue-500/20"
+                              : order.payment_status === "paid"
+                                ? "bg-emerald-500/10 text-emerald-400/70 border-emerald-500/20"
+                                : "bg-gold/10 text-gold/70 border-gold/20"
                         }`}>
-                          {order.status === "pending" ? "In attesa" : "Confermato"}
+                          {{ pending: "Pagamento in attesa", paid: "Pagato", preparing: "In preparazione", shipped: "Spedito", delivered: "Consegnato" }[order.status] || order.status}
                         </span>
                       </div>
                     </div>

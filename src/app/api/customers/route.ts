@@ -4,13 +4,22 @@ import { supabaseAdmin } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { authId, name, email, phone, newsletterConsent } = body;
+    const authId = typeof body.authId === "string" ? body.authId : "";
+    const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim().slice(0, 40) : "";
+    const newsletterConsent = body.newsletterConsent === true;
 
     if (!authId || !name || !email) {
       return NextResponse.json(
         { error: "authId, nome e email sono obbligatori" },
         { status: 400 }
       );
+    }
+
+    const { data: authUser, error: authUserError } = await supabaseAdmin.auth.admin.getUserById(authId);
+    if (authUserError || !authUser.user || authUser.user.email?.toLowerCase() !== email) {
+      return NextResponse.json({ error: "Identità utente non valida" }, { status: 401 });
     }
 
     const { error: profileError } = await supabaseAdmin
@@ -55,23 +64,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("customers")
-      .select("id, name, email, phone, newsletter_consent, created_at");
-
-    if (error) {
-      return NextResponse.json(
-        { error: "Errore nel recupero clienti" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ customers: data });
-  } catch {
-    return NextResponse.json(
-      { error: "Errore nel recupero clienti" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }

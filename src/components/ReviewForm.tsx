@@ -26,7 +26,9 @@ export default function ReviewForm({ open, onClose }: ReviewFormProps) {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+        const res = await fetch("/api/customers/profile", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         if (res.ok) {
           const { profile } = await res.json();
           if (profile) {
@@ -54,10 +56,19 @@ export default function ReviewForm({ open, onClose }: ReviewFormProps) {
     setError("");
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError("Accedi prima di inviare la recensione");
+        return;
+      }
+
       const res = await fetch("/api/reviews", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerEmail: customer.email, rating, text }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ rating, text }),
       });
       const data = await res.json();
 

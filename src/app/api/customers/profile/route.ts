@@ -1,76 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { getAuthenticatedUser } from "@/lib/server-auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const authId = request.nextUrl.searchParams.get("authId");
-    if (!authId) {
-      return NextResponse.json({ error: "Missing auth id" }, { status: 400 });
-    }
+    const user = await getAuthenticatedUser(request);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { data, error } = await supabaseAdmin
       .from("customers")
       .select("*")
-      .eq("auth_id", authId);
+      .eq("auth_id", user.id)
+      .limit(1);
 
-    if (error || !data || data.length === 0) {
-      return NextResponse.json({ error: "Profile not found", details: error?.message, authId }, { status: 404 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (!data?.length) {
+      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
     return NextResponse.json({ profile: data[0] });
-  } catch (e) {
-    return NextResponse.json({ error: "Server error", details: String(e) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { authId, avatar_url } = body;
+    const user = await getAuthenticatedUser(request);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!authId) {
-      return NextResponse.json({ error: "Missing auth id" }, { status: 400 });
+    const { avatar_url } = await request.json();
+    if (typeof avatar_url !== "string" || avatar_url.length > 1000) {
+      return NextResponse.json({ error: "Avatar non valido" }, { status: 400 });
     }
 
     const { error } = await supabaseAdmin
       .from("customers")
       .update({ avatar_url })
-      .eq("auth_id", authId);
+      .eq("auth_id", user.id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
-  } catch (e) {
-    return NextResponse.json({ error: "Server error", details: String(e) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const authId = request.nextUrl.searchParams.get("authId");
-    if (!authId) {
-      return NextResponse.json({ error: "Missing auth id" }, { status: 400 });
-    }
+    const user = await getAuthenticatedUser(request);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { error: customerError } = await supabaseAdmin
       .from("customers")
       .delete()
-      .eq("auth_id", authId);
+      .eq("auth_id", user.id);
 
     if (customerError) {
       return NextResponse.json({ error: customerError.message }, { status: 500 });
     }
 
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(authId);
-
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
     if (authError) {
       return NextResponse.json({ error: authError.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
-  } catch (e) {
-    return NextResponse.json({ error: "Server error", details: String(e) }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -11,6 +11,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pizzeriatimilia.com"),
   title: "TIMILIA – Pizza di Sicilia | Pizzeria Palermo",
   description: "Nel cuore del centro storico di Palermo, a due passi dai Quattro Canti. Tradizione siciliana contemporanea. Pizza senza glutine TERA.",
   keywords: ["pizzeria", "Palermo", "Sicilia", "pizza senza glutine", "TERA", "TIMILIA", "Quattro Canti"],
@@ -40,7 +41,7 @@ const restaurantJsonLd = {
     addressCountry: "IT",
   },
   telephone: "+39 379 248 3597",
-  url: "https://www.pizzatimilia.it",
+  url: "https://pizzeriatimilia.com",
   openingHours: ["Mar-Dom 19:00-23:30"],
   sameAs: [
     "https://www.instagram.com/pizzatimilia/",

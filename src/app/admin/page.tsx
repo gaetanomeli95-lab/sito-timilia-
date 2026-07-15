@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Star, CheckCircle, XCircle, Loader2, Package, Users,
-  MessageSquare, ArrowLeft, Settings, Power,
+  MessageSquare, ArrowLeft, Power, MapPin, Mail, Phone, Truck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-client";
@@ -23,8 +23,20 @@ interface Review {
 interface Order {
   id: string;
   customer_email: string;
+  shipping_name: string;
+  shipping_address: string;
+  shipping_city: string | null;
+  shipping_zip: string | null;
+  shipping_phone: string | null;
+  subtotal: number;
+  shipping_cost: number;
+  coupon_code: string | null;
+  coupon_discount: number;
   total: number;
   status: string;
+  payment_status: string;
+  tracking_number: string | null;
+  notes: string | null;
   created_at: string;
   items: { productName: string; quantity: number; price: number }[];
 }
@@ -63,7 +75,9 @@ export default function AdminPage() {
       setUser(session.user);
       setAuthToken(session.access_token);
 
-      const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+      const res = await fetch("/api/customers/profile", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       const profile = res.ok ? (await res.json()).profile : null;
 
       if (!profile?.is_admin) {
@@ -158,12 +172,12 @@ export default function AdminPage() {
     setActionLoading(null);
   };
 
-  const updateOrderStatus = async (id: string, status: string) => {
+  const updateOrderStatus = async (id: string, status: string, trackingNumber?: string) => {
     setActionLoading(id);
     await fetch("/api/admin/orders", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-      body: JSON.stringify({ id, status }),
+      body: JSON.stringify({ id, status, trackingNumber }),
     });
     await loadOrders();
     setActionLoading(null);
@@ -387,61 +401,12 @@ export default function AdminPage() {
                 </div>
               ) : (
                 orders.map((order) => (
-                  <div key={order.id} className="rounded-xl border border-gold/15 bg-white/[0.02] p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-foreground/80 text-sm font-mono">#{order.id.slice(0, 8)}</p>
-                        <p className="text-foreground/40 text-xs">{order.customer_email}</p>
-                      </div>
-                      <p className="text-foreground/40 text-xs">{new Date(order.created_at).toLocaleDateString("it-IT")}</p>
-                    </div>
-                    <div className="space-y-1 mb-3">
-                      {order.items.map((item, i) => (
-                        <div key={i} className="flex justify-between text-xs">
-                          <span className="text-foreground/50">{item.quantity}x {item.productName}</span>
-                          <span className="text-foreground/30">€{item.price.toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "confirmed")}
-                          disabled={actionLoading === order.id}
-                          className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-                            order.status === "confirmed"
-                              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                              : "bg-white/5 text-foreground/40 border border-white/10 hover:text-green-400"
-                          }`}
-                        >
-                          Confermato
-                        </button>
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "pending")}
-                          disabled={actionLoading === order.id}
-                          className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-                            order.status === "pending"
-                              ? "bg-gold/20 text-gold border border-gold/30"
-                              : "bg-white/5 text-foreground/40 border border-white/10 hover:text-gold"
-                          }`}
-                        >
-                          In attesa
-                        </button>
-                        <button
-                          onClick={() => updateOrderStatus(order.id, "shipped")}
-                          disabled={actionLoading === order.id}
-                          className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-                            order.status === "shipped"
-                              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                              : "bg-white/5 text-foreground/40 border border-white/10 hover:text-blue-400"
-                          }`}
-                        >
-                          Spedito
-                        </button>
-                      </div>
-                      <span className="text-foreground text-sm font-medium">€{Number(order.total).toFixed(2)}</span>
-                    </div>
-                  </div>
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    actionLoading={actionLoading}
+                    onUpdateStatus={updateOrderStatus}
+                  />
                 ))
               )}
             </div>
@@ -483,5 +448,150 @@ export default function AdminPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+const ORDER_STATUSES = [
+  { value: "pending", label: "In attesa" },
+  { value: "preparing", label: "In preparazione" },
+  { value: "shipped", label: "Spedito" },
+  { value: "delivered", label: "Consegnato" },
+];
+
+function OrderCard({
+  order,
+  actionLoading,
+  onUpdateStatus,
+}: {
+  order: Order;
+  actionLoading: string | null;
+  onUpdateStatus: (id: string, status: string, trackingNumber?: string) => Promise<void>;
+}) {
+  const [trackingNumber, setTrackingNumber] = useState(order.tracking_number || "");
+  const [expanded, setExpanded] = useState(false);
+  const busy = actionLoading === order.id;
+
+  const updateStatus = async (status: string) => {
+    if (status === order.status && status !== "shipped") return;
+    await onUpdateStatus(order.id, status, status === "shipped" ? trackingNumber.trim() : undefined);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-xl border border-gold/15 bg-white/[0.02] overflow-hidden"
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded((value) => !value)}
+        className="w-full p-5 text-left hover:bg-white/[0.02] transition-colors"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-foreground/80 text-sm font-mono">#{order.id.slice(0, 8)}</p>
+              <span className="rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-gold/80">
+                {order.status === "paid" ? "Pagato" : ORDER_STATUSES.find((item) => item.value === order.status)?.label || order.status}
+              </span>
+              <span className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${order.payment_status === "paid" ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300" : "border-amber-500/25 bg-amber-500/10 text-amber-300"}`}>
+                {order.payment_status === "paid" ? "Pagamento ricevuto" : "Non pagato"}
+              </span>
+            </div>
+            <p className="text-foreground/60 text-sm truncate">{order.shipping_name || order.customer_email}</p>
+            <p className="text-foreground/35 text-xs truncate">{order.customer_email}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-foreground text-base font-medium">€{Number(order.total).toFixed(2)}</p>
+            <p className="text-foreground/35 text-xs">
+              {new Date(order.created_at).toLocaleDateString("it-IT")}
+            </p>
+          </div>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-white/5 p-5 space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg border border-white/5 bg-black/10 p-4 space-y-2">
+              <p className="text-foreground/35 text-[10px] uppercase tracking-[0.15em]">Cliente</p>
+              <p className="text-foreground/75 text-sm">{order.shipping_name}</p>
+              <p className="flex items-center gap-2 text-foreground/45 text-xs"><Mail size={12} />{order.customer_email}</p>
+              {order.shipping_phone && <p className="flex items-center gap-2 text-foreground/45 text-xs"><Phone size={12} />{order.shipping_phone}</p>}
+            </div>
+            <div className="rounded-lg border border-white/5 bg-black/10 p-4 space-y-2">
+              <p className="text-foreground/35 text-[10px] uppercase tracking-[0.15em]">Spedizione</p>
+              <p className="flex items-start gap-2 text-foreground/55 text-xs leading-relaxed">
+                <MapPin size={12} className="mt-0.5 shrink-0" />
+                <span>{order.shipping_address}<br />{order.shipping_zip} {order.shipping_city}</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {order.items.map((item, index) => (
+              <div key={`${item.productName}-${index}`} className="flex justify-between text-xs">
+                <span className="text-foreground/55">{item.quantity}x {item.productName}</span>
+                <span className="text-foreground/40">€{(Number(item.price) * item.quantity).toFixed(2)}</span>
+              </div>
+            ))}
+            <div className="border-t border-white/5 pt-2 space-y-1">
+              <div className="flex justify-between text-xs text-foreground/35"><span>Subtotale</span><span>€{Number(order.subtotal || 0).toFixed(2)}</span></div>
+              {Number(order.coupon_discount) > 0 && <div className="flex justify-between text-xs text-gold/65"><span>Sconto {order.coupon_code ? `(${order.coupon_code})` : ""}</span><span>-€{Number(order.coupon_discount).toFixed(2)}</span></div>}
+              <div className="flex justify-between text-xs text-foreground/35"><span>Spedizione</span><span>{Number(order.shipping_cost) === 0 ? "Gratuita" : `€${Number(order.shipping_cost).toFixed(2)}`}</span></div>
+            </div>
+          </div>
+
+          {order.notes && (
+            <div className="rounded-lg border border-white/5 bg-black/10 p-3">
+              <p className="text-foreground/35 text-[10px] uppercase tracking-wide mb-1">Note</p>
+              <p className="text-foreground/55 text-xs">{order.notes}</p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-foreground/35 text-[10px] uppercase tracking-[0.15em] mb-2">Aggiorna stato</p>
+            <div className="flex flex-wrap gap-2">
+              {ORDER_STATUSES.map((status) => (
+                <button
+                  key={status.value}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => updateStatus(status.value)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors disabled:opacity-50 ${
+                    order.status === status.value
+                      ? "border-gold/35 bg-gold/15 text-gold"
+                      : "border-white/10 bg-white/[0.03] text-foreground/40 hover:border-gold/25 hover:text-foreground/70"
+                  }`}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <Truck size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30" />
+              <input
+                type="text"
+                value={trackingNumber}
+                onChange={(event) => setTrackingNumber(event.target.value)}
+                placeholder="Codice tracking spedizione"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] py-2.5 pl-9 pr-3 text-sm text-foreground outline-none transition-colors focus:border-gold/30"
+              />
+            </div>
+            <button
+              type="button"
+              disabled={busy || !trackingNumber.trim()}
+              onClick={() => updateStatus("shipped")}
+              className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-4 py-2.5 text-xs text-blue-300 transition-colors hover:bg-blue-500/20 disabled:opacity-40"
+            >
+              {busy ? <Loader2 size={14} className="mx-auto animate-spin" /> : "Salva tracking e spedisci"}
+            </button>
+          </div>
+        </div>
+      )}
+    </motion.div>
   );
 }

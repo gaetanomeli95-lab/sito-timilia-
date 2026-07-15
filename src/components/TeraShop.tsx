@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck, Tag, Package } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { teraProducts } from "@/data/teraProducts";
 import { supabase } from "@/lib/supabase-client";
+import { SHIPPING_BASE_COST, SHIPPING_FREE_THRESHOLD } from "@/lib/commerce";
 
 interface CartItem {
   productId: string;
@@ -15,15 +16,6 @@ interface CartItem {
 }
 
 const CART_KEY = "tera_cart";
-const COUPON_KEY = "tera_coupon";
-
-const SHIPPING_FREE_THRESHOLD = 50;
-const SHIPPING_BASE_COST = 5.90;
-
-const VALID_COUPONS: Record<string, { discount: number; type: "percent" | "fixed"; label: string }> = {
-  TIMILIA10: { discount: 10, type: "percent", label: "10% di sconto" },
-  BENVENUTO: { discount: 5, type: "fixed", label: "€5 di sconto" },
-};
 
 export default function TeraShop() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -31,26 +23,27 @@ export default function TeraShop() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [cartHydrated, setCartHydrated] = useState(false);
+  const [paymentNotice, setPaymentNotice] = useState<"success" | "cancelled" | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: "percent" | "fixed"; label: string } | null>(null);
-  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(CART_KEY);
-      if (saved) setCart(JSON.parse(saved));
-      const savedCoupon = localStorage.getItem(COUPON_KEY);
-      if (savedCoupon) {
-        const parsed = JSON.parse(savedCoupon);
-        if (VALID_COUPONS[parsed.code]) {
-          setAppliedCoupon({ ...VALID_COUPONS[parsed.code], code: parsed.code });
-        }
+      const payment = new URLSearchParams(window.location.search).get("payment");
+      if (payment === "success") {
+        setCart([]);
+        localStorage.removeItem(CART_KEY);
+        setPaymentNotice("success");
+      } else {
+        const saved = localStorage.getItem(CART_KEY);
+        if (saved) setCart(JSON.parse(saved));
+        if (payment === "cancelled") setPaymentNotice("cancelled");
       }
     } catch {
       // ignore
+    } finally {
+      setCartHydrated(true);
     }
   }, []);
 
@@ -61,7 +54,9 @@ export default function TeraShop() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUserEmail(session.user.email || null);
-          const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+          const res = await fetch("/api/customers/profile", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
           const data = res.ok ? await res.json() : null;
           if (data?.profile?.name) {
             setUserName(data.profile.name);
@@ -75,12 +70,13 @@ export default function TeraShop() {
   }, []);
 
   useEffect(() => {
+    if (!cartHydrated) return;
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
     } catch {
       // ignore
     }
-  }, [cart]);
+  }, [cart, cartHydrated]);
 
   const addToCart = (productId: string) => {
     const product = teraProducts.find((p) => p.id === productId);
@@ -119,32 +115,7 @@ export default function TeraShop() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const shippingCost = cartTotal >= SHIPPING_FREE_THRESHOLD || cartTotal === 0 ? 0 : SHIPPING_BASE_COST;
-
-  const couponDiscount = appliedCoupon
-    ? appliedCoupon.type === "percent"
-      ? (cartTotal * appliedCoupon.discount) / 100
-      : Math.min(appliedCoupon.discount, cartTotal)
-    : 0;
-
-  const grandTotal = Math.max(0, cartTotal - couponDiscount) + shippingCost;
-
-  const applyCoupon = () => {
-    const code = couponCode.trim().toUpperCase();
-    setCouponError("");
-    if (VALID_COUPONS[code]) {
-      const coupon = { ...VALID_COUPONS[code], code };
-      setAppliedCoupon(coupon);
-      localStorage.setItem(COUPON_KEY, JSON.stringify({ code }));
-      setCouponCode("");
-    } else {
-      setCouponError("Codice non valido");
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    localStorage.removeItem(COUPON_KEY);
-  };
+  const grandTotal = cartTotal + shippingCost;
 
   return (
     <>
@@ -162,6 +133,18 @@ export default function TeraShop() {
         <p className="text-white/55 text-sm font-light mb-8 md:mb-10 max-w-xl">
           Il nostro blend senza glutine disponibile in pacchetti da 1kg, pronto per le tue ricette.
         </p>
+
+        {paymentNotice && (
+          <div className={`mb-8 rounded-xl border p-4 ${paymentNotice === "success" ? "border-emerald-300/25 bg-emerald-300/10" : "border-amber-300/25 bg-amber-300/10"}`}>
+            <div className="flex items-start gap-3">
+              {paymentNotice === "success" ? <Check size={18} className="mt-0.5 shrink-0 text-emerald-200" /> : <X size={18} className="mt-0.5 shrink-0 text-amber-200" />}
+              <div>
+                <p className="text-white text-sm font-medium">{paymentNotice === "success" ? "Pagamento completato" : "Pagamento annullato"}</p>
+                <p className="mt-1 text-white/55 text-xs font-light">{paymentNotice === "success" ? "Stripe sta confermando l'ordine. Riceverai l'email di conferma e lo vedrai nel tuo account." : "Non è stato effettuato alcun addebito. Il carrello è ancora disponibile."}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {teraProducts.map((product) => (
@@ -333,49 +316,11 @@ export default function TeraShop() {
                   </div>
 
                   <div className="sticky bottom-0 bg-[#1a1f17]/95 backdrop-blur-md border-t border-white/10 px-6 py-4 space-y-3">
-                    {/* Coupon */}
-                    {appliedCoupon ? (
-                      <div className="flex items-center justify-between bg-gold/10 border border-gold/20 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <Tag size={14} className="text-gold" />
-                          <span className="text-gold/80 text-xs">{appliedCoupon.label}</span>
-                        </div>
-                        <button onClick={removeCoupon} className="text-gold/40 hover:text-gold transition-colors">
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                          placeholder="Codice sconto"
-                          className="flex-1 px-3 py-2 bg-white/[0.03] border border-white/10 rounded-lg text-white text-xs font-light focus:border-gold/30 focus:outline-none transition-colors"
-                        />
-                        <button
-                          onClick={applyCoupon}
-                          disabled={!couponCode.trim()}
-                          className="px-4 py-2 bg-white/10 border border-white/20 text-white text-xs tracking-wide hover:bg-white/20 transition-colors rounded-lg disabled:opacity-30"
-                        >
-                          Applica
-                        </button>
-                      </div>
-                    )}
-                    {couponError && <p className="text-red-400/70 text-xs">{couponError}</p>}
-
-                    {/* Totals */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-white/50 text-xs font-light">
                         <span>Subtotale</span>
                         <span>€{cartTotal.toFixed(2)}</span>
                       </div>
-                      {couponDiscount > 0 && (
-                        <div className="flex items-center justify-between text-gold/70 text-xs font-light">
-                          <span>Sconto</span>
-                          <span>-€{couponDiscount.toFixed(2)}</span>
-                        </div>
-                      )}
                       <div className="flex items-center justify-between text-white/50 text-xs font-light">
                         <span>Spedizione</span>
                         <span>{shippingCost === 0 ? "Gratuita" : `€${shippingCost.toFixed(2)}`}</span>
@@ -411,50 +356,33 @@ export default function TeraShop() {
             cart={cart}
             subtotal={cartTotal}
             shippingCost={shippingCost}
-            couponDiscount={couponDiscount}
             total={grandTotal}
             prefillName={userName}
             prefillEmail={userEmail}
-            onClose={() => {
-              setCheckoutOpen(false);
-              if (orderSuccess) {
-                setCart([]);
-                setAppliedCoupon(null);
-                localStorage.removeItem(COUPON_KEY);
-                setCartOpen(false);
-                setOrderSuccess(false);
-              }
-            }}
+            onClose={() => setCheckoutOpen(false)}
             loading={loading}
             error={error}
-            success={orderSuccess}
             onSubmit={async (formData) => {
               setLoading(true);
               setError("");
               try {
-                const res = await fetch("/api/orders", {
+                const res = await fetch("/api/checkout", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     ...formData,
                     items: cart.map((item) => ({
                       productId: item.productId,
-                      productName: item.productName,
                       quantity: item.quantity,
-                      price: item.price,
                     })),
-                    shippingCost,
-                    couponCode: appliedCoupon?.code || null,
-                    couponDiscount,
-                    total: grandTotal,
                   }),
                 });
                 const data = await res.json();
-                if (!res.ok) {
-                  setError(data.error || "Errore");
+                if (!res.ok || !data.url) {
+                  setError(data.error || "Impossibile avviare il pagamento");
                   return;
                 }
-                setOrderSuccess(true);
+                window.location.assign(data.url);
               } catch {
                 setError("Errore di connessione");
               } finally {
@@ -472,14 +400,12 @@ interface CheckoutModalProps {
   cart: CartItem[];
   subtotal: number;
   shippingCost: number;
-  couponDiscount: number;
   total: number;
   prefillName?: string | null;
   prefillEmail?: string | null;
   onClose: () => void;
   loading: boolean;
   error: string;
-  success: boolean;
   onSubmit: (data: {
     customerName: string;
     customerEmail: string;
@@ -491,7 +417,7 @@ interface CheckoutModalProps {
   }) => void;
 }
 
-function CheckoutModal({ cart, subtotal, shippingCost, couponDiscount, total, prefillName, prefillEmail, onClose, loading, error, success, onSubmit }: CheckoutModalProps) {
+function CheckoutModal({ cart, subtotal, shippingCost, total, prefillName, prefillEmail, onClose, loading, error, onSubmit }: CheckoutModalProps) {
   const [name, setName] = useState(prefillName || "");
   const [email, setEmail] = useState(prefillEmail || "");
   const [phone, setPhone] = useState("");
@@ -527,23 +453,8 @@ function CheckoutModal({ cart, subtotal, shippingCost, couponDiscount, total, pr
           <X size={20} />
         </button>
 
-        {success ? (
-          <div className="text-center py-8">
-            <Check size={48} strokeWidth={1.5} className="text-white/80 mx-auto mb-4" />
-            <h3 className="text-white text-xl font-light mb-2">Ordine ricevuto!</h3>
-            <p className="text-white/50 text-sm font-light">
-              Ti contatteremo via email per la conferma e il pagamento.
-            </p>
-            <button
-              onClick={onClose}
-              className="mt-6 px-6 py-2.5 bg-white/10 border border-white/20 text-white text-xs tracking-[0.2em] uppercase font-medium hover:bg-white/20 transition-colors rounded-full"
-            >
-              Chiudi
-            </button>
-          </div>
-        ) : (
-          <>
-            <h3 className="text-white text-xl font-light mb-2">Checkout</h3>
+        <>
+            <h3 className="text-white text-xl font-light mb-2">Checkout sicuro</h3>
             <p className="text-white/40 text-xs font-light mb-6">
               Completa i dati per ricevere il tuo blend TERA.
             </p>
@@ -560,12 +471,6 @@ function CheckoutModal({ cart, subtotal, shippingCost, couponDiscount, total, pr
                   <span>Subtotale</span>
                   <span>€{subtotal.toFixed(2)}</span>
                 </div>
-                {couponDiscount > 0 && (
-                  <div className="flex justify-between text-gold/70 text-xs font-light">
-                    <span>Sconto</span>
-                    <span>-€{couponDiscount.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-white/40 text-xs font-light">
                   <span>Spedizione</span>
                   <span>{shippingCost === 0 ? "Gratuita" : `€${shippingCost.toFixed(2)}`}</span>
@@ -664,14 +569,13 @@ function CheckoutModal({ cart, subtotal, shippingCost, couponDiscount, total, pr
                 className="w-full py-3 bg-white text-[#1a1f17] text-xs tracking-[0.2em] uppercase font-semibold hover:bg-white/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 rounded-full"
               >
                 {loading && <Loader2 size={16} className="animate-spin" />}
-                {loading ? "Elaborazione..." : "Invia ordine"}
+                {loading ? "Apertura pagamento..." : "Paga in modo sicuro"}
               </button>
               <p className="text-white/30 text-xs font-light text-center">
-                Ti contatteremo per la conferma e il pagamento prima della spedizione.
+                Verrai reindirizzato al checkout sicuro di Stripe. L'ordine viene confermato solo dopo il pagamento.
               </p>
             </form>
           </>
-        )}
       </motion.div>
     </motion.div>
   );

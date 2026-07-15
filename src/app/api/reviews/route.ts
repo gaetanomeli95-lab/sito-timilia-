@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { getAuthenticatedUser } from "@/lib/server-auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { customerEmail, rating, text } = body;
+    const user = await getAuthenticatedUser(request);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!customerEmail || !rating || !text) {
+    const body = await request.json();
+    const rating = Number(body.rating);
+    const text = typeof body.text === "string" ? body.text.trim().slice(0, 2000) : "";
+
+    if (!rating || !text) {
       return NextResponse.json(
-        { error: "Email, valutazione e testo sono obbligatori" },
+        { error: "Valutazione e testo sono obbligatori" },
         { status: 400 }
       );
     }
 
-    if (rating < 1 || rating > 5) {
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: "La valutazione deve essere tra 1 e 5" },
         { status: 400 }
@@ -23,7 +28,8 @@ export async function POST(request: NextRequest) {
     const { data: customers, error: customerError } = await supabaseAdmin
       .from("customers")
       .select("id, name")
-      .ilike("email", customerEmail);
+      .eq("auth_id", user.id)
+      .limit(1);
 
     if (customerError || !customers || customers.length === 0) {
       return NextResponse.json(

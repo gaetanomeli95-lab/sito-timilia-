@@ -53,10 +53,38 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { id, status, trackingNumber } = await request.json();
+    const allowedStatuses = ["pending", "preparing", "shipped", "delivered"];
+
+    if (!id || !allowedStatuses.includes(status)) {
+      return NextResponse.json({ error: "Stato ordine non valido" }, { status: 400 });
+    }
+
+    const { data: currentOrder } = await supabaseAdmin
+      .from("orders")
+      .select("status, payment_status, tracking_number")
+      .eq("id", id)
+      .single();
+
+    if (!currentOrder) {
+      return NextResponse.json({ error: "Ordine non trovato" }, { status: 404 });
+    }
+
+    if (["preparing", "shipped", "delivered"].includes(status) && currentOrder.payment_status !== "paid") {
+      return NextResponse.json({ error: "L'ordine non è ancora pagato" }, { status: 409 });
+    }
+
+    const normalizedTracking = typeof trackingNumber === "string" ? trackingNumber.trim() : "";
+    if (status === "shipped" && !normalizedTracking && !currentOrder.tracking_number) {
+      return NextResponse.json({ error: "Inserisci il codice tracking" }, { status: 400 });
+    }
+
+    if (currentOrder.status === status && (!normalizedTracking || normalizedTracking === currentOrder.tracking_number)) {
+      return NextResponse.json({ success: true });
+    }
 
     const updateData: Record<string, string> = { status };
-    if (trackingNumber !== undefined) {
-      updateData.tracking_number = trackingNumber;
+    if (normalizedTracking) {
+      updateData.tracking_number = normalizedTracking;
     }
 
     const { data: order, error } = await supabaseAdmin
@@ -77,7 +105,7 @@ export async function PATCH(request: NextRequest) {
         order.shipping_name,
         order.id,
         status,
-        trackingNumber
+        normalizedTracking || currentOrder.tracking_number || undefined
       );
     }
 

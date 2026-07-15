@@ -14,7 +14,9 @@ export default function MaintenancePage() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+          const res = await fetch("/api/customers/profile", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
           const data = res.ok ? await res.json() : null;
           if (data?.profile?.is_admin) {
             setIsAdmin(true);
