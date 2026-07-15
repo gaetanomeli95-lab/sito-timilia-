@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   User, Mail, Phone, Star, ShoppingBag, LogOut,
   Loader2, CheckCircle, Package, MessageSquare, Camera, Shield, ArrowLeft, Trash2, AlertTriangle, X,
+  Crown, Award, Sparkles, TrendingUp, Calendar, Heart,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,26 @@ interface Review {
   text: string;
   approved: boolean;
   created_at: string;
+}
+
+const TIERS = [
+  { name: "Ospite", min: 0, icon: User, color: "from-slate-500/20 to-slate-600/10" },
+  { name: "Amico", min: 10, icon: Heart, color: "from-blue-500/20 to-cyan-500/10" },
+  { name: "TIMILIA Lover", min: 30, icon: Crown, color: "from-gold/20 to-amber-500/10" },
+  { name: "Ambasciatore", min: 60, icon: Award, color: "from-amber-400/30 to-yellow-500/20" },
+];
+
+function getTier(points: number) {
+  let current = TIERS[0];
+  let next = TIERS[1];
+  for (let i = 0; i < TIERS.length; i++) {
+    if (points >= TIERS[i].min) {
+      current = TIERS[i];
+      next = TIERS[i + 1] || null;
+    }
+  }
+  const progress = next ? Math.min(100, ((points - current.min) / (next.min - current.min)) * 100) : 100;
+  return { current, next, progress };
 }
 
 export default function AccountPage() {
@@ -183,110 +204,248 @@ export default function AccountPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-gold" />
+        <div className="relative">
+          <div className="absolute inset-0 blur-3xl bg-gold/10 rounded-full" />
+          <Loader2 size={32} className="animate-spin text-gold relative" />
+        </div>
       </div>
     );
   }
 
   if (!user) return null;
 
+  const loyaltyPoints = orders.length * 10 + reviews.length * 5 + (profile?.newsletter_consent ? 5 : 0);
+  const { current: currentTier, next: nextTier, progress: tierProgress } = getTier(loyaltyPoints);
+  const TierIcon = currentTier.icon;
+
+  const achievements = [
+    { icon: ShoppingBag, label: "Primo ordine", unlocked: orders.length > 0 },
+    { icon: Star, label: "Prima recensione", unlocked: reviews.length > 0 },
+    { icon: Mail, label: "Newsletter", unlocked: profile?.newsletter_consent || false },
+    { icon: Crown, label: "TIMILIA Lover", unlocked: loyaltyPoints >= 30 },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <Navbar />
 
-      <div className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        {/* Header */}
+      {/* Dynamic background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gold/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-amber-700/[0.03] rounded-full blur-[100px]" />
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
+      </div>
+
+      <div className="pt-28 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative">
+        {/* HERO HEADER */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center text-center mb-10"
+          transition={{ duration: 0.6 }}
+          className="relative mb-8"
         >
-          <div className="relative mb-4">
-            <div className="w-24 h-24 rounded-full border border-gold/30 bg-gold/10 overflow-hidden flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <Image src={profile.avatar_url} alt="Avatar" width={96} height={96} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-gold text-2xl font-light">
-                  {(profile?.name || user.email || "U").charAt(0).toUpperCase()}
-                </span>
+          {/* Glow behind avatar */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-gold/[0.06] rounded-full blur-[80px] pointer-events-none" />
+
+          <div className="relative flex flex-col items-center text-center">
+            {/* Avatar with animated ring */}
+            <div className="relative mb-6">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-2 rounded-full"
+                style={{
+                  background: "conic-gradient(from 0deg, transparent, rgba(212,175,55,0.3), transparent, rgba(212,175,55,0.15), transparent)",
+                }}
+              />
+              <div className="relative w-28 h-28 rounded-full border-2 border-gold/30 bg-gradient-to-br from-gold/10 to-transparent overflow-hidden flex items-center justify-center">
+                {profile?.avatar_url ? (
+                  <Image src={profile.avatar_url} alt="Avatar" width={112} height={112} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-gold text-3xl font-light">
+                    {(profile?.name || user.email || "U").charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <label className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center cursor-pointer hover:bg-gold/30 transition-colors z-10">
+                {uploadingAvatar ? (
+                  <Loader2 size={15} className="animate-spin text-gold" />
+                ) : (
+                  <Camera size={15} strokeWidth={1.5} className="text-gold" />
+                )}
+                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+              </label>
+            </div>
+
+            {/* Name + tier */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="flex items-center gap-2 mb-2"
+            >
+              <h1 className="text-foreground text-2xl md:text-4xl font-light tracking-wide">
+                {profile?.name || "Utente"}
+              </h1>
+            </motion.div>
+
+            {/* Tier badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r ${currentTier.color} border border-gold/20 mb-3`}
+            >
+              <TierIcon size={14} strokeWidth={1.5} className="text-gold" />
+              <span className="text-gold/90 text-xs tracking-[0.15em] uppercase font-medium">{currentTier.name}</span>
+            </motion.div>
+
+            <p className="text-foreground/40 text-sm font-light mb-6">{user.email}</p>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="/"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-foreground/50 hover:text-gold hover:border-gold/30 text-xs tracking-wide uppercase transition-all"
+              >
+                <ArrowLeft size={14} strokeWidth={1.5} />
+                Home
+              </a>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 text-foreground/50 hover:text-red-400 hover:border-red-500/30 text-xs tracking-wide uppercase transition-all"
+              >
+                <LogOut size={14} strokeWidth={1.5} />
+                Esci
+              </button>
+              {profile?.is_admin && (
+                <button
+                  onClick={() => router.push("/admin")}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 border border-gold/30 text-gold/80 hover:text-gold hover:bg-gold/20 text-xs tracking-wide uppercase transition-all"
+                >
+                  <Shield size={14} strokeWidth={1.5} />
+                  Admin
+                </button>
               )}
             </div>
-            <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-gold/20 border border-gold/30 flex items-center justify-center cursor-pointer hover:bg-gold/30 transition-colors">
-              {uploadingAvatar ? (
-                <Loader2 size={14} className="animate-spin text-gold" />
-              ) : (
-                <Camera size={14} strokeWidth={1.5} className="text-gold" />
-              )}
-              <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
-            </label>
-          </div>
-          <h1 className="text-foreground text-2xl md:text-3xl font-light tracking-wide mb-1">
-            {profile?.name || "Utente"}
-          </h1>
-          <p className="text-foreground/40 text-sm font-light">{user.email}</p>
-          <div className="flex items-center gap-4 mt-4">
-            <a
-              href="/"
-              className="flex items-center gap-2 text-foreground/40 hover:text-gold text-xs tracking-wide uppercase transition-colors"
-            >
-              <ArrowLeft size={14} strokeWidth={1.5} />
-              Home
-            </a>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-foreground/40 hover:text-red-400 text-xs tracking-wide uppercase transition-colors"
-            >
-              <LogOut size={14} strokeWidth={1.5} />
-              Esci
-            </button>
-            {profile?.is_admin && (
-              <button
-                onClick={() => router.push("/admin")}
-                className="flex items-center gap-2 text-gold/60 hover:text-gold text-xs tracking-wide uppercase transition-colors"
-              >
-                <Shield size={14} strokeWidth={1.5} />
-                Pannello Admin
-              </button>
-            )}
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 mb-8 p-1 bg-white/[0.03] border border-white/5 rounded-xl max-w-md mx-auto">
-          <button
-            onClick={() => setActiveTab("profile")}
-            className={`flex-1 py-2.5 rounded-lg text-xs tracking-wide uppercase font-medium transition-all flex items-center justify-center gap-2 ${
-              activeTab === "profile"
-                ? "bg-gold/15 text-gold border border-gold/20"
-                : "text-foreground/40 hover:text-foreground/60"
-            }`}
-          >
-            <User size={14} strokeWidth={1.5} />
-            Profilo
-          </button>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`flex-1 py-2.5 rounded-lg text-xs tracking-wide uppercase font-medium transition-all flex items-center justify-center gap-2 ${
-              activeTab === "orders"
-                ? "bg-gold/15 text-gold border border-gold/20"
-                : "text-foreground/40 hover:text-foreground/60"
-            }`}
-          >
-            <Package size={14} strokeWidth={1.5} />
-            Ordini
-          </button>
-          <button
-            onClick={() => setActiveTab("reviews")}
-            className={`flex-1 py-2.5 rounded-lg text-xs tracking-wide uppercase font-medium transition-all flex items-center justify-center gap-2 ${
-              activeTab === "reviews"
-                ? "bg-gold/15 text-gold border border-gold/20"
-                : "text-foreground/40 hover:text-foreground/60"
-            }`}
-          >
-            <MessageSquare size={14} strokeWidth={1.5} />
-            Recensioni
-          </button>
+        {/* LOYALTY PROGRESS */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="rounded-2xl border border-gold/15 bg-gradient-to-br from-white/[0.04] to-transparent p-6 mb-6 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gold/[0.04] rounded-full blur-3xl" />
+          <div className="relative flex items-center justify-between mb-4">
+            <div>
+              <p className="text-foreground/40 text-xs uppercase tracking-[0.15em] mb-1">Status Fedeltà</p>
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-gold" />
+                <span className="text-foreground text-lg font-light">{loyaltyPoints} punti</span>
+              </div>
+            </div>
+            {nextTier && (
+              <div className="text-right">
+                <p className="text-foreground/30 text-xs uppercase tracking-wide mb-1">Prossimo</p>
+                <p className="text-gold/70 text-sm font-light">{nextTier.name}</p>
+              </div>
+            )}
+          </div>
+          {/* Progress bar */}
+          <div className="relative h-2 rounded-full bg-white/[0.06] overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${tierProgress}%` }}
+              transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+              className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-gold/40 via-gold to-amber-400"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+            </motion.div>
+          </div>
+          {nextTier && (
+            <p className="text-foreground/30 text-xs font-light mt-3">
+              Mancano <span className="text-gold/60">{nextTier.min - loyaltyPoints}</span> punti per diventare <span className="text-gold/60">{nextTier.name}</span>
+            </p>
+          )}
+        </motion.div>
+
+        {/* STATS CARDS */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+          {[
+            { icon: Package, label: "Ordini", value: orders.length, color: "text-gold" },
+            { icon: Star, label: "Recensioni", value: reviews.length, color: "text-amber-400" },
+            { icon: TrendingUp, label: "Punti", value: loyaltyPoints, color: "text-gold" },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + i * 0.1 }}
+              className="group relative rounded-2xl border border-white/8 bg-white/[0.03] p-4 sm:p-5 text-center overflow-hidden transition-all hover:border-gold/20"
+            >
+              <div className="absolute inset-0 bg-gold/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <stat.icon size={22} strokeWidth={1.5} className={`${stat.color} mx-auto mb-2 relative`} />
+              <p className="text-foreground text-xl sm:text-2xl font-light relative">{stat.value}</p>
+              <p className="text-foreground/40 text-[10px] sm:text-xs uppercase tracking-wide relative">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ACHIEVEMENT BADGES */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="flex flex-wrap items-center justify-center gap-3 mb-8"
+        >
+          {achievements.map((ach) => (
+            <div
+              key={ach.label}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-all ${
+                ach.unlocked
+                  ? "border-gold/25 bg-gold/[0.06] text-gold/80"
+                  : "border-white/5 bg-white/[0.02] text-foreground/20"
+              }`}
+            >
+              <ach.icon size={12} strokeWidth={1.5} className={ach.unlocked ? "text-gold" : "text-foreground/20"} />
+              <span className="tracking-wide">{ach.label}</span>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* TABS */}
+        <div className="flex gap-1 mb-8 p-1 bg-white/[0.03] border border-white/5 rounded-2xl max-w-md mx-auto">
+          {[
+            { id: "profile" as const, icon: User, label: "Profilo" },
+            { id: "orders" as const, icon: Package, label: "Ordini" },
+            { id: "reviews" as const, icon: MessageSquare, label: "Recensioni" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex-1 py-3 rounded-xl text-xs tracking-wide uppercase font-medium transition-all flex items-center justify-center gap-2 ${
+                activeTab === tab.id
+                  ? "bg-gold/15 text-gold border border-gold/20"
+                  : "text-foreground/40 hover:text-foreground/60"
+              }`}
+            >
+              <tab.icon size={14} strokeWidth={1.5} />
+              {tab.label}
+              {tab.id === "reviews" && reviews.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gold/30 text-gold text-[9px] flex items-center justify-center">
+                  {reviews.length}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Content */}
@@ -299,42 +458,29 @@ export default function AccountPage() {
           {/* PROFILE TAB */}
           {activeTab === "profile" && (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-gold/15 bg-white/[0.02] p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <User size={18} strokeWidth={1.5} className="text-gold/60" />
+              <div className="rounded-2xl border border-gold/15 bg-gradient-to-br from-white/[0.04] to-transparent p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gold/[0.03] rounded-full blur-2xl" />
+                <div className="relative flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                    <User size={18} strokeWidth={1.5} className="text-gold/70" />
+                  </div>
                   <h2 className="text-foreground text-sm tracking-[0.15em] uppercase font-medium">Dati personali</h2>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 py-3 border-b border-white/5">
-                    <User size={16} strokeWidth={1.5} className="text-foreground/30" />
-                    <div className="flex-1">
-                      <p className="text-foreground/40 text-xs uppercase tracking-wide">Nome</p>
-                      <p className="text-foreground/80 text-sm font-light">{profile?.name || "—"}</p>
+                <div className="relative space-y-1">
+                  {[
+                    { icon: User, label: "Nome", value: profile?.name || "—" },
+                    { icon: Mail, label: "Email", value: user.email },
+                    { icon: Phone, label: "Telefono", value: profile?.phone || "—" },
+                    { icon: Mail, label: "Newsletter", value: profile?.newsletter_consent ? "Iscritto" : "Non iscritto" },
+                  ].map((field) => (
+                    <div key={field.label} className="flex items-center gap-3 py-3 border-b border-white/5 group hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors">
+                      <field.icon size={16} strokeWidth={1.5} className="text-foreground/30 group-hover:text-gold/50 transition-colors" />
+                      <div className="flex-1">
+                        <p className="text-foreground/40 text-xs uppercase tracking-wide">{field.label}</p>
+                        <p className="text-foreground/80 text-sm font-light">{field.value}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 py-3 border-b border-white/5">
-                    <Mail size={16} strokeWidth={1.5} className="text-foreground/30" />
-                    <div className="flex-1">
-                      <p className="text-foreground/40 text-xs uppercase tracking-wide">Email</p>
-                      <p className="text-foreground/80 text-sm font-light">{user.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 py-3 border-b border-white/5">
-                    <Phone size={16} strokeWidth={1.5} className="text-foreground/30" />
-                    <div className="flex-1">
-                      <p className="text-foreground/40 text-xs uppercase tracking-wide">Telefono</p>
-                      <p className="text-foreground/80 text-sm font-light">{profile?.phone || "—"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 py-3">
-                    <Mail size={16} strokeWidth={1.5} className="text-foreground/30" />
-                    <div className="flex-1">
-                      <p className="text-foreground/40 text-xs uppercase tracking-wide">Newsletter</p>
-                      <p className="text-foreground/80 text-sm font-light">
-                        {profile?.newsletter_consent ? "Iscritto" : "Non iscritto"}
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
@@ -405,55 +551,65 @@ export default function AccountPage() {
           {activeTab === "orders" && (
             <div className="space-y-4">
               {orders.length === 0 ? (
-                <div className="text-center py-16 rounded-2xl border border-gold/10 bg-white/[0.02]">
-                  <ShoppingBag size={40} strokeWidth={1} className="text-foreground/20 mx-auto mb-4" />
-                  <p className="text-foreground/40 text-sm font-light">Nessun ordine ancora effettuato</p>
+                <div className="text-center py-16 rounded-2xl border border-gold/10 bg-gradient-to-br from-white/[0.03] to-transparent relative overflow-hidden">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-gold/[0.03] rounded-full blur-3xl" />
+                  <ShoppingBag size={40} strokeWidth={1} className="text-foreground/20 mx-auto mb-4 relative" />
+                  <p className="text-foreground/40 text-sm font-light relative">Nessun ordine ancora effettuato</p>
                   <a
                     href="/tera#shop"
-                    className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/25 transition-colors"
+                    className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/25 transition-colors relative"
                   >
                     <ShoppingBag size={15} strokeWidth={1.5} />
                     Vai allo shop
                   </a>
                 </div>
               ) : (
-                orders.map((order) => (
-                  <div key={order.id} className="rounded-2xl border border-gold/15 bg-white/[0.02] p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-foreground/40 text-xs uppercase tracking-wide">Ordine</p>
-                        <p className="text-foreground/80 text-sm font-light font-mono">
-                          #{order.id.slice(0, 8)}
-                        </p>
+                orders.map((order, i) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="group rounded-2xl border border-gold/15 bg-gradient-to-br from-white/[0.04] to-transparent p-6 hover:border-gold/25 transition-all relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gold/[0.03] rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                          <Package size={16} strokeWidth={1.5} className="text-gold/70" />
+                        </div>
+                        <div>
+                          <p className="text-foreground/40 text-xs uppercase tracking-wide">Ordine</p>
+                          <p className="text-foreground/80 text-sm font-light font-mono">#{order.id.slice(0, 8)}</p>
+                        </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-foreground/40 text-xs uppercase tracking-wide">Data</p>
-                        <p className="text-foreground/80 text-sm font-light">
-                          {new Date(order.created_at).toLocaleDateString("it-IT")}
-                        </p>
+                        <div className="flex items-center gap-1.5 justify-end mb-0.5">
+                          <Calendar size={12} strokeWidth={1.5} className="text-foreground/30" />
+                          <p className="text-foreground/60 text-xs">{new Date(order.created_at).toLocaleDateString("it-IT")}</p>
+                        </div>
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full ${
+                          order.status === "pending"
+                            ? "bg-gold/10 text-gold/70 border border-gold/20"
+                            : "bg-green-500/10 text-green-400/70 border border-green-500/20"
+                        }`}>
+                          {order.status === "pending" ? "In attesa" : "Confermato"}
+                        </span>
                       </div>
                     </div>
-                    <div className="space-y-2 mb-4">
-                      {order.items.map((item, i) => (
-                        <div key={i} className="flex items-center justify-between text-sm">
+                    <div className="relative space-y-2 mb-4">
+                      {order.items.map((item, j) => (
+                        <div key={j} className="flex items-center justify-between text-sm">
                           <span className="text-foreground/60 font-light">{item.quantity}x {item.productName}</span>
                           <span className="text-foreground/40 font-light">€{item.price.toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                      <span className={`text-xs px-3 py-1 rounded-full ${
-                        order.status === "pending"
-                          ? "bg-gold/10 text-gold/70 border border-gold/20"
-                          : "bg-green-500/10 text-green-400/70 border border-green-500/20"
-                      }`}>
-                        {order.status === "pending" ? "In attesa" : "Confermato"}
-                      </span>
-                      <span className="text-foreground text-sm font-medium">
-                        €{Number(order.total).toFixed(2)}
-                      </span>
+                    <div className="relative flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="text-foreground/40 text-xs uppercase tracking-wide">Totale</span>
+                      <span className="text-foreground text-base font-medium">€{Number(order.total).toFixed(2)}</span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
             </div>
@@ -463,9 +619,12 @@ export default function AccountPage() {
           {activeTab === "reviews" && (
             <div className="space-y-6">
               {/* Review form */}
-              <div className="rounded-2xl border border-gold/15 bg-white/[0.02] p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <Star size={18} strokeWidth={1.5} className="text-gold/60" />
+              <div className="rounded-2xl border border-gold/15 bg-gradient-to-br from-white/[0.04] to-transparent p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gold/[0.03] rounded-full blur-2xl" />
+                <div className="relative flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+                    <Star size={18} strokeWidth={1.5} className="text-gold/70" />
+                  </div>
                   <h2 className="text-foreground text-sm tracking-[0.15em] uppercase font-medium">Lascia una recensione</h2>
                 </div>
                 <form onSubmit={handleSubmitReview} className="space-y-4">
@@ -520,14 +679,22 @@ export default function AccountPage() {
               <div>
                 <h3 className="text-foreground/60 text-sm tracking-[0.15em] uppercase font-medium mb-4">Le tue recensioni</h3>
                 {reviews.length === 0 ? (
-                  <div className="text-center py-12 rounded-2xl border border-gold/10 bg-white/[0.02]">
-                    <MessageSquare size={32} strokeWidth={1} className="text-foreground/20 mx-auto mb-3" />
-                    <p className="text-foreground/40 text-sm font-light">Nessuna recensione ancora</p>
+                  <div className="text-center py-12 rounded-2xl border border-gold/10 bg-gradient-to-br from-white/[0.03] to-transparent relative overflow-hidden">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-gold/[0.03] rounded-full blur-3xl" />
+                    <MessageSquare size={32} strokeWidth={1} className="text-foreground/20 mx-auto mb-3 relative" />
+                    <p className="text-foreground/40 text-sm font-light relative">Nessuna recensione ancora</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {reviews.map((review) => (
-                      <div key={review.id} className="rounded-xl border border-gold/10 bg-white/[0.02] p-5">
+                    {reviews.map((review, i) => (
+                      <motion.div
+                        key={review.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="group rounded-xl border border-gold/10 bg-gradient-to-br from-white/[0.04] to-transparent p-5 hover:border-gold/20 transition-all relative overflow-hidden"
+                      >
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gold/[0.02] rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex gap-0.5">
                             {[...Array(review.rating)].map((_, i) => (
@@ -551,11 +718,11 @@ export default function AccountPage() {
                             </button>
                           </div>
                         </div>
-                        <p className="text-foreground/70 text-sm font-light leading-relaxed">{review.text}</p>
-                        <p className="text-foreground/30 text-xs mt-3">
+                        <p className="text-foreground/70 text-sm font-light leading-relaxed relative">{review.text}</p>
+                        <p className="text-foreground/30 text-xs mt-3 relative">
                           {new Date(review.created_at).toLocaleDateString("it-IT")}
                         </p>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
