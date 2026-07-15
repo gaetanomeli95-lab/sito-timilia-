@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu as MenuIcon, X, Instagram, Facebook, User } from "lucide-react";
+import { Menu as MenuIcon, X, Instagram, Facebook, User, ShoppingBag, LogOut } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import CustomerAuthModal from "./CustomerAuthModal";
 import LanguageSelector from "./LanguageSelector";
+import { supabase } from "@/lib/supabase-client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const navLinks = [
   { href: "#hero", label: "Home", type: "anchor" },
@@ -23,7 +25,21 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -80,7 +96,26 @@ export default function Navbar() {
       router.push(link.href);
       return;
     }
+    if (!isHomePage) {
+      e.preventDefault();
+      setMenuOpen(false);
+      router.push(`/${link.href}`);
+      return;
+    }
     setMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuthUser(null);
+    setUserMenuOpen(false);
+    router.push("/");
+  };
+
+  const handleProfileClick = () => {
+    setUserMenuOpen(false);
+    setMenuOpen(false);
+    router.push("/account");
   };
 
   return (
@@ -90,14 +125,14 @@ export default function Navbar() {
         animate={{ y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
-          scrolled
+          scrolled || !isHomePage
             ? "bg-background/90 backdrop-blur-xl border-b border-white/[0.06]"
             : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <a href="#hero" className="flex items-center gap-3 group">
+            <a href={isHomePage ? "#hero" : "/"} className="flex items-center gap-3 group">
               <Image
                 src="/images/logo-timilia-original.jpg"
                 alt="TIMILIA"
@@ -117,7 +152,7 @@ export default function Navbar() {
                 return (
                   <a
                     key={link.href}
-                    href={link.href}
+                    href={isHomePage ? link.href : `/${link.href}`}
                     onClick={(e) => handleNavClick(e, link)}
                     className={`relative text-xs tracking-[0.15em] uppercase transition-colors duration-300 group ${
                       isActive ? "text-gold" : "text-foreground/70 hover:text-gold"
@@ -135,14 +170,55 @@ export default function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center gap-3 ml-2 pl-6 border-l border-white/10">
-              <LanguageSelector />
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
-                aria-label="Accedi / Registrati"
+              <a
+                href="/tera#shop"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/25 hover:border-gold/50 transition-all duration-300"
+                aria-label="Shop TERA"
               >
-                <User size={18} strokeWidth={1.5} />
-              </button>
+                <ShoppingBag size={16} strokeWidth={1.5} />
+                <span>Shop</span>
+              </a>
+              <LanguageSelector />
+              {authUser ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="w-9 h-9 rounded-full border border-gold/30 bg-gold/10 flex items-center justify-center text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                    aria-label="Account"
+                  >
+                    {(authUser.email || "U").charAt(0).toUpperCase()}
+                  </button>
+                  {userMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                      <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-gold/15 bg-[#111111] shadow-2xl py-1.5 z-50">
+                        <button
+                          onClick={handleProfileClick}
+                          className="w-full px-4 py-2.5 text-left text-sm text-foreground/70 hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
+                        >
+                          <User size={15} strokeWidth={1.5} />
+                          Il mio profilo
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full px-4 py-2.5 text-left text-sm text-foreground/70 hover:text-red-400 hover:bg-red-500/5 transition-colors flex items-center gap-2 border-t border-white/5 mt-1"
+                        >
+                          <LogOut size={15} strokeWidth={1.5} />
+                          Esci
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => setAuthOpen(true)}
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-foreground/50 hover:text-gold hover:border-gold/30 transition-colors"
+                  aria-label="Accedi / Registrati"
+                >
+                  <User size={18} strokeWidth={1.5} />
+                </button>
+              )}
               <a
                 href="https://www.instagram.com/pizzatimilia/"
                 target="_blank"
@@ -197,7 +273,7 @@ export default function Navbar() {
                 return (
                   <motion.a
                     key={link.href}
-                    href={link.href}
+                    href={isHomePage ? link.href : `/${link.href}`}
                     onClick={(e) => handleNavClick(e, link)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -222,17 +298,47 @@ export default function Navbar() {
                 transition={{ delay: 0.6 }}
                 className="flex items-center gap-6 mt-4"
               >
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setAuthOpen(true);
-                  }}
-                  className="flex items-center gap-2 text-foreground/50 hover:text-gold transition-colors"
-                  aria-label="Accedi / Registrati"
+                <a
+                  href="/tera#shop"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/15 border border-gold/30 text-gold text-sm tracking-[0.15em] uppercase font-medium hover:bg-gold/25 hover:border-gold/50 transition-all duration-300"
+                  aria-label="Shop TERA"
                 >
-                  <User size={24} strokeWidth={1.5} />
-                  <span className="text-sm tracking-wide">Accedi</span>
-                </button>
+                  <ShoppingBag size={18} strokeWidth={1.5} />
+                  <span>Shop</span>
+                </a>
+                {authUser ? (
+                  <>
+                    <button
+                      onClick={handleProfileClick}
+                      className="flex items-center gap-2 text-foreground/50 hover:text-gold transition-colors"
+                      aria-label="Il mio profilo"
+                    >
+                      <User size={24} strokeWidth={1.5} />
+                      <span className="text-sm tracking-wide">Profilo</span>
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 text-foreground/50 hover:text-red-400 transition-colors"
+                      aria-label="Esci"
+                    >
+                      <LogOut size={24} strokeWidth={1.5} />
+                      <span className="text-sm tracking-wide">Esci</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setAuthOpen(true);
+                    }}
+                    className="flex items-center gap-2 text-foreground/50 hover:text-gold transition-colors"
+                    aria-label="Accedi / Registrati"
+                  >
+                    <User size={24} strokeWidth={1.5} />
+                    <span className="text-sm tracking-wide">Accedi</span>
+                  </button>
+                )}
                 <a
                   href="https://www.instagram.com/pizzatimilia/"
                   target="_blank"

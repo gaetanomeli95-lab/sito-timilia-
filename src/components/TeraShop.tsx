@@ -79,7 +79,7 @@ export default function TeraShop() {
   return (
     <>
       {/* Shop Section */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 mb-8 md:mb-12">
+      <section id="shop" className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 mb-8 md:mb-12 scroll-mt-20">
         <div className="flex items-center gap-3 mb-2">
           <div className="h-px w-10 bg-white/30" />
           <span className="text-white/50 text-[10px] tracking-[0.3em] uppercase font-medium">

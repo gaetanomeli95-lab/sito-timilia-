@@ -154,15 +154,15 @@ export default function ReviewsSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 + idx * 0.15, ease: "easeOut" }}
-              className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.15] p-8 transition-all duration-500 hover:border-gold/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.10),rgba(255,255,255,0.03))] hover:bg-[linear-gradient(135deg,rgba(255,255,255,0.13),rgba(255,255,255,0.04))] backdrop-blur-sm hover:shadow-[0_24px_80px_rgba(0,0,0,0.4)]"
+              className="group relative overflow-hidden rounded-2xl border border-gold/15 p-8 transition-all duration-500 hover:border-gold/35 bg-[linear-gradient(160deg,rgba(200,169,126,0.05),rgba(255,255,255,0.02)_40%,rgba(0,0,0,0.12))] backdrop-blur-md hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
             >
               {/* Glow blur on hover */}
               <div
-                className="absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150"
+                className="absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-[2]"
                 style={{ background: platform.glow }}
               />
               {/* Sweep line on hover */}
-              <div className="absolute left-0 top-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-transparent via-gold/50 to-transparent transition-transform duration-700 group-hover:scale-x-100" />
+              <div className="absolute left-0 top-0 h-[2px] w-full origin-left scale-x-0 bg-gradient-to-r from-gold/50 via-gold/20 to-transparent transition-transform duration-700 group-hover:scale-x-100" />
 
               <div className="relative flex flex-col h-full">
                 <div className="flex items-center justify-between mb-6">
@@ -201,7 +201,7 @@ export default function ReviewsSection() {
                   ))}
                 </div>
 
-                <div className="mt-auto pt-4 border-t border-white/[0.05]">
+                <div className="mt-auto pt-4 border-t border-gold/10">
                   <p className="text-foreground/40 text-xs font-light tracking-wide">
                     {platform.reviews} recensioni
                   </p>
@@ -219,40 +219,39 @@ export default function ReviewsSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5 + idx * 0.15, ease: "easeOut" }}
-              className="group relative overflow-hidden rounded-[1.5rem] border border-white/[0.15] p-8 bg-[linear-gradient(135deg,rgba(255,255,255,0.09),rgba(255,255,255,0.025))] backdrop-blur-sm transition-all duration-500 hover:border-gold/25"
+              className="group relative overflow-hidden rounded-2xl border border-gold/15 p-8 bg-[linear-gradient(160deg,rgba(200,169,126,0.06),rgba(255,255,255,0.02)_40%,rgba(0,0,0,0.15))] backdrop-blur-md transition-all duration-500 hover:border-gold/35 hover:shadow-[0_20px_60px_rgba(200,169,126,0.08)]"
             >
-              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gold/[0.06] blur-3xl transition-transform duration-700 group-hover:scale-150" />
-              <div className="absolute left-0 top-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-transparent via-gold/40 to-transparent transition-transform duration-700 group-hover:scale-x-100" />
+              <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gold/[0.08] blur-3xl transition-transform duration-700 group-hover:scale-[2]" />
+              <div className="absolute left-0 top-0 h-[2px] w-full origin-left scale-x-0 bg-gradient-to-r from-gold/50 via-gold/20 to-transparent transition-transform duration-700 group-hover:scale-x-100" />
 
-              <div className="relative">
-                <Quote
-                  size={36}
-                  strokeWidth={0.8}
-                  className="text-gold/15 mb-5"
-                />
-
-                <div className="flex gap-1 mb-4">
-                  {[...Array(review.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      strokeWidth={1.5}
-                      className="text-gold fill-gold"
-                    />
-                  ))}
+              <div className="relative flex flex-col h-full min-h-[280px]">
+                <div className="flex items-start justify-between mb-5">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
+                    <Quote size={20} strokeWidth={1.2} className="text-gold/50" />
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Star key={i} size={13} strokeWidth={1.5} className="text-gold fill-gold" />
+                    ))}
+                  </div>
                 </div>
 
-                <p className="text-foreground/65 text-sm font-light leading-[1.8] mb-6 italic">
-                  {review.text}
+                <p className="text-foreground/75 text-sm font-light leading-[1.8] mb-6 flex-1">
+                  "{review.text}"
                 </p>
 
-                <div className="flex items-center justify-between pt-4 border-t border-white/[0.05]">
-                  <span className="text-foreground/80 text-sm font-medium tracking-wide">
-                    {review.author}
-                  </span>
-                  <span className="text-foreground/30 text-xs font-light tracking-[0.1em] uppercase">
-                    {review.source}
-                  </span>
+                <div className="flex items-center gap-3 pt-5 border-t border-gold/10">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/15 flex items-center justify-center text-gold text-xs font-medium">
+                    {review.author.charAt(0)}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-foreground/90 text-sm font-medium tracking-wide">
+                      {review.author}
+                    </span>
+                    <span className="text-gold/50 text-[10px] font-light tracking-[0.15em] uppercase">
+                      via {review.source}
+                    </span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -309,7 +308,7 @@ export default function ReviewsSection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 1.4 + idx * 0.1, ease: "easeOut" }}
-                  className="group relative overflow-hidden rounded-[1.3rem] border border-gold/18 p-7 bg-[linear-gradient(135deg,rgba(255,255,255,0.09),rgba(255,255,255,0.025))] backdrop-blur-sm transition-all duration-500 hover:border-gold/30"
+                  className="group relative overflow-hidden rounded-2xl border border-gold/15 p-7 bg-[linear-gradient(160deg,rgba(200,169,126,0.05),rgba(255,255,255,0.02)_40%,rgba(0,0,0,0.12))] backdrop-blur-md transition-all duration-500 hover:border-gold/30 hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)]"
                 >
                   <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gold/[0.05] blur-2xl transition-transform duration-700 group-hover:scale-150" />
 
@@ -317,7 +316,7 @@ export default function ReviewsSection() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gold/12 border border-gold/20 flex items-center justify-center text-gold text-sm font-medium">
-                          {review.customerName.charAt(0).toUpperCase()}
+                          {(review.customerName || "U").charAt(0).toUpperCase()}
                         </div>
                         <span className="text-foreground/80 text-sm font-medium tracking-wide">
                           {review.customerName}

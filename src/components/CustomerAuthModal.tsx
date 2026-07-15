@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, User, Mail, Phone, Lock, CheckCircle, Loader2,
   UserPlus, LogIn, ShieldCheck, RefreshCw,
 } from "lucide-react";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase-client";
 
 interface CustomerAuthModalProps {
   open: boolean;
@@ -25,18 +26,22 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [newsletter, setNewsletter] = useState(true);
-  const [otpCode, setOtpCode] = useState("");
-  const [customerId, setCustomerId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [debugOtp, setDebugOtp] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const t = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [resendTimer]);
 
   const switchMode = (newMode: Mode) => {
     setMode(newMode);
     setStep("form");
     setError("");
     setPassword("");
-    setOtpCode("");
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -45,21 +50,40 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
     setError("");
 
     try {
-      const res = await fetch("/api/customers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, password, newsletterConsent: newsletter }),
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, phone },
+        },
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error || "Errore durante la registrazione");
+      if (signUpError) {
+        setError(signUpError.message || "Errore durante la registrazione. Riprova.");
         return;
       }
 
-      setCustomerId(data.customerId);
-      if (data.debugOtp) setDebugOtp(data.debugOtp);
+      if (!data.user) {
+        setError("Registrazione completata ma l'utente non è stato creato. Verifica che l'SMTP sia configurato correttamente su Supabase.");
+        return;
+      }
+
+      if (data.user) {
+        await fetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            authId: data.user.id,
+            name,
+            email,
+            phone,
+            newsletterConsent: newsletter,
+          }),
+        });
+      }
+
       setStep("otp");
+      setResendTimer(30);
     } catch {
       setError("Errore di connessione. Riprova.");
     } finally {
@@ -73,27 +97,33 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
     setError("");
 
     try {
-      const res = await fetch("/api/customers/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        if (data.needsVerification && data.customerId) {
-          setCustomerId(data.customerId);
+      if (signInError) {
+        if (signInError.message.includes("Email not confirmed")) {
           setStep("otp");
-          await handleResendOtp(data.customerId);
+          setResendTimer(30);
+          setError("Email non ancora verificata. Ti abbiamo inviato un link di conferma.");
           return;
         }
-        setError(data.error || "Errore durante il login");
+        setError(signInError.message);
         return;
       }
 
-      onSuccess?.(data.customer);
-      setStep("success");
-      setTimeout(() => handleClose(), 1500);
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("customers")
+          .select("name, email")
+          .eq("auth_id", data.user.id)
+          .single();
+
+        onSuccess?.({ id: data.user.id, name: profile?.name || "", email: data.user.email || "" });
+        setStep("success");
+        setTimeout(() => handleClose(), 1500);
+      }
     } catch {
       setError("Errore di connessione. Riprova.");
     } finally {
@@ -101,55 +131,23 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResendConfirmation = async () => {
+    if (resendTimer > 0) return;
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch("/api/customers/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerId, otpCode }),
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email,
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error || "Errore durante la verifica");
+      if (resendError) {
+        setError(resendError.message);
         return;
       }
 
-      onSuccess?.(data.customer);
-      setStep("success");
-      setTimeout(() => handleClose(), 1500);
-    } catch {
-      setError("Errore di connessione. Riprova.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async (id?: string) => {
-    const targetId = id || customerId;
-    if (!targetId) return;
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/customers/resend-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerId: targetId }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Errore invio codice");
-        return;
-      }
-
-      if (data.debugOtp) setDebugOtp(data.debugOtp);
-      setOtpCode("");
+      setResendTimer(30);
       setError("");
     } catch {
       setError("Errore di connessione.");
@@ -164,12 +162,10 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
     setPhone("");
     setPassword("");
     setNewsletter(true);
-    setOtpCode("");
-    setCustomerId("");
     setError("");
-    setDebugOtp("");
     setStep("form");
     setMode("register");
+    setResendTimer(0);
     onClose();
   };
 
@@ -238,7 +234,7 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
                     </p>
                   </motion.div>
                 ) : step === "otp" ? (
-                  /* OTP STEP */
+                  /* OTP STEP — Supabase invia un link via email, non un codice */
                   <motion.div
                     key="otp"
                     initial={{ opacity: 0, x: 20 }}
@@ -251,58 +247,40 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
                       </div>
                       <h3 className="text-foreground text-xl font-light mb-2">Verifica il tuo account</h3>
                       <p className="text-foreground/50 text-sm font-light leading-relaxed">
-                        Abbiamo inviato un codice a 6 cifre a<br />
-                        <span className="text-foreground/70">{email}</span>
+                        Abbiamo inviato un link di conferma a<br />
+                        <span className="text-foreground/70">{email}</span><br />
+                        <span className="text-foreground/40 text-xs mt-2 block">Clicca sul link nell'email per verificare il tuo account.</span>
                       </p>
                     </div>
 
-                    {debugOtp && (
+                    {error && (
                       <div className="mb-4 bg-gold/10 border border-gold/20 rounded-lg px-4 py-2.5 text-center">
                         <p className="text-gold/80 text-xs font-light">
-                          [DEV MODE] Codice OTP: <span className="font-medium tracking-widest">{debugOtp}</span>
+                          {error}
                         </p>
                       </div>
                     )}
 
-                    <form onSubmit={handleVerifyOtp} className="space-y-5">
-                      <div>
-                        <input
-                          type="text"
-                          value={otpCode}
-                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                          required
-                          maxLength={6}
-                          autoFocus
-                          className="w-full px-4 py-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-foreground text-2xl font-light tracking-[0.5em] text-center focus:border-gold/40 focus:outline-none transition-colors"
-                          placeholder="000000"
-                        />
-                      </div>
-
-                      {error && (
-                        <p className="text-red-400/80 text-sm font-light bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
-                          {error}
-                        </p>
+                    <button
+                      type="button"
+                      onClick={handleResendConfirmation}
+                      disabled={loading || resendTimer > 0}
+                      className="w-full py-3.5 bg-gold/15 border border-gold/25 text-gold text-sm tracking-[0.15em] uppercase font-medium hover:bg-gold/25 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"
+                    >
+                      {loading && <Loader2 size={18} className="animate-spin" />}
+                      {resendTimer > 0 ? (
+                        <span>Invia di nuovo ({resendTimer}s)</span>
+                      ) : (
+                        <>
+                          <RefreshCw size={16} strokeWidth={1.5} />
+                          Invia di nuovo il link
+                        </>
                       )}
+                    </button>
 
-                      <button
-                        type="submit"
-                        disabled={loading || otpCode.length !== 6}
-                        className="w-full py-3.5 bg-gold text-background text-sm tracking-[0.15em] uppercase font-semibold hover:bg-gold-light transition-colors disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl"
-                      >
-                        {loading && <Loader2 size={18} className="animate-spin" />}
-                        Verifica codice
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleResendOtp()}
-                        disabled={loading}
-                        className="w-full text-foreground/40 hover:text-gold/70 text-xs font-light transition-colors flex items-center justify-center gap-2"
-                      >
-                        <RefreshCw size={13} strokeWidth={1.5} />
-                        Invia di nuovo il codice
-                      </button>
-                    </form>
+                    <p className="text-foreground/30 text-xs font-light text-center mt-5">
+                      Dopo aver confermato l'email, chiudi e accedi.
+                    </p>
                   </motion.div>
                 ) : (
                   /* FORM STEP — Register or Login */
@@ -460,7 +438,7 @@ export default function CustomerAuthModal({ open, onClose, onSuccess }: Customer
 
                     {mode === "register" && (
                       <p className="text-foreground/30 text-xs font-light text-center mt-5 leading-relaxed">
-                        Riceverai un codice OTP via email per verificare il tuo account.
+                        Riceverai un link di conferma via email per verificare il tuo account.
                       </p>
                     )}
                   </motion.div>

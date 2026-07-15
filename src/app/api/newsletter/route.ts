@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storage, NewsletterSubscriber } from "@/lib/storage";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name } = body;
+    const { email } = body;
 
     if (!email) {
       return NextResponse.json(
@@ -13,14 +13,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const subscriber: NewsletterSubscriber = {
-      id: `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      email,
-      name: name || undefined,
-      createdAt: new Date().toISOString(),
-    };
+    const { error } = await supabaseAdmin
+      .from("newsletter_subscribers")
+      .upsert({ email }, { onConflict: "email" });
 
-    await storage.addSubscriber(subscriber);
+    if (error) {
+      return NextResponse.json(
+        { error: "Errore durante l'iscrizione" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { success: true, message: "Iscrizione completata!" },

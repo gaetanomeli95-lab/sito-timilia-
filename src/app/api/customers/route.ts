@@ -1,73 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storage, Customer } from "@/lib/storage";
-import { generateOTP, sendOTPEmail } from "@/lib/email";
-import bcrypt from "bcryptjs";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, password, newsletterConsent } = body;
+    const { authId, name, email, phone, newsletterConsent } = body;
 
-    if (!name || !email || !password) {
+    if (!authId || !name || !email) {
       return NextResponse.json(
-        { error: "Nome, email e password sono obbligatori" },
+        { error: "authId, nome e email sono obbligatori" },
         { status: 400 }
       );
     }
 
-    if (password.length < 6) {
+    const { error: profileError } = await supabaseAdmin
+      .from("customers")
+      .insert({
+        auth_id: authId,
+        name,
+        email,
+        phone: phone || null,
+        newsletter_consent: !!newsletterConsent,
+      });
+
+    if (profileError) {
+      if (profileError.code === "23505") {
+        return NextResponse.json(
+          { error: "Un account con questa email esiste già" },
+          { status: 409 }
+        );
+      }
       return NextResponse.json(
-        { error: "La password deve avere almeno 6 caratteri" },
-        { status: 400 }
+        { error: "Errore durante la creazione del profilo" },
+        { status: 500 }
       );
     }
-
-    const existing = await storage.findCustomerByEmail(email);
-    if (existing) {
-      return NextResponse.json(
-        { error: "Un account con questa email esiste già" },
-        { status: 409 }
-      );
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const otpCode = generateOTP();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-    const customer: Customer = {
-      id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      name,
-      email,
-      phone: phone || undefined,
-      passwordHash,
-      newsletterConsent: !!newsletterConsent,
-      verified: false,
-      otpCode,
-      otpExpires,
-      createdAt: new Date().toISOString(),
-    };
-
-    await storage.addCustomer(customer);
 
     if (newsletterConsent) {
-      await storage.addSubscriber({
-        id: `sub_${Date.now()}`,
-        email,
-        name,
-        createdAt: new Date().toISOString(),
-      });
+      await supabaseAdmin
+        .from("newsletter_subscribers")
+        .upsert({ email }, { onConflict: "email" });
     }
 
-    const emailSent = await sendOTPEmail(email, otpCode, name);
-
     return NextResponse.json(
-      {
-        success: true,
-        message: "Registrazione creata. Inserisci il codice OTP ricevuto via email.",
-        customerId: customer.id,
-        emailSent,
-        ...(process.env.NODE_ENV === "development" && !emailSent ? { debugOtp: otpCode } : {}),
-      },
+      { success: true, message: "Profilo creato con successo" },
       { status: 201 }
     );
   } catch {
@@ -80,9 +56,18 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const customers = await storage.getCustomers();
-    const safe = customers.map(({ passwordHash, otpCode, otpExpires, ...rest }) => rest);
-    return NextResponse.json({ customers: safe });
+    const { data, error } = await supabaseAdmin
+      .from("customers")
+      .select("id, name, email, phone, newsletter_consent, created_at");
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Errore nel recupero clienti" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ customers: data });
   } catch {
     return NextResponse.json(
       { error: "Errore nel recupero clienti" },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storage, Review } from "@/lib/storage";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,35 +20,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const customer = await storage.findCustomerByEmail(customerEmail);
-    if (!customer) {
+    const { data: customers, error: customerError } = await supabaseAdmin
+      .from("customers")
+      .select("id, name")
+      .ilike("email", customerEmail);
+
+    if (customerError || !customers || customers.length === 0) {
       return NextResponse.json(
         { error: "Cliente non trovato. Registrati prima di lasciare una recensione." },
         { status: 404 }
       );
     }
 
-    if (!customer.verified) {
+    const customer = customers[0];
+
+    const { error: reviewError } = await supabaseAdmin
+      .from("reviews")
+      .insert({
+        customer_id: customer.id,
+        customer_name: customer.name,
+        rating,
+        text,
+        approved: false,
+      });
+
+    if (reviewError) {
+      console.error("Review insert error:", reviewError);
       return NextResponse.json(
-        { error: "Account non verificato. Verifica la tua email prima di lasciare una recensione." },
-        { status: 403 }
+        { error: "Errore durante l'invio della recensione", details: reviewError.message },
+        { status: 500 }
       );
     }
 
-    const review: Review = {
-      id: `rev_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      customerId: customer.id,
-      customerName: customer.name,
-      rating,
-      text,
-      approved: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    await storage.addReview(review);
+    console.log("Review inserted successfully for customer:", customer.id);
 
     return NextResponse.json(
-      { success: true, message: "Recensione inviata! Sarà visibile dopo approvazione.", review },
+      { success: true, message: "Recensione inviata! Sarà visibile dopo approvazione." },
       { status: 201 }
     );
   } catch {
@@ -61,7 +68,27 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const reviews = await storage.getApprovedReviews();
+    const { data, error } = await supabaseAdmin
+      .from("reviews")
+      .select("id, customer_name, rating, text, created_at")
+      .eq("approved", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Errore nel recupero recensioni" },
+        { status: 500 }
+      );
+    }
+
+    const reviews = (data || []).map((r) => ({
+      id: r.id,
+      customerName: r.customer_name,
+      rating: r.rating,
+      text: r.text,
+      createdAt: r.created_at,
+    }));
+
     return NextResponse.json({ reviews });
   } catch {
     return NextResponse.json(

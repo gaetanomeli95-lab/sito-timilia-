@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { supabaseAdmin } from "@/lib/supabase";
 
 interface OrderItem {
   productId: string;
@@ -9,33 +8,10 @@ interface OrderItem {
   price: number;
 }
 
-interface Order {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
-  shippingAddress: string;
-  items: OrderItem[];
-  total: number;
-  notes?: string;
-  status: "pending";
-  createdAt: string;
-}
-
-const DATA_DIR = path.join(process.cwd(), "data");
-
-async function ensureDataDir() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch {
-    // dir already exists
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, customerEmail, customerPhone, shippingAddress, items, notes } = body;
+    const { customerEmail, customerName, customerPhone, shippingAddress, shippingCity, shippingZip, items, notes } = body;
 
     if (!customerName || !customerEmail || !shippingAddress || !items?.length) {
       return NextResponse.json(
@@ -49,30 +25,35 @@ export async function POST(request: NextRequest) {
       0
     );
 
-    const order: Order = {
-      id: `ord_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      customerName,
-      customerEmail,
-      customerPhone: customerPhone || undefined,
-      shippingAddress,
-      items,
-      total,
-      notes: notes || undefined,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
+    const { data: customer } = await supabaseAdmin
+      .from("customers")
+      .select("id")
+      .eq("email", customerEmail)
+      .single();
 
-    await ensureDataDir();
-    const filepath = path.join(DATA_DIR, "orders.json");
-    let orders: Order[] = [];
-    try {
-      const content = await fs.readFile(filepath, "utf-8");
-      orders = JSON.parse(content);
-    } catch {
-      // first order
+    const { data: order, error } = await supabaseAdmin
+      .from("orders")
+      .insert({
+        customer_id: customer?.id || null,
+        customer_email: customerEmail,
+        items,
+        total,
+        shipping_name: customerName,
+        shipping_address: shippingAddress,
+        shipping_city: shippingCity || null,
+        shipping_zip: shippingZip || null,
+        shipping_phone: customerPhone || null,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Errore durante l'elaborazione dell'ordine" },
+        { status: 500 }
+      );
     }
-    orders.push(order);
-    await fs.writeFile(filepath, JSON.stringify(orders, null, 2), "utf-8");
 
     return NextResponse.json(
       { success: true, message: "Ordine ricevuto! Ti contatteremo per la conferma.", order },
@@ -88,11 +69,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    await ensureDataDir();
-    const filepath = path.join(DATA_DIR, "orders.json");
-    const content = await fs.readFile(filepath, "utf-8");
-    const orders = JSON.parse(content);
-    return NextResponse.json({ orders });
+    const { data, error } = await supabaseAdmin
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ orders: [] });
+    }
+
+    return NextResponse.json({ orders: data });
   } catch {
     return NextResponse.json({ orders: [] });
   }

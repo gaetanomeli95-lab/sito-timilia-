@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, X, Loader2, CheckCircle, UserPlus, MessageSquare } from "lucide-react";
 import CustomerAuthModal from "./CustomerAuthModal";
+import { supabase } from "@/lib/supabase-client";
 
 interface ReviewFormProps {
   open: boolean;
@@ -19,6 +20,23 @@ export default function ReviewForm({ open, onClose }: ReviewFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+        if (res.ok) {
+          const { profile } = await res.json();
+          if (profile) {
+            setCustomer({ id: profile.id, name: profile.name, email: profile.email });
+          }
+        }
+      }
+    };
+    checkSession();
+  }, [open]);
 
   const handleAuthSuccess = (c: { id: string; name: string; email: string }) => {
     setCustomer(c);
