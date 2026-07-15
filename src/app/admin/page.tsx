@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Star, CheckCircle, XCircle, Loader2, Package, Users,
-  MessageSquare, ArrowLeft,
+  MessageSquare, ArrowLeft, Settings, Power,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-client";
@@ -49,6 +49,8 @@ export default function AdminPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [togglingMaintenance, setTogglingMaintenance] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -74,6 +76,7 @@ export default function AdminPage() {
       await loadReviews(token);
       await loadOrders(token);
       await loadCustomers(token);
+      await loadMaintenanceMode(token);
       setLoading(false);
     };
     checkAuth();
@@ -93,6 +96,36 @@ export default function AdminPage() {
     });
     const data = res.ok ? (await res.json()).orders : [];
     setOrders(data as Order[] || []);
+  };
+
+  const loadMaintenanceMode = async (token?: string) => {
+    try {
+      const res = await fetch("/api/admin/settings", {
+        headers: { Authorization: `Bearer ${token || authToken}` },
+      });
+      const data = res.ok ? await res.json() : null;
+      setMaintenanceMode(data?.maintenance_mode || false);
+    } catch {
+      // ignore
+    }
+  };
+
+  const toggleMaintenance = async () => {
+    setTogglingMaintenance(true);
+    try {
+      await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ enabled: !maintenanceMode }),
+      });
+      setMaintenanceMode(!maintenanceMode);
+    } catch {
+      // ignore
+    }
+    setTogglingMaintenance(false);
   };
 
   const loadCustomers = async (token?: string) => {
@@ -168,9 +201,27 @@ export default function AdminPage() {
             <ArrowLeft size={14} strokeWidth={1.5} />
             Torna al profilo
           </button>
-          <h1 className="text-foreground text-2xl md:text-3xl font-light tracking-wide mb-1">
-            Pannello Admin
-          </h1>
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="text-foreground text-2xl md:text-3xl font-light tracking-wide">
+              Pannello Admin
+            </h1>
+            <button
+              onClick={toggleMaintenance}
+              disabled={togglingMaintenance}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs tracking-wide uppercase font-medium transition-all ${
+                maintenanceMode
+                  ? "bg-red-500/15 border border-red-500/30 text-red-400 hover:bg-red-500/25"
+                  : "bg-white/[0.04] border border-white/10 text-foreground/50 hover:text-gold hover:border-gold/30"
+              }`}
+            >
+              {togglingMaintenance ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Power size={14} strokeWidth={1.5} />
+              )}
+              {maintenanceMode ? "Manutenzione ON" : "Manutenzione"}
+            </button>
+          </div>
           <p className="text-foreground/40 text-sm font-light">
             Gestisci recensioni, ordini e utenti
           </p>

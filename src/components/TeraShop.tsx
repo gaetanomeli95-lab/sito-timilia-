@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Check, Loader2, Truck, ShieldCheck, Tag, Package } from "lucide-react";
 import Image from "next/image";
 import { teraProducts } from "@/data/teraProducts";
+import { supabase } from "@/lib/supabase-client";
 
 interface CartItem {
   productId: string;
@@ -14,6 +15,15 @@ interface CartItem {
 }
 
 const CART_KEY = "tera_cart";
+const COUPON_KEY = "tera_coupon";
+
+const SHIPPING_FREE_THRESHOLD = 50;
+const SHIPPING_BASE_COST = 5.90;
+
+const VALID_COUPONS: Record<string, { discount: number; type: "percent" | "fixed"; label: string }> = {
+  TIMILIA10: { discount: 10, type: "percent", label: "10% di sconto" },
+  BENVENUTO: { discount: 5, type: "fixed", label: "€5 di sconto" },
+};
 
 export default function TeraShop() {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -22,14 +32,46 @@ export default function TeraShop() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: "percent" | "fixed"; label: string } | null>(null);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(CART_KEY);
       if (saved) setCart(JSON.parse(saved));
+      const savedCoupon = localStorage.getItem(COUPON_KEY);
+      if (savedCoupon) {
+        const parsed = JSON.parse(savedCoupon);
+        if (VALID_COUPONS[parsed.code]) {
+          setAppliedCoupon({ ...VALID_COUPONS[parsed.code], code: parsed.code });
+        }
+      }
     } catch {
       // ignore
     }
+  }, []);
+
+  // Check if user is logged in for prefilling
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUserEmail(session.user.email || null);
+          const res = await fetch(`/api/customers/profile?authId=${session.user.id}`);
+          const data = res.ok ? await res.json() : null;
+          if (data?.profile?.name) {
+            setUserName(data.profile.name);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -75,6 +117,34 @@ export default function TeraShop() {
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const shippingCost = cartTotal >= SHIPPING_FREE_THRESHOLD || cartTotal === 0 ? 0 : SHIPPING_BASE_COST;
+
+  const couponDiscount = appliedCoupon
+    ? appliedCoupon.type === "percent"
+      ? (cartTotal * appliedCoupon.discount) / 100
+      : Math.min(appliedCoupon.discount, cartTotal)
+    : 0;
+
+  const grandTotal = Math.max(0, cartTotal - couponDiscount) + shippingCost;
+
+  const applyCoupon = () => {
+    const code = couponCode.trim().toUpperCase();
+    setCouponError("");
+    if (VALID_COUPONS[code]) {
+      const coupon = { ...VALID_COUPONS[code], code };
+      setAppliedCoupon(coupon);
+      localStorage.setItem(COUPON_KEY, JSON.stringify({ code }));
+      setCouponCode("");
+    } else {
+      setCouponError("Codice non valido");
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    localStorage.removeItem(COUPON_KEY);
+  };
 
   return (
     <>
@@ -262,12 +332,63 @@ export default function TeraShop() {
                     ))}
                   </div>
 
-                  <div className="sticky bottom-0 bg-[#1a1f17]/95 backdrop-blur-md border-t border-white/10 px-6 py-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/50 text-sm font-light">Totale</span>
-                      <span className="text-white text-xl font-light">
-                        &euro;{cartTotal.toFixed(2)}
-                      </span>
+                  <div className="sticky bottom-0 bg-[#1a1f17]/95 backdrop-blur-md border-t border-white/10 px-6 py-4 space-y-3">
+                    {/* Coupon */}
+                    {appliedCoupon ? (
+                      <div className="flex items-center justify-between bg-gold/10 border border-gold/20 rounded-lg px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <Tag size={14} className="text-gold" />
+                          <span className="text-gold/80 text-xs">{appliedCoupon.label}</span>
+                        </div>
+                        <button onClick={removeCoupon} className="text-gold/40 hover:text-gold transition-colors">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          placeholder="Codice sconto"
+                          className="flex-1 px-3 py-2 bg-white/[0.03] border border-white/10 rounded-lg text-white text-xs font-light focus:border-gold/30 focus:outline-none transition-colors"
+                        />
+                        <button
+                          onClick={applyCoupon}
+                          disabled={!couponCode.trim()}
+                          className="px-4 py-2 bg-white/10 border border-white/20 text-white text-xs tracking-wide hover:bg-white/20 transition-colors rounded-lg disabled:opacity-30"
+                        >
+                          Applica
+                        </button>
+                      </div>
+                    )}
+                    {couponError && <p className="text-red-400/70 text-xs">{couponError}</p>}
+
+                    {/* Totals */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-white/50 text-xs font-light">
+                        <span>Subtotale</span>
+                        <span>€{cartTotal.toFixed(2)}</span>
+                      </div>
+                      {couponDiscount > 0 && (
+                        <div className="flex items-center justify-between text-gold/70 text-xs font-light">
+                          <span>Sconto</span>
+                          <span>-€{couponDiscount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-white/50 text-xs font-light">
+                        <span>Spedizione</span>
+                        <span>{shippingCost === 0 ? "Gratuita" : `€${shippingCost.toFixed(2)}`}</span>
+                      </div>
+                      {shippingCost > 0 && (
+                        <p className="text-white/30 text-[10px] font-light">
+                          Spedizione gratuita per ordini sopra €{SHIPPING_FREE_THRESHOLD}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                        <span className="text-white/50 text-sm font-light">Totale</span>
+                        <span className="text-white text-xl font-light">€{grandTotal.toFixed(2)}</span>
+                      </div>
                     </div>
                     <button
                       onClick={() => setCheckoutOpen(true)}
@@ -288,11 +409,18 @@ export default function TeraShop() {
         {checkoutOpen && (
           <CheckoutModal
             cart={cart}
-            total={cartTotal}
+            subtotal={cartTotal}
+            shippingCost={shippingCost}
+            couponDiscount={couponDiscount}
+            total={grandTotal}
+            prefillName={userName}
+            prefillEmail={userEmail}
             onClose={() => {
               setCheckoutOpen(false);
               if (orderSuccess) {
                 setCart([]);
+                setAppliedCoupon(null);
+                localStorage.removeItem(COUPON_KEY);
                 setCartOpen(false);
                 setOrderSuccess(false);
               }
@@ -315,6 +443,10 @@ export default function TeraShop() {
                       quantity: item.quantity,
                       price: item.price,
                     })),
+                    shippingCost,
+                    couponCode: appliedCoupon?.code || null,
+                    couponDiscount,
+                    total: grandTotal,
                   }),
                 });
                 const data = await res.json();
@@ -338,7 +470,12 @@ export default function TeraShop() {
 
 interface CheckoutModalProps {
   cart: CartItem[];
+  subtotal: number;
+  shippingCost: number;
+  couponDiscount: number;
   total: number;
+  prefillName?: string | null;
+  prefillEmail?: string | null;
   onClose: () => void;
   loading: boolean;
   error: string;
@@ -348,20 +485,24 @@ interface CheckoutModalProps {
     customerEmail: string;
     customerPhone: string;
     shippingAddress: string;
+    shippingCity: string;
+    shippingZip: string;
     notes: string;
   }) => void;
 }
 
-function CheckoutModal({ cart, total, onClose, loading, error, success, onSubmit }: CheckoutModalProps) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+function CheckoutModal({ cart, subtotal, shippingCost, couponDiscount, total, prefillName, prefillEmail, onClose, loading, error, success, onSubmit }: CheckoutModalProps) {
+  const [name, setName] = useState(prefillName || "");
+  const [email, setEmail] = useState(prefillEmail || "");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ customerName: name, customerEmail: email, customerPhone: phone, shippingAddress: address, notes });
+    onSubmit({ customerName: name, customerEmail: email, customerPhone: phone, shippingAddress: address, shippingCity: city, shippingZip: zip, notes });
   };
 
   return (
@@ -411,12 +552,28 @@ function CheckoutModal({ cart, total, onClose, loading, error, success, onSubmit
               {cart.map((item) => (
                 <div key={item.productId} className="flex justify-between text-white/60 text-xs font-light py-1">
                   <span>{item.productName} × {item.quantity}</span>
-                  <span>&euro;{(item.price * item.quantity).toFixed(2)}</span>
+                  <span>€{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
-              <div className="border-t border-white/10 mt-2 pt-2 flex justify-between text-white text-sm font-light">
-                <span>Totale</span>
-                <span>&euro;{total.toFixed(2)}</span>
+              <div className="border-t border-white/10 mt-2 pt-2 space-y-1">
+                <div className="flex justify-between text-white/40 text-xs font-light">
+                  <span>Subtotale</span>
+                  <span>€{subtotal.toFixed(2)}</span>
+                </div>
+                {couponDiscount > 0 && (
+                  <div className="flex justify-between text-gold/70 text-xs font-light">
+                    <span>Sconto</span>
+                    <span>-€{couponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-white/40 text-xs font-light">
+                  <span>Spedizione</span>
+                  <span>{shippingCost === 0 ? "Gratuita" : `€${shippingCost.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between text-white text-sm font-light pt-1">
+                  <span>Totale</span>
+                  <span>€{total.toFixed(2)}</span>
+                </div>
               </div>
             </div>
 
@@ -461,8 +618,32 @@ function CheckoutModal({ cart, total, onClose, loading, error, success, onSubmit
                   required
                   rows={2}
                   className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-lg text-white text-sm font-light focus:border-white/30 focus:outline-none transition-colors resize-none"
-                  placeholder="Via, numero, città, CAP"
+                  placeholder="Via, numero civico"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-white/50 text-xs tracking-wide mb-1.5">Città *</label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-lg text-white text-sm font-light focus:border-white/30 focus:outline-none transition-colors"
+                    placeholder="Palermo"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/50 text-xs tracking-wide mb-1.5">CAP *</label>
+                  <input
+                    type="text"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-lg text-white text-sm font-light focus:border-white/30 focus:outline-none transition-colors"
+                    placeholder="90133"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-white/50 text-xs tracking-wide mb-1.5">Note <span className="text-white/30">(opzionale)</span></label>

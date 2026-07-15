@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { createClient } from "@supabase/supabase-js";
-import { sendOrderStatusUpdateEmail } from "@/lib/email";
 
 async function verifyAdmin(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -31,18 +30,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data } = await supabaseAdmin
+      .from("settings")
+      .select("key, value")
+      .eq("key", "maintenance_mode")
+      .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ orders: data });
+    return NextResponse.json({ maintenance_mode: data?.value === "true" });
   } catch {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ maintenance_mode: false });
   }
 }
 
@@ -52,37 +48,19 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { id, status, trackingNumber } = await request.json();
+    const body = await request.json();
+    const enabled = body.enabled === true;
 
-    const updateData: Record<string, string> = { status };
-    if (trackingNumber !== undefined) {
-      updateData.tracking_number = trackingNumber;
-    }
-
-    const { data: order, error } = await supabaseAdmin
-      .from("orders")
-      .update(updateData)
-      .eq("id", id)
-      .select("id, customer_email, shipping_name")
-      .single();
+    const { error } = await supabaseAdmin
+      .from("settings")
+      .upsert({ key: "maintenance_mode", value: enabled ? "true" : "false" }, { onConflict: "key" });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Send status update email to customer
-    if (order) {
-      await sendOrderStatusUpdateEmail(
-        order.customer_email,
-        order.shipping_name,
-        order.id,
-        status,
-        trackingNumber
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ success: true, maintenance_mode: enabled });
+  } catch (e) {
+    return NextResponse.json({ error: "Server error", details: String(e) }, { status: 500 });
   }
 }

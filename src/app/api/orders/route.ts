@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { sendOrderConfirmationEmail, sendOrderNotificationToAdmin } from "@/lib/email";
 
 interface OrderItem {
   productId: string;
@@ -11,7 +12,7 @@ interface OrderItem {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerEmail, customerName, customerPhone, shippingAddress, shippingCity, shippingZip, items, notes } = body;
+    const { customerEmail, customerName, customerPhone, shippingAddress, shippingCity, shippingZip, items, notes, shippingCost, couponCode, couponDiscount, total: clientTotal } = body;
 
     if (!customerName || !customerEmail || !shippingAddress || !items?.length) {
       return NextResponse.json(
@@ -20,10 +21,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const total = items.reduce(
+    const itemsTotal = items.reduce(
       (sum: number, item: OrderItem) => sum + item.price * item.quantity,
       0
     );
+    const shipping = shippingCost !== undefined ? shippingCost : (itemsTotal >= 50 ? 0 : 5.90);
+    const discount = couponDiscount || 0;
+    const total = clientTotal !== undefined ? clientTotal : (itemsTotal - discount + shipping);
 
     const { data: customer } = await supabaseAdmin
       .from("customers")
@@ -37,12 +41,17 @@ export async function POST(request: NextRequest) {
         customer_id: customer?.id || null,
         customer_email: customerEmail,
         items,
+        subtotal: itemsTotal,
+        shipping_cost: shipping,
+        coupon_code: couponCode || null,
+        coupon_discount: discount,
         total,
         shipping_name: customerName,
         shipping_address: shippingAddress,
         shipping_city: shippingCity || null,
         shipping_zip: shippingZip || null,
         shipping_phone: customerPhone || null,
+        notes: notes || null,
         status: "pending",
       })
       .select()
@@ -53,6 +62,36 @@ export async function POST(request: NextRequest) {
         { error: "Errore durante l'elaborazione dell'ordine" },
         { status: 500 }
       );
+    }
+
+    // Send confirmation emails
+    if (order) {
+      await sendOrderConfirmationEmail({
+        orderId: order.id,
+        customerName,
+        customerEmail,
+        items,
+        total,
+        shippingAddress,
+        shippingCity,
+        shippingZip,
+        shippingPhone: customerPhone || undefined,
+        notes,
+        status: "pending",
+      });
+      await sendOrderNotificationToAdmin({
+        orderId: order.id,
+        customerName,
+        customerEmail,
+        items,
+        total,
+        shippingAddress,
+        shippingCity,
+        shippingZip,
+        shippingPhone: customerPhone || undefined,
+        notes,
+        status: "pending",
+      });
     }
 
     return NextResponse.json(
