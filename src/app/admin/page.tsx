@@ -63,13 +63,55 @@ export default function AdminPage() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [togglingMaintenance, setTogglingMaintenance] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
   const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+    if (error) {
+      setLoginError(error.message);
+      setLoginLoading(false);
+      return;
+    }
+    if (data.session) {
+      setUser(data.user);
+      setAuthToken(data.session.access_token);
+      setShowLogin(false);
+      const res = await fetch("/api/customers/profile", {
+        headers: { Authorization: `Bearer ${data.session.access_token}` },
+      });
+      const profile = res.ok ? (await res.json()).profile : null;
+      if (!profile?.is_admin) {
+        router.push("/account");
+        return;
+      }
+      setIsAdmin(true);
+      const token = data.session.access_token;
+      await loadReviews(token);
+      await loadOrders(token);
+      await loadCustomers(token);
+      await loadMaintenanceMode(token);
+      setLoading(false);
+    }
+    setLoginLoading(false);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        router.push("/");
+        setShowLogin(true);
+        setLoading(false);
         return;
       }
       setUser(session.user);
@@ -191,7 +233,60 @@ export default function AdminPage() {
     );
   }
 
-  if (!isAdmin) return null;
+  if (showLogin || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-gold/[0.04] rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-amber-700/[0.03] rounded-full blur-[100px] pointer-events-none" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative max-w-sm w-full"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-gold text-3xl font-light tracking-[0.3em] mb-2">TIMILIA</h1>
+            <div className="h-px w-16 bg-gold/30 mx-auto" />
+            <p className="text-foreground/40 text-xs tracking-wide uppercase mt-4">Accesso Admin</p>
+          </div>
+          <form onSubmit={handleLogin} className="rounded-2xl border border-gold/15 bg-white/[0.02] p-8 backdrop-blur-sm space-y-4">
+            <div>
+              <label className="text-foreground/50 text-xs tracking-wide uppercase mb-1.5 block">Email</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] py-2.5 px-3 text-sm text-foreground outline-none transition-colors focus:border-gold/30"
+                placeholder="admin@email.com"
+              />
+            </div>
+            <div>
+              <label className="text-foreground/50 text-xs tracking-wide uppercase mb-1.5 block">Password</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] py-2.5 px-3 text-sm text-foreground outline-none transition-colors focus:border-gold/30"
+                placeholder="••••••••"
+              />
+            </div>
+            {loginError && (
+              <p className="text-red-400/70 text-xs">{loginError}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loginLoading}
+              className="w-full rounded-lg border border-gold/30 bg-gold/15 text-gold text-sm py-2.5 tracking-wide uppercase font-medium hover:bg-gold/25 transition-colors disabled:opacity-50"
+            >
+              {loginLoading ? <Loader2 size={16} className="mx-auto animate-spin" /> : "Accedi"}
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
 
   const pendingReviews = reviews.filter(r => !r.approved);
   const approvedReviews = reviews.filter(r => r.approved);
