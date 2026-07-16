@@ -10,6 +10,7 @@ import { previewImages, categoryDescriptions, categoryDietary } from "@/data/men
 import ProductModal from "./ProductModal";
 import CategoryRow from "./CategoryRow";
 import LargeProductCard from "./LargeProductCard";
+import { DietaryIcon } from "./DietaryIcon";
 
 export default function MenuScene() {
   const router = useRouter();
@@ -149,7 +150,7 @@ export default function MenuScene() {
             {categoryDietary[category?.id] && (
               <div className="flex flex-wrap gap-2 sm:gap-2.5 mt-3 sm:mt-4">
                 {categoryDietary[category.id].map((badge, i) => {
-                  const isGuaranteed = badge.type === "gf" || badge.type === "lf";
+                  const isGuaranteed = badge.type === "gf" || badge.type === "lf" || badge.type === "bread-gf";
                   return (
                     <span
                       key={i}
@@ -159,7 +160,7 @@ export default function MenuScene() {
                           : "bg-white/[0.04] border-white/15 text-[#f5f0e8]/60"
                       }`}
                     >
-                      <span className="text-sm sm:text-base leading-none">{badge.emoji}</span>
+                      <DietaryIcon type={badge.type} size={16} className={isGuaranteed ? "text-gold" : "text-[#f5f0e8]/50"} />
                       {badge.label}
                     </span>
                   );

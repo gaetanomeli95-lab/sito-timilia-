@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import Image from "next/image";
 import type { MenuItem } from "@/data/menuData";
 import { categoryDietary } from "@/data/menuMeta";
+import { DietaryIcon } from "./DietaryIcon";
 
 type LargeProductCardProps = {
   item: MenuItem;
@@ -139,7 +140,7 @@ export default function LargeProductCard({
         {categoryDietary[catId] && (
           <div className="relative flex flex-wrap gap-1.5 sm:gap-2 mt-3">
             {categoryDietary[catId].map((badge, i) => {
-              const isGuaranteed = badge.type === "gf" || badge.type === "lf";
+              const isGuaranteed = badge.type === "gf" || badge.type === "lf" || badge.type === "bread-gf";
               return (
                 <span
                   key={i}
@@ -149,7 +150,7 @@ export default function LargeProductCard({
                       : "bg-white/[0.03] border-white/12 text-[#f5f0e8]/50"
                   }`}
                 >
-                  <span className="text-sm leading-none">{badge.emoji}</span>
+                  <DietaryIcon type={badge.type} size={14} className={isGuaranteed ? "text-gold" : "text-[#f5f0e8]/50"} />
                   {badge.label}
                 </span>
               );

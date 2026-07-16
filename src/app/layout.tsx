@@ -43,7 +43,7 @@ const restaurantJsonLd = {
   },
   telephone: "+39 379 248 3597",
   url: "https://pizzeriatimilia.com",
-  openingHours: ["Mar-Dom 19:00-23:30"],
+  openingHours: ["Mo-Th,Su 11:30-00:00", "Fr-Sa 11:30-01:00"],
   sameAs: [
     "https://www.instagram.com/pizzatimilia/",
     "https://www.facebook.com/timiliapalermo",

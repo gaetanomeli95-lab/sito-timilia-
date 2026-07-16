@@ -133,9 +133,13 @@ export default function Footer() {
             <div className="space-y-3 text-foreground/50 text-sm font-light">
               <div className="flex items-center gap-3">
                 <Clock size={16} strokeWidth={1.5} className="text-gold/60 shrink-0" />
-                <span>Mar – Dom: 19:00 – 23:30</span>
+                <span>Lun – Gio & Dom: 11:30 – 00:00</span>
               </div>
-              <p className="text-foreground/30 text-xs">Lunedì chiuso</p>
+              <div className="flex items-center gap-3">
+                <Clock size={16} strokeWidth={1.5} className="text-gold/60 shrink-0" />
+                <span>Ven – Sab: 11:30 – 01:00</span>
+              </div>
+              <p className="text-foreground/30 text-xs">Aperto tutti i giorni</p>
             </div>
           </div>
 

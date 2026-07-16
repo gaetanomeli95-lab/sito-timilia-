@@ -63,54 +63,53 @@ export const categoryDescriptions: Record<string, string> = {
 
 export type DietaryBadge = {
   label: string;
-  type: "gf" | "gf-option" | "lf" | "lf-option";
-  emoji: string;
+  type: "gf" | "gf-option" | "lf" | "lf-option" | "bread-gf";
 };
 
 export const categoryDietary: Record<string, DietaryBadge[]> = {
   antipasti: [
-    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
-    { label: "Senza Lattosio", type: "lf", emoji: "🥛" },
+    { label: "Senza Glutine", type: "gf" },
+    { label: "Senza Lattosio", type: "lf" },
   ],
   "passi-dautore": [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   "le-storiche": [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   "le-classiche": [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   buffalotti: [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   crusta: [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   "le-vegane": [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   "rotundi-casseruola": [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   insalate: [
-    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
-    { label: "Pane anche senza glutine", type: "gf-option", emoji: "🍞" },
+    { label: "Senza Glutine", type: "gf" },
+    { label: "Pane anche senza glutine", type: "bread-gf" },
   ],
   hamburger: [
-    { label: "Anche senza glutine", type: "gf-option", emoji: "🌾" },
-    { label: "Anche senza lattosio", type: "lf-option", emoji: "🥛" },
+    { label: "Anche senza glutine", type: "gf-option" },
+    { label: "Anche senza lattosio", type: "lf-option" },
   ],
   dolci: [
-    { label: "Senza Glutine", type: "gf", emoji: "🌾" },
-    { label: "Senza Lattosio", type: "lf", emoji: "🥛" },
+    { label: "Senza Glutine", type: "gf" },
+    { label: "Senza Lattosio", type: "lf" },
   ],
-  "birre-sg": [{ label: "Senza Glutine", type: "gf", emoji: "🌾" }],
+  "birre-sg": [{ label: "Senza Glutine", type: "gf" }],
 };
