@@ -118,9 +118,23 @@ export default function AccountPage() {
     router.push("/");
   };
 
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile || !user) return;
+
+    setAvatarError(null);
+
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError("L'immagine non può superare i 2MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Seleziona un file immagine valido");
+      return;
+    }
 
     setUploadingAvatar(true);
     try {
@@ -303,9 +317,12 @@ export default function AccountPage() {
                 ) : (
                   <Camera size={15} strokeWidth={1.5} className="text-gold" />
                 )}
-                <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                <input type="file" accept="image/*,.png,.jpg,.jpeg,.webp" onChange={handleAvatarUpload} className="hidden" />
               </label>
             </div>
+            {avatarError && (
+              <p className="text-red-400/70 text-xs mt-2">{avatarError}</p>
+            )}
 
             {/* Name + tier */}
             <motion.div

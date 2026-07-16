@@ -29,50 +29,55 @@ export async function POST(request: NextRequest) {
     const orderId = session.metadata?.order_id || session.client_reference_id;
 
     if (orderId && session.payment_status === "paid") {
-      const { data: existingOrder } = await supabaseAdmin
+      const { data: updatedOrder, error: updateError } = await supabaseAdmin
         .from("orders")
-        .select("*")
+        .update({
+          status: "paid",
+          payment_status: "paid",
+          stripe_payment_intent_id:
+            typeof session.payment_intent === "string" ? session.payment_intent : null,
+          paid_at: new Date().toISOString(),
+        })
         .eq("id", orderId)
+        .eq("payment_status", "unpaid")
+        .select("*")
         .single();
 
-      if (existingOrder && existingOrder.payment_status !== "paid") {
-        const { data: order, error } = await supabaseAdmin
-          .from("orders")
-          .update({
-            status: "paid",
-            payment_status: "paid",
-            stripe_payment_intent_id:
-              typeof session.payment_intent === "string" ? session.payment_intent : null,
-            paid_at: new Date().toISOString(),
-          })
-          .eq("id", orderId)
-          .select("*")
-          .single();
-
-        if (error || !order) {
-          console.error("Paid order update error:", error);
-          return NextResponse.json({ error: "Aggiornamento ordine fallito" }, { status: 500 });
-        }
-
-        const emailData = {
-          orderId: order.id,
-          customerName: order.shipping_name,
-          customerEmail: order.customer_email,
-          items: order.items,
-          total: Number(order.total),
-          shippingAddress: order.shipping_address,
-          shippingCity: order.shipping_city || undefined,
-          shippingZip: order.shipping_zip || undefined,
-          shippingPhone: order.shipping_phone || undefined,
-          notes: order.notes || undefined,
-          status: "paid",
-        };
-
-        await Promise.all([
-          sendOrderConfirmationEmail(emailData),
-          sendOrderNotificationToAdmin(emailData),
-        ]);
+      if (updateError || !updatedOrder) {
+        return NextResponse.json({ received: true });
       }
+
+      const emailData = {
+        orderId: updatedOrder.id,
+        customerName: updatedOrder.shipping_name,
+        customerEmail: updatedOrder.customer_email,
+        items: updatedOrder.items,
+        total: Number(updatedOrder.total),
+        shippingAddress: updatedOrder.shipping_address,
+        shippingCity: updatedOrder.shipping_city || undefined,
+        shippingZip: updatedOrder.shipping_zip || undefined,
+        shippingPhone: updatedOrder.shipping_phone || undefined,
+        notes: updatedOrder.notes || undefined,
+        status: "paid",
+      };
+
+      void Promise.all([
+        sendOrderConfirmationEmail(emailData),
+        sendOrderNotificationToAdmin(emailData),
+      ]).catch((err) => console.error("Email send error:", err));
+    }
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.metadata?.order_id || session.client_reference_id;
+
+    if (orderId) {
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "cancelled", payment_status: "expired" })
+        .eq("id", orderId)
+        .eq("payment_status", "unpaid");
     }
   }
 

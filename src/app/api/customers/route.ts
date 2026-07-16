@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { rateLimit } from "@/lib/server-auth";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!rateLimit(request, 3, 60_000)) {
+      return NextResponse.json(
+        { error: "Troppe richieste. Riprova tra qualche minuto." },
+        { status: 429 }
+      );
+    }
     const body = await request.json();
     const authId = typeof body.authId === "string" ? body.authId : "";
     const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : "";

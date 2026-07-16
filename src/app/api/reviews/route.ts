@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getAuthenticatedUser } from "@/lib/server-auth";
+import { getAuthenticatedUser, rateLimit } from "@/lib/server-auth";
 
 export async function POST(request: NextRequest) {
   try {
+    if (!rateLimit(request, 3, 60_000)) {
+      return NextResponse.json(
+        { error: "Troppe richieste. Riprova tra qualche minuto." },
+        { status: 429 }
+      );
+    }
+
     const user = await getAuthenticatedUser(request);
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -51,14 +58,11 @@ export async function POST(request: NextRequest) {
       });
 
     if (reviewError) {
-      console.error("Review insert error:", reviewError);
       return NextResponse.json(
         { error: "Errore durante l'invio della recensione", details: reviewError.message },
         { status: 500 }
       );
     }
-
-    console.log("Review inserted successfully for customer:", customer.id);
 
     return NextResponse.json(
       { success: true, message: "Recensione inviata! Sarà visibile dopo approvazione." },
@@ -95,7 +99,10 @@ export async function GET() {
       createdAt: r.created_at,
     }));
 
-    return NextResponse.json({ reviews });
+    return NextResponse.json(
+      { reviews },
+      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
+    );
   } catch {
     return NextResponse.json(
       { error: "Errore nel recupero recensioni" },
