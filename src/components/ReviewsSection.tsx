@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, ExternalLink, Quote, ArrowRight } from "lucide-react";
 import ReviewForm from "./ReviewForm";
+import { ReviewsSkeleton } from "./Skeletons";
 
 interface SiteReview {
   id: string;
@@ -66,8 +67,8 @@ const featuredReviews = [
     rating: 5,
   },
   {
-    text: "Esperienza unica a Palermo. Il progetto TERA è rivoluzionario. Giuseppe D'Angelo è un maestro della pizza. Posti limitati ma atmosfera intima e curata.",
-    author: "Antonio R.",
+    text: "Sono una turista genovese innamorata di Palermo, la Città natale del mio adorato compagno. I ristoranti e le pizzerie di Via Maqueda, cuore pulsante storico, sociale ed economico della Città, sono tutti apprezzabili, ma poi ci sono i locali che hanno una marcia in più, come Timilia, dove l'alta qualità dei piatti si sposa con la grande cordialità del personale, attento alle esigenze di ogni cliente, sempre disponibile e sorridente, pronto alla battuta ma con rispetto e discrezione. Timilia, un ristorante dove tornare e ritornare!",
+    author: "Maddalena G.",
     source: "TripAdvisor",
     rating: 5,
   },
@@ -84,12 +85,15 @@ export default function ReviewsSection() {
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
   const [siteReviews, setSiteReviews] = useState<SiteReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   useEffect(() => {
+    setReviewsLoading(true);
     fetch("/api/reviews")
       .then((res) => res.json())
       .then((data) => setSiteReviews(data.reviews || []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setReviewsLoading(false));
   }, [reviewFormOpen]);
 
   return (
@@ -287,7 +291,39 @@ export default function ReviewsSection() {
         </motion.div>
 
         {/* Recensioni dal sito — visibili in basso */}
-        {siteReviews.length > 0 && (
+        {reviewsLoading && (
+          <div className="mt-20">
+            <div className="flex items-center gap-4 mb-10">
+              <div className="h-px w-12 bg-gold/40" />
+              <span className="text-gold/80 text-xs tracking-[0.3em] uppercase font-medium">
+                Recensioni dei clienti
+              </span>
+              <div className="flex-1 h-px bg-white/[0.06]" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="rounded-xl bg-white/[0.02] border border-white/[0.05] p-6 space-y-3 animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white/5" />
+                      <div className="h-3 w-24 bg-white/5 rounded" />
+                    </div>
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, j) => (
+                        <div key={j} className="w-3 h-3 bg-white/5 rounded" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-white/[0.04] rounded" />
+                    <div className="h-3 w-4/5 bg-white/[0.04] rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {!reviewsLoading && siteReviews.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}

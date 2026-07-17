@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { MenuItem } from "@/data/menuData";
 import { categoryDietary } from "@/data/menuMeta";
 import { DietaryIcon } from "./DietaryIcon";
+import { useFavorites, FavoriteButton } from "./Favorites";
 
 type LargeProductCardProps = {
   item: MenuItem;
@@ -22,6 +23,7 @@ export default function LargeProductCard({
 }: LargeProductCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
+  const { isFavorite, toggleFavorite, isLoggedIn } = useFavorites();
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -118,9 +120,19 @@ export default function LargeProductCard({
       {/* Content — right side on desktop, below on mobile */}
       <div className="relative flex-1 p-4 sm:p-5 lg:p-7 flex flex-col justify-center" style={{ transform: "translateZ(25px)" }}>
         <div className="flex justify-between items-start gap-3 mb-3">
-          <h4 className="relative text-[#f5f0e8] text-base sm:text-lg lg:text-2xl font-light tracking-wide leading-tight group-hover:text-gold transition-colors duration-500">
-            {item.name}
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4 className="relative text-[#f5f0e8] text-base sm:text-lg lg:text-2xl font-light tracking-wide leading-tight group-hover:text-gold transition-colors duration-500">
+              {item.name}
+            </h4>
+            <FavoriteButton
+              itemName={item.name}
+              isFavorite={isFavorite(item.name)}
+              onToggle={toggleFavorite}
+              isLoggedIn={isLoggedIn}
+              onRequireLogin={() => window.dispatchEvent(new CustomEvent("timilia:openAuth"))}
+              size={14}
+            />
+          </div>
           {item.price !== undefined && (
             <span className="relative text-gold text-base sm:text-lg lg:text-2xl font-light whitespace-nowrap shrink-0">
               €{item.price.toFixed(2)}

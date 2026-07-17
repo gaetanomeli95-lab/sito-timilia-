@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://www.pizzatimilia.it/sitemap.xml",
+    sitemap: "https://pizzeriatimilia.com/sitemap.xml",
   };
 }

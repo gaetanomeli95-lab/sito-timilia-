@@ -15,14 +15,39 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://pizzeriatimilia.com"),
   title: "TIMILIA – Pizza di Sicilia | Pizzeria Palermo",
   description: "Nel cuore del centro storico di Palermo, a due passi dai Quattro Canti. Tradizione siciliana contemporanea. Pizza senza glutine TERA.",
-  keywords: ["pizzeria", "Palermo", "Sicilia", "pizza senza glutine", "TERA", "TIMILIA", "Quattro Canti"],
+  keywords: ["pizzeria", "Palermo", "Sicilia", "pizza senza glutine", "TERA", "TIMILIA", "Quattro Canti", "Via Maqueda", "pizza artigianale"],
   authors: [{ name: "TIMILIA" }],
+  alternates: {
+    canonical: "https://pizzeriatimilia.com",
+  },
   openGraph: {
     title: "TIMILIA – Pizza di Sicilia",
-    description: "Tradizione siciliana contemporanea. Pizzeria nel cuore di Palermo.",
+    description: "Tradizione siciliana contemporanea. Pizzeria nel cuore di Palermo. Pizza senza glutine TERA.",
     type: "website",
     locale: "it_IT",
+    siteName: "TIMILIA",
+    url: "https://pizzeriatimilia.com",
+    images: [{
+      url: "/images/hero-iniziale-desktop.png",
+      width: 1200,
+      height: 630,
+      alt: "TIMILIA – Pizza di Sicilia, Palermo",
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TIMILIA – Pizza di Sicilia | Pizzeria Palermo",
+    description: "Tradizione siciliana contemporanea. Pizza senza glutine TERA. Via Maqueda 221, Palermo.",
     images: ["/images/hero-iniziale-desktop.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
   },
 };
 

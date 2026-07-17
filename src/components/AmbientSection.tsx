@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
 import SectionBackground from "./SectionBackground";
@@ -8,6 +8,16 @@ import SectionBackground from "./SectionBackground";
 export default function AmbientSection() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const yImage1 = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const yImage2 = useTransform(scrollYProgress, [0, 1], ["6%", "-6%"]);
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const opacityFade = useTransform(scrollYProgress, [0, 0.3, 0.8, 1], [0.3, 1, 1, 0.3]);
 
   return (
     <section id="ambient" ref={ref} className="relative py-24 md:py-40 overflow-hidden">
@@ -34,14 +44,16 @@ export default function AmbientSection() {
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
             className="relative aspect-[4/5] sm:aspect-[4/5] overflow-hidden edge-fade image-glow"
           >
-            <Image
-              src="/images/ambient-experience.png"
-              alt="Atmosfera TIMILIA"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
+            <motion.div style={{ y: yImage1 }} className="absolute inset-[-10%]">
+              <Image
+                src="/images/ambient-experience.png"
+                alt="Atmosfera TIMILIA"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </motion.div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
           </motion.div>
 
           <motion.div
@@ -85,14 +97,16 @@ export default function AmbientSection() {
           transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
           className="mt-16 md:mt-24 relative aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/9] overflow-hidden edge-fade-wide image-glow"
         >
-          <Image
-            src="/images/ambient-experience-2.png"
-            alt="Dettagli TIMILIA"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
+          <motion.div style={{ y: yImage2 }} className="absolute inset-[-10%]">
+            <Image
+              src="/images/ambient-experience-2.png"
+              alt="Dettagli TIMILIA"
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+          </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60 pointer-events-none" />
         </motion.div>
       </div>
     </section>

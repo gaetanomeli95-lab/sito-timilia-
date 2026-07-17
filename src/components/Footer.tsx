@@ -153,6 +153,7 @@ export default function Footer() {
                 { label: "Tera", href: "#tera" },
                 { label: "Menu", href: "/menu" },
                 { label: "Recensioni", href: "#recensioni" },
+                { label: "FAQ", href: "/faq" },
                 { label: "Contatti", href: "#contatti" },
               ].map((link) => (
                 <a

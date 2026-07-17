@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { X, AlertTriangle } from "lucide-react";
+import { X, AlertTriangle, Share2, MessageCircle, Copy, Facebook } from "lucide-react";
 import type { MenuItem } from "@/data/menuData";
+import { useFavorites, FavoriteButton } from "./Favorites";
 
 const allergenMap: Record<string, string> = {
   "1": "Cereali",
@@ -41,6 +42,7 @@ export default function ProductModal({
   onClose,
 }: ProductModalProps) {
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const { isFavorite, toggleFavorite, isLoggedIn } = useFavorites();
 
   useEffect(() => {
     if (item) {
@@ -187,14 +189,58 @@ export default function ProductModal({
               </span>
 
               <div className="flex justify-between items-start gap-4 mb-5">
-                <h2 className="text-2xl md:text-3xl font-light tracking-[0.03em] text-foreground leading-tight">
-                  {item.name}
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl md:text-3xl font-light tracking-[0.03em] text-foreground leading-tight">
+                    {item.name}
+                  </h2>
+                  <FavoriteButton
+                    itemName={item.name}
+                    isFavorite={isFavorite(item.name)}
+                    onToggle={toggleFavorite}
+                    isLoggedIn={isLoggedIn}
+                    onRequireLogin={() => window.dispatchEvent(new CustomEvent("timilia:openAuth"))}
+                    size={16}
+                  />
+                </div>
                 {item.price !== undefined && (
                   <span className="text-gold text-xl md:text-2xl font-light whitespace-nowrap shrink-0">
                     € {item.price.toFixed(2)}
                   </span>
                 )}
+              </div>
+
+              {/* Social share */}
+              <div className="flex items-center gap-2 mb-5">
+                <span className="text-foreground/30 text-[10px] tracking-[0.2em] uppercase font-light mr-1">
+                  Condividi
+                </span>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`Ho scoperto ${item.name} da TIMILIA – Pizza di Sicilia, Palermo! Guarda il menu: https://pizzeriatimilia.com/menu`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
+                  aria-label="Condividi su WhatsApp"
+                >
+                  <MessageCircle size={14} strokeWidth={1.5} />
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pizzeriatimilia.com/menu")}&quote=${encodeURIComponent(`${item.name} da TIMILIA – Pizza di Sicilia, Palermo!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
+                  aria-label="Condividi su Facebook"
+                >
+                  <Facebook size={14} strokeWidth={1.5} />
+                </a>
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText(`https://pizzeriatimilia.com/menu`);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
+                  aria-label="Copia link"
+                >
+                  <Copy size={14} strokeWidth={1.5} />
+                </button>
               </div>
 
               <div className="w-12 h-[1px] bg-gold/30 mb-6" />

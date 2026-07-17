@@ -17,6 +17,7 @@ const navLinks = [
   { href: "/menu", label: "Menu", type: "route" },
   { href: "#brand", label: "Brand", type: "anchor" },
   { href: "#recensioni", label: "Recensioni", type: "anchor" },
+  { href: "/faq", label: "FAQ", type: "route" },
   { href: "#contatti", label: "Contatti", type: "anchor" },
 ];
 
@@ -30,6 +31,12 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+
+  useEffect(() => {
+    const openAuth = () => setAuthOpen(true);
+    window.addEventListener("timilia:openAuth", openAuth);
+    return () => window.removeEventListener("timilia:openAuth", openAuth);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

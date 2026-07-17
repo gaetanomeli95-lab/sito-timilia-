@@ -7,6 +7,7 @@ import MenuPreview from "@/components/MenuPreview";
 import BrandDetails from "@/components/BrandDetails";
 import FounderSection from "@/components/FounderSection";
 import ReviewsSection from "@/components/ReviewsSection";
+import MapSection from "@/components/MapSection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
@@ -23,6 +24,7 @@ export default function Home() {
         <BrandDetails />
         <FounderSection />
         <ReviewsSection />
+        <MapSection />
       </main>
       <Footer />
       <WhatsAppFloat />
