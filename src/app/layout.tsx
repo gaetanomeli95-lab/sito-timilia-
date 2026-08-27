@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   description: "Nel cuore del centro storico di Palermo, a due passi dai Quattro Canti. Tradizione siciliana contemporanea. Pizza senza glutine TERA.",
   keywords: ["pizzeria", "Palermo", "Sicilia", "pizza senza glutine", "TERA", "TIMILIA", "Quattro Canti", "Via Maqueda", "pizza artigianale"],
   authors: [{ name: "TIMILIA" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   alternates: {
     canonical: "https://pizzeriatimilia.com",
   },
@@ -68,6 +76,7 @@ const restaurantJsonLd = {
   },
   telephone: "+39 379 248 3597",
   url: "https://pizzeriatimilia.com",
+  logo: "https://pizzeriatimilia.com/icon.png",
   openingHours: ["Mo-Th,Su 11:30-00:00", "Fr-Sa 11:30-01:00"],
   sameAs: [
     "https://www.instagram.com/pizzatimilia/",
