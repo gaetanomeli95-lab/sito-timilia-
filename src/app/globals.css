@@ -33,7 +33,6 @@ body {
   color: #f5f0e8;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -108,30 +107,31 @@ body {
   mix-blend-mode: screen;
 }
 
-/* Esperienza Timilia — background applied directly to the section.
-   This avoids sticky pseudo-elements interacting with overflow-clip. */
+/* Esperienza Timilia — artwork repeated at its natural aspect ratio.
+   Using cover on a very tall section scales the image until only its dark centre remains visible. */
 #ambient {
-  background-color: #080807;
-  background-image: url("/images/experience-bg-mobile.webp");
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: cover;
+  background-color: #080807 !important;
+  background-image: url("/images/experience-bg-mobile.webp") !important;
+  background-repeat: repeat-y !important;
+  background-position: center top !important;
+  background-size: 100% auto !important;
 }
 
-/* Keep the component's atmosphere overlays translucent so the artwork remains visible. */
+/* Keep the atmospheric layer light enough for the artwork to remain clearly visible. */
 #ambient > div[aria-hidden="true"] > div:first-child {
   background:
-    radial-gradient(circle at 82% 18%, rgba(180, 119, 53, 0.12), transparent 28%),
-    radial-gradient(circle at 12% 40%, rgba(109, 84, 54, 0.07), transparent 34%),
-    linear-gradient(180deg, rgba(7, 7, 6, 0.28) 0%, rgba(12, 10, 8, 0.20) 38%, rgba(8, 8, 7, 0.30) 100%) !important;
+    radial-gradient(circle at 82% 18%, rgba(180, 119, 53, 0.09), transparent 28%),
+    radial-gradient(circle at 12% 40%, rgba(109, 84, 54, 0.05), transparent 34%),
+    linear-gradient(180deg, rgba(7, 7, 6, 0.12) 0%, rgba(12, 10, 8, 0.08) 38%, rgba(8, 8, 7, 0.14) 100%) !important;
 }
 
 @media (min-width: 1024px) {
   #ambient {
-    background-image: url("/images/experience-bg-desktop.webp");
-    background-position: center top;
-    background-size: cover;
-    background-attachment: fixed;
+    background-image: url("/images/experience-bg-desktop.webp") !important;
+    background-repeat: repeat-y !important;
+    background-position: center top !important;
+    background-size: 100% auto !important;
+    background-attachment: scroll !important;
   }
 }
 
@@ -151,15 +151,9 @@ body {
     filter: saturate(1.12) brightness(1.08) drop-shadow(0 18px 44px rgba(200, 169, 126, 0.12));
   }
 
-  #ambient {
-    background-position: center top;
-    background-size: cover;
-    background-attachment: scroll;
-  }
-
   #ambient > div[aria-hidden="true"] > div:first-child {
     background:
-      radial-gradient(circle at 78% 16%, rgba(180, 119, 53, 0.10), transparent 30%),
-      linear-gradient(180deg, rgba(7, 7, 6, 0.24) 0%, rgba(8, 8, 7, 0.16) 48%, rgba(8, 8, 7, 0.28) 100%) !important;
+      radial-gradient(circle at 78% 16%, rgba(180, 119, 53, 0.08), transparent 30%),
+      linear-gradient(180deg, rgba(7, 7, 6, 0.10) 0%, rgba(8, 8, 7, 0.06) 48%, rgba(8, 8, 7, 0.12) 100%) !important;
   }
 }
