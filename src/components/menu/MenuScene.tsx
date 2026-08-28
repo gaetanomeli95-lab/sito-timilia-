@@ -58,7 +58,9 @@ const showcaseCategoryIds = [
 
 const showcaseCategories = showcaseCategoryIds
   .map(getCategory)
-  .filter((category): category is MenuCategory => Boolean(category));
+  .filter(
+    (category): category is NonNullable<ReturnType<typeof getCategory>> => Boolean(category)
+  );
 
 function SectionHeading({
   eyebrow,
