@@ -117,12 +117,35 @@ export default function AmbientSection() {
   const activeVisual = chapters[activeChapter];
 
   return (
-    <section id="ambient" className="relative overflow-clip bg-[#080807] text-foreground">
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.16),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.10),transparent_34%),linear-gradient(180deg,#070706_0%,#0c0a08_36%,#080807_100%)]" />
-        <div className="absolute inset-0 opacity-[0.22] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
-        <div className="absolute right-[-10%] top-[8%] h-[34rem] w-[34rem] rounded-full bg-[#b06d2f]/10 blur-[120px]" />
-        <div className="absolute left-0 top-0 h-40 w-full bg-gradient-to-b from-background to-transparent" />
+    <section id="ambient" className="relative bg-[#080807] text-foreground">
+      <div
+        className="ambient-real-backdrop pointer-events-none sticky top-0 z-0 h-[100svh] -mb-[100svh] overflow-hidden"
+        aria-hidden="true"
+      >
+        <Image
+          src="/images/experience-bg-mobile.webp"
+          alt=""
+          fill
+          priority
+          className="object-cover object-center lg:hidden"
+          sizes="100vw"
+        />
+        <Image
+          src="/images/experience-bg-desktop.webp"
+          alt=""
+          fill
+          priority
+          className="hidden object-cover object-center lg:block"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.08),rgba(5,5,5,0.22)_48%,rgba(5,5,5,0.42)_100%)]" />
+      </div>
+
+      <div className="ambient-atmosphere pointer-events-none absolute inset-0 z-[1]" aria-hidden="true">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.10),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.05),transparent_34%)]" />
+        <div className="absolute inset-0 opacity-[0.12] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
+        <div className="absolute right-[-10%] top-[8%] h-[34rem] w-[34rem] rounded-full bg-[#b06d2f]/8 blur-[120px]" />
+        <div className="absolute left-0 top-0 h-32 w-full bg-gradient-to-b from-background/70 to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-24 md:pb-36 md:pt-36 lg:px-8 lg:pb-44 lg:pt-44">
@@ -351,7 +374,7 @@ export default function AmbientSection() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-b from-transparent to-background" />
     </section>
   );
 }
