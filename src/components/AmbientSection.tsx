@@ -86,12 +86,10 @@ export default function AmbientSection() {
   const reduceMotion = useReducedMotion();
   const transition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const };
+    : { duration: 0.8, ease: "easeOut" as const };
 
   return (
     <section id="ambient" className="relative overflow-clip bg-[#080807] text-foreground">
-      {/* Lightweight art direction: generated-background look recreated with CSS layers,
-          so mobile does not download another multi-megabyte decorative asset. */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.16),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.10),transparent_34%),linear-gradient(180deg,#070706_0%,#0c0a08_36%,#080807_100%)]" />
         <div className="absolute inset-0 opacity-[0.22] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
@@ -124,7 +122,6 @@ export default function AmbientSection() {
           </p>
         </motion.header>
 
-        {/* Desktop: sticky visual + editorial chapters. Mobile: naturally linear, no scroll-linked JS. */}
         <div className="mt-20 grid gap-12 lg:mt-32 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20 xl:gap-28">
           <div className="lg:sticky lg:top-24 lg:h-[calc(100vh-8rem)] lg:self-start">
             <motion.div
