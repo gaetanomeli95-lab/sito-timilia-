@@ -129,7 +129,7 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <PlaceholderVisual label="Scatto in arrivo" />
+          <PlaceholderVisual label={item.name} />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907]/88 via-transparent to-transparent" />
         <span className="absolute left-5 top-5 rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[9px] uppercase tracking-[0.24em] text-white/55 backdrop-blur-md">
@@ -166,7 +166,7 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
             sizes="(max-width: 900px) 100vw, 50vw"
           />
         ) : (
-          <PlaceholderVisual label="Immagine categoria in arrivo" />
+          <PlaceholderVisual label={category.title} />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080706] via-[#080706]/58 to-black/5" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
@@ -188,7 +188,7 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
             </span>
           </div>
           <p className="mt-5 text-[9px] uppercase tracking-[0.26em] text-gold/60">
-            Tocca per scoprire la categoria
+            Scopri le proposte
           </p>
         </div>
       </summary>
@@ -245,7 +245,7 @@ export default function MenuScene() {
               <ArrowLeft className="h-3.5 w-3.5" />
               Torna a Timilia
             </Link>
-            <span className="text-[10px] uppercase tracking-[0.38em] text-gold/75">Menu · Vetrina</span>
+            <span className="text-[10px] uppercase tracking-[0.38em] text-gold/75">Pizzaioli per passione</span>
           </div>
 
           <div className="mt-auto max-w-4xl pb-8 sm:pb-14">
@@ -254,10 +254,10 @@ export default function MenuScene() {
             </p>
             <h1 className="max-w-4xl text-5xl font-light leading-[0.96] tracking-[-0.04em] sm:text-7xl lg:text-[7.4rem]">
               Il menu Timilia.
-              <span className="mt-2 block text-gold">Non un listino.</span>
+              <span className="mt-2 block text-gold">Pizza contemporanea. Anima siciliana.</span>
             </h1>
             <p className="mt-7 max-w-2xl text-base font-light leading-8 text-white/62 sm:text-lg">
-              Una selezione editoriale per raccontare impasti, pizze e identità. Per prezzi, allergeni e disponibilità aggiornate trovi sempre il menu digitale completo.
+              Impasti curati, materie prime selezionate e combinazioni che parlano di Sicilia con un linguaggio contemporaneo.
             </p>
             <a
               href={FULL_MENU_URL}
@@ -277,7 +277,7 @@ export default function MenuScene() {
           <SectionHeading
             eyebrow="01 · La scelta prima della pizza"
             title="Quattro modi di vivere l’impasto."
-            copy="Contemporaneo, Crusta, Rotondo in casseruola e senza glutine: non semplici varianti, ma quattro identità diverse da cui comincia l’esperienza Timilia."
+            copy="Contemporaneo, Crusta, Rotondo in casseruola e senza glutine: quattro identità diverse da cui comincia l’esperienza Timilia."
           />
 
           <div className="mt-14 grid gap-5 md:grid-cols-2 lg:mt-20">
@@ -297,7 +297,7 @@ export default function MenuScene() {
                       sizes="(max-width: 900px) 100vw, 50vw"
                     />
                   ) : (
-                    <PlaceholderVisual label="Immagine impasto in arrivo" />
+                    <PlaceholderVisual label={item.name} />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#090705]/96 via-[#090705]/42 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
@@ -320,8 +320,8 @@ export default function MenuScene() {
         <div className="mx-auto max-w-7xl">
           <SectionHeading
             eyebrow="02 · Ricerca"
-            title="Passi d’Autore. Tutti."
-            copy="Le pizze in cui Timilia alza il volume della ricerca: ingredienti, equilibrio e costruzione. Qui le mostriamo tutte, senza trasformarle in un listino prezzi."
+            title="Passi d’Autore."
+            copy="Pizze nate dalla ricerca: ingredienti scelti, contrasti misurati e composizioni che portano in tavola il carattere più creativo di Timilia."
           />
           <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-3 lg:mt-20">
             {passi?.items.map((item, index) => (
@@ -336,7 +336,7 @@ export default function MenuScene() {
           <SectionHeading
             eyebrow="03 · Memoria"
             title="Le Classiche, secondo Timilia."
-            copy="I nomi che conosciamo da sempre restano tutti presenti. La differenza sta nell’impasto, nella materia prima e nel modo in cui arrivano al tavolo."
+            copy="I grandi classici incontrano il nostro impasto, la nostra materia prima e il nostro modo di portarli al tavolo."
           />
           <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-3 lg:mt-20">
             {classiche?.items.map((item, index) => (
@@ -351,7 +351,7 @@ export default function MenuScene() {
           <SectionHeading
             eyebrow="04 · Oltre la pizza"
             title="Le altre anime di Timilia."
-            copy="Una sola immagine per categoria, nessun prezzo. Apri ogni sezione per scoprire tutte le proposte senza trasformare la pagina in un listino."
+            copy="Dallo street food siciliano ai burger d’autore, dalle insalate ai dolci: percorsi diversi, un’unica idea di gusto."
           />
           <div className="mt-14 grid items-start gap-5 lg:grid-cols-2 lg:mt-20">
             {showcaseCategories.map((category, index) => (
@@ -374,14 +374,14 @@ export default function MenuScene() {
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <p className="text-[10px] font-medium uppercase tracking-[0.34em] text-gold/80 sm:text-xs">
-            Il menu vivo è altrove
+            La carta completa
           </p>
           <h2 className="mt-5 text-4xl font-light tracking-[-0.03em] sm:text-6xl lg:text-7xl">
-            Qui raccontiamo Timilia.
-            <span className="mt-2 block text-gold">Lì trovi tutto.</span>
+            Hai già scelto
+            <span className="mt-2 block text-gold">da dove cominciare?</span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm font-light leading-7 text-white/55 sm:text-base sm:leading-8">
-            Prezzi, allergeni, disponibilità e l’intera carta sono sempre aggiornati sul menu digitale ufficiale.
+            Scopri la carta completa con tutte le proposte Timilia, gli allergeni e le disponibilità del momento.
           </p>
           <a
             href={FULL_MENU_URL}
