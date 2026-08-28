@@ -12,6 +12,29 @@ import CategoryRow from "./CategoryRow";
 import LargeProductCard from "./LargeProductCard";
 import { DietaryIcon } from "./DietaryIcon";
 
+function normalizeMenuText(value?: string) {
+  if (!value) return value ?? "";
+  return value
+    .replace(/ROTUNDO/g, "ROTONDO")
+    .replace(/Rotundo/g, "Rotondo")
+    .replace(/rotundo/g, "rotondo")
+    .replace(/ROTUNDI/g, "ROTONDI")
+    .replace(/Rotundi/g, "Rotondi")
+    .replace(/rotundi/g, "rotondi");
+}
+
+const displayMenuCategories = menuCategories.map((cat) => ({
+  ...cat,
+  title: normalizeMenuText(cat.title),
+  subtitle: cat.subtitle ? normalizeMenuText(cat.subtitle) : undefined,
+  items: cat.items.map((item) => ({
+    ...item,
+    name: normalizeMenuText(item.name),
+    description: normalizeMenuText(item.description),
+    note: item.note ? normalizeMenuText(item.note) : undefined,
+  })),
+}));
+
 export default function MenuScene() {
   const router = useRouter();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -24,7 +47,7 @@ export default function MenuScene() {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   const displayIdx = hoveredIdx ?? selectedCat ?? 0;
-  const category = menuCategories[displayIdx];
+  const category = displayMenuCategories[displayIdx];
   const imageSrc = previewImages[category?.id] ?? "/images/logo-timilia-original.jpg";
 
   useEffect(() => {
@@ -89,7 +112,7 @@ export default function MenuScene() {
     setSelectedItem(null);
   }, []);
 
-  const expandedCategory = selectedCat !== null ? menuCategories[selectedCat] : null;
+  const expandedCategory = selectedCat !== null ? displayMenuCategories[selectedCat] : null;
 
   return (
     <div ref={sceneRef} className="relative min-h-screen bg-[#0c0a08] flex flex-col overflow-hidden">
@@ -119,7 +142,6 @@ export default function MenuScene() {
         </span>
       </header>
 
-      {/* Category banner strip — rectangular, horizontal */}
       <div className="relative z-10 mx-4 lg:mx-8 h-[130px] sm:h-[170px] lg:h-[215px] flex-shrink-0 overflow-hidden rounded-[1.6rem] border border-white/[0.08] shadow-[0_24px_90px_rgba(0,0,0,0.4)]" data-enter>
         <div ref={bannerRef} className="absolute inset-0 transition-opacity duration-500" style={{ willChange: "transform" }}>
           <Image
@@ -135,7 +157,6 @@ export default function MenuScene() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c0a08]/72 via-transparent to-white/[0.04]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_42%,rgba(200,169,126,0.16),transparent_34%)]" />
 
-        {/* Category title overlay on the banner */}
         <div className="absolute inset-0 flex items-center justify-between px-5 lg:px-10 z-10">
           <div>
             <span className="text-gold/80 text-[10px] tracking-[0.3em] uppercase font-medium block mb-1.5">
@@ -145,7 +166,7 @@ export default function MenuScene() {
               {category?.title}
             </h2>
             <p className="text-[#f5f0e8]/45 text-[11px] lg:text-sm font-light leading-relaxed line-clamp-1 mt-1 max-w-[60vw] lg:max-w-md">
-              {categoryDescriptions[category?.id] ?? category?.subtitle}
+              {normalizeMenuText(categoryDescriptions[category?.id] ?? category?.subtitle)}
             </p>
             {categoryDietary[category?.id] && (
               <div className="flex flex-wrap gap-2 sm:gap-2.5 mt-3 sm:mt-4">
@@ -177,10 +198,9 @@ export default function MenuScene() {
         </div>
       </div>
 
-      {/* Mobile: sticky horizontal scrollable category tabs */}
       <nav className="lg:hidden sticky top-0 flex-shrink-0 px-5 py-3 overflow-x-auto scrollbar-hide border-b border-white/[0.07] z-20 bg-[#0c0a08]/90 backdrop-blur-xl">
         <div className="flex gap-1.5">
-          {menuCategories.map((cat, idx) => (
+          {displayMenuCategories.map((cat, idx) => (
             <button
               key={cat.id}
               onClick={() => handleCategoryClick(idx)}
@@ -196,9 +216,7 @@ export default function MenuScene() {
         </div>
       </nav>
 
-      {/* Main content area */}
       <div className="relative z-10 flex-1 flex flex-col lg:flex-row min-h-0">
-        {/* Desktop left: sticky category list */}
         <nav className="hidden lg:flex lg:w-[22%] flex-shrink-0 px-6 py-6 flex-col justify-start overflow-y-auto scrollbar-hide sticky top-0 self-start max-h-[calc(100vh-0px)]">
           <div data-enter className="mb-4">
             <div className="flex items-center gap-3 mb-2">
@@ -210,7 +228,7 @@ export default function MenuScene() {
           </div>
 
           <div className="flex flex-col gap-0.5">
-            {menuCategories.map((cat, idx) => (
+            {displayMenuCategories.map((cat, idx) => (
               <CategoryRow
                 key={cat.id}
                 cat={cat}
@@ -225,7 +243,6 @@ export default function MenuScene() {
           </div>
         </nav>
 
-        {/* Right: products scroll area — large cards, one per row */}
         <div className="flex-1 lg:w-[78%] relative overflow-y-auto scrollbar-hide min-h-0">
           {expandedCategory ? (
             <div ref={productsRef} className="px-4 sm:px-6 lg:px-8 py-5">
@@ -243,7 +260,6 @@ export default function MenuScene() {
                 </button>
               </div>
 
-              {/* Large product cards — one per row, scrollable */}
               <div className="flex flex-col gap-4 lg:gap-5 pb-8">
                 {expandedCategory.items.map((item, i) => (
                   <LargeProductCard
