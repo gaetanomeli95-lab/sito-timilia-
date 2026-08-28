@@ -119,9 +119,9 @@ export default function AmbientSection() {
   return (
     <section id="ambient" className="relative overflow-clip bg-[#080807] text-foreground">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.16),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.10),transparent_34%),linear-gradient(180deg,#070706_0%,#0c0a08_36%,#080807_100%)]" />
-        <div className="absolute inset-0 opacity-[0.22] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
-        <div className="absolute right-[-10%] top-[8%] h-[34rem] w-[34rem] rounded-full bg-[#b06d2f]/10 blur-[120px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.10),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.07),transparent_34%),linear-gradient(180deg,#070706_0%,#0b0a09_36%,#080807_100%)]" />
+        <div className="absolute inset-0 opacity-[0.14] [background-image:radial-gradient(rgba(245,240,232,0.22)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
+        <div className="absolute right-[-10%] top-[8%] h-[34rem] w-[34rem] rounded-full bg-white/[0.025] blur-[120px]" />
         <div className="absolute left-0 top-0 h-40 w-full bg-gradient-to-b from-background to-transparent" />
       </div>
 
@@ -135,14 +135,14 @@ export default function AmbientSection() {
           className="max-w-5xl"
         >
           <div className="mb-7 flex items-center gap-4">
-            <span className="h-px w-10 bg-gold/70" />
-            <span className="text-[10px] font-medium uppercase tracking-[0.36em] text-gold md:text-xs">
+            <span className="h-px w-10 bg-white/28" />
+            <span className="text-[10px] font-medium uppercase tracking-[0.36em] text-white/58 md:text-xs">
               L&apos;esperienza Timilia
             </span>
           </div>
           <h2 className="max-w-4xl text-[clamp(2.9rem,7vw,7.4rem)] font-light leading-[0.9] tracking-[-0.035em] text-white">
             Qui la pizza
-            <span className="block text-gold">si vive.</span>
+            <span className="block text-[#f5f0e8]">si vive.</span>
           </h2>
           <p className="mt-8 max-w-2xl text-base font-light leading-relaxed text-white/58 md:mt-10 md:text-xl">
             Nel cuore di Via Maqueda, Timilia è impasto, tempo, persone e Sicilia. Un luogo che non cerca il silenzio di una sala formale: cerca autenticità.
@@ -178,7 +178,7 @@ export default function AmbientSection() {
                   />
                 </motion.div>
               </AnimatePresence>
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(5,5,5,0.14)_48%,rgba(5,5,5,0.82)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04),rgba(5,5,5,0.22)_48%,rgba(5,5,5,0.88)_100%)]" />
               <div className="absolute inset-x-0 bottom-0 z-10 p-8">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
@@ -188,7 +188,7 @@ export default function AmbientSection() {
                     exit={{ opacity: 0, y: -5 }}
                     transition={reduceMotion ? { duration: 0 } : { duration: 0.35 }}
                   >
-                    <span className="text-[10px] uppercase tracking-[0.3em] text-gold/78">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-white/56">
                       {activeVisual.visualLabel}
                     </span>
                     <div className="mt-4 flex gap-1.5" aria-hidden="true">
@@ -227,13 +227,13 @@ export default function AmbientSection() {
                     style={{ objectPosition: chapter.imagePosition }}
                     sizes="100vw"
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.34),rgba(5,5,5,0.72)_48%,rgba(5,5,5,0.94)_100%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_18%,rgba(200,169,126,0.12),transparent_35%)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.42),rgba(5,5,5,0.76)_48%,rgba(5,5,5,0.96)_100%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_18%,rgba(245,240,232,0.045),transparent_35%)]" />
                 </div>
 
                 <div className="relative z-10 flex min-h-[28rem] flex-col justify-end sm:min-h-[32rem] lg:min-h-0 lg:justify-start">
                   <div className="mb-5 flex items-center gap-4">
-                    <span className="font-mono text-[10px] tracking-[0.2em] text-gold/82">
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-gold/74">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className="text-[10px] uppercase tracking-[0.28em] text-white/58 md:text-xs lg:text-white/38">
@@ -265,7 +265,7 @@ export default function AmbientSection() {
           className="mt-14 border-y border-white/10 py-14 md:mt-20 md:py-20"
         >
           <div className="mb-9 max-w-3xl md:mb-12">
-            <span className="text-[10px] font-medium uppercase tracking-[0.34em] text-gold md:text-xs">
+            <span className="text-[10px] font-medium uppercase tracking-[0.34em] text-white/54 md:text-xs">
               Quattro modi di vivere l&apos;impasto
             </span>
             <h3 className="mt-5 text-3xl font-light tracking-[-0.02em] text-white md:text-5xl">
@@ -304,11 +304,11 @@ export default function AmbientSection() {
               className="object-cover object-center"
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.10),rgba(5,5,5,0.22)_38%,rgba(5,5,5,0.92)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.16),rgba(5,5,5,0.40)_38%,rgba(5,5,5,0.96)_100%)]" />
             <div className="absolute inset-x-0 bottom-0 p-7 md:p-12 lg:p-16">
               <p className="max-w-5xl text-3xl font-light leading-[1.08] tracking-[-0.025em] text-white md:text-5xl lg:text-7xl">
                 Timilia non è una pizzeria da osservare in silenzio.
-                <span className="mt-2 block text-gold">È una pizzeria da vivere.</span>
+                <span className="mt-2 block text-[#f5f0e8]">È una pizzeria da vivere.</span>
               </p>
             </div>
           </div>
@@ -322,7 +322,7 @@ export default function AmbientSection() {
             viewport={{ once: true, amount: 0.35 }}
             transition={transition}
           >
-            <span className="text-[10px] uppercase tracking-[0.34em] text-gold md:text-xs">La nostra idea di ospitalità</span>
+            <span className="text-[10px] uppercase tracking-[0.34em] text-white/50 md:text-xs">La nostra idea di ospitalità</span>
             <h3 className="mt-6 text-3xl font-light leading-tight tracking-[-0.02em] text-white md:text-5xl">
               Portare via qualcosa, oltre alla pizza.
             </h3>
@@ -341,10 +341,11 @@ export default function AmbientSection() {
           >
             <p className="text-2xl font-light leading-relaxed text-white md:text-4xl">
               Pizza contemporanea.
-              <span className="block text-white/62">Anima siciliana.</span>
-              <span className="block text-gold">Energia di Palermo.</span>
+              <span className="block text-white/72">Anima siciliana.</span>
+              <span className="block text-[#f5f0e8]">Energia di Palermo.</span>
             </p>
-            <p className="mt-12 text-[10px] uppercase tracking-[0.34em] text-white/34 md:text-xs">
+            <div className="mx-auto mt-7 h-px w-10 bg-gold/55" aria-hidden="true" />
+            <p className="mt-9 text-[10px] uppercase tracking-[0.34em] text-white/34 md:text-xs">
               E quando la ricerca sull&apos;impasto diventa un progetto a sé, nasce TERA ↓
             </p>
           </motion.div>
