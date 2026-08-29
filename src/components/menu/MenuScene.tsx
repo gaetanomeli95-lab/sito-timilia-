@@ -118,7 +118,7 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
   const image = item.image || item.images?.[0];
 
   return (
-    <article className="group overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-white/[0.025] shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
+    <article className="group overflow-hidden rounded-[1.8rem] border border-white/[0.08] bg-[#0c0a08] shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
       <div className="relative aspect-[4/3] overflow-hidden">
         {image ? (
           <Image
@@ -131,12 +131,12 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
         ) : (
           <PlaceholderVisual label={item.name} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907]/88 via-transparent to-transparent" />
-        <span className="absolute left-5 top-5 rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[9px] uppercase tracking-[0.24em] text-white/55 backdrop-blur-md">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+        <span className="absolute left-5 top-5 rounded-full border border-white/10 bg-black/55 px-3 py-1 text-[9px] uppercase tracking-[0.24em] text-white/75 backdrop-blur-md">
           {String(index + 1).padStart(2, "0")}
         </span>
       </div>
-      <div className="p-5 sm:p-6">
+      <div className="border-t border-white/[0.07] bg-[#090806] p-5 sm:p-6">
         <h3 className="text-xl font-light tracking-wide text-[#fffaf0]">{item.name}</h3>
         {item.description && (
           <p className="mt-3 text-sm font-light leading-6 text-[#c9c2b8]">
@@ -168,8 +168,8 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
         ) : (
           <PlaceholderVisual label={category.title} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080706] via-[#080706]/68 to-black/10" />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/5" />
+        <div className="absolute inset-x-4 bottom-4 rounded-[1.45rem] border border-white/[0.10] bg-[#080706]/90 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:p-6">
           <div className="mb-4 flex items-center gap-3">
             <span className="text-[9px] uppercase tracking-[0.3em] text-[#c8a97e]">
               {String(index + 1).padStart(2, "0")}
@@ -179,11 +179,11 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
           <div className="flex items-end justify-between gap-5">
             <div>
               <h3 className="text-2xl font-light text-[#fffaf0] sm:text-3xl">{category.title}</h3>
-              <p className="mt-3 max-w-xl text-sm font-light leading-6 text-[#d0c9be]">
+              <p className="mt-3 max-w-xl text-sm font-light leading-6 text-[#d8d1c7]">
                 {description}
               </p>
             </div>
-            <span className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-black/20 text-gold transition-transform duration-500 group-open:rotate-45">
+            <span className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-black/30 text-gold transition-transform duration-500 group-open:rotate-45">
               <Plus className="h-4 w-4" />
             </span>
           </div>
@@ -233,41 +233,45 @@ export default function MenuScene() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#090705]/96 via-[#090705]/66 to-[#090705]/22" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907] via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#090705]/72 via-[#090705]/30 to-[#090705]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907] via-transparent to-black/25" />
 
         <div className="relative z-10 mx-auto flex min-h-[88svh] max-w-7xl flex-col px-5 pb-14 pt-6 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-full border border-white/[0.10] bg-black/55 px-4 py-3 backdrop-blur-xl sm:px-5">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[#d7d0c5] transition-colors hover:text-gold"
+              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[#e4ddd2] transition-colors hover:text-gold"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Torna a Timilia
             </Link>
-            <span className="text-[10px] uppercase tracking-[0.38em] text-[#c8a97e]">Pizzaioli per passione</span>
+            <span className="text-[9px] uppercase tracking-[0.30em] text-[#c8a97e] sm:text-[10px] sm:tracking-[0.38em]">
+              Pizzaioli per passione
+            </span>
           </div>
 
           <div className="mt-auto max-w-4xl pb-8 sm:pb-14">
-            <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.36em] text-[#c8a97e] sm:text-xs">
-              Timilia · Via Maqueda · Palermo
-            </p>
-            <h1 className="max-w-4xl text-5xl font-light leading-[0.96] tracking-[-0.04em] text-[#fffaf0] sm:text-7xl lg:text-[7.4rem]">
-              Il menu Timilia.
-              <span className="mt-2 block text-[#e4d1b3]">Pizza contemporanea. Anima siciliana.</span>
-            </h1>
-            <p className="mt-7 max-w-2xl text-base font-light leading-8 text-[#d3ccc2] sm:text-lg">
-              Impasti curati, materie prime selezionate e combinazioni che parlano di Sicilia con un linguaggio contemporaneo.
-            </p>
-            <a
-              href={FULL_MENU_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-8 inline-flex items-center gap-3 rounded-full border border-gold/30 bg-gold/10 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.24em] text-gold transition-all hover:bg-gold hover:text-[#0b0907]"
-            >
-              Menu completo
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
+            <div className="rounded-[1.8rem] border border-white/[0.10] bg-[#080706]/84 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-8 lg:p-10">
+              <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.36em] text-[#c8a97e] sm:text-xs">
+                Timilia · Via Maqueda · Palermo
+              </p>
+              <h1 className="max-w-4xl text-5xl font-light leading-[0.96] tracking-[-0.04em] text-[#fffaf0] sm:text-7xl lg:text-[6.5rem]">
+                Il menu Timilia.
+                <span className="mt-2 block text-[#e4d1b3]">Pizza contemporanea. Anima siciliana.</span>
+              </h1>
+              <p className="mt-7 max-w-2xl text-base font-light leading-8 text-[#ddd6cc] sm:text-lg">
+                Impasti curati, materie prime selezionate e combinazioni che parlano di Sicilia con un linguaggio contemporaneo.
+              </p>
+              <a
+                href={FULL_MENU_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-3 rounded-full border border-gold/35 bg-gold/12 px-6 py-3 text-[10px] font-medium uppercase tracking-[0.24em] text-gold transition-all hover:bg-gold hover:text-[#0b0907]"
+              >
+                Menu completo
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -299,13 +303,13 @@ export default function MenuScene() {
                   ) : (
                     <PlaceholderVisual label={item.name} />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090705]/98 via-[#090705]/68 to-black/5" />
-                  <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/38 via-black/5 to-transparent" />
+                  <div className="absolute inset-x-4 bottom-4 rounded-[1.5rem] border border-white/[0.11] bg-[#080706]/91 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:inset-x-6 sm:bottom-6 sm:p-6">
                     <span className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#c8a97e]">
                       Impasto {String(index + 1).padStart(2, "0")}
                     </span>
                     <h3 className="mt-3 text-3xl font-light text-[#fff8ec] sm:text-4xl">{item.name}</h3>
-                    <p className="mt-4 max-w-xl text-sm font-normal leading-7 text-[#d9d2c8]">
+                    <p className="mt-4 max-w-xl text-sm font-normal leading-7 text-[#e0d9cf]">
                       {item.description}
                     </p>
                   </div>
