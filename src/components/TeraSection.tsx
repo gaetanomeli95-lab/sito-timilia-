@@ -9,34 +9,50 @@ import { FlaskConical, Leaf, Heart, WheatOff } from "lucide-react";
 
 const features: TeraFeatureContent[] = [
   {
-    icon: FlaskConical,
-    title: "Ricerca",
-    desc: "Un approccio scientifico all'impasto, studiato per garantire leggerezza e digeribilità senza compromessi.",
-    body: "TERA nasce da anni di prove, studio e sacrifici. Ogni variabile è stata testata: idratazione, tempi di fermentazione, blend di farine, temperatura di cottura. Il risultato è un impasto che non ha nulla da invidiare a uno tradizionale — anzi. La ricerca continua ogni giorno, perché la perfezione non è un punto di arrivo ma un processo.",
-  },
-  {
     icon: WheatOff,
     title: "Senza Glutine",
-    desc: "Un impasto dedicato, pensato per chi sceglie il benessere senza rinunciare al piacere della pizza.",
-    body: "Non una semplice alternativa, ma un mondo dedicato. L'impasto TERA è sviluppato esclusivamente per il senza glutine, con attrezzature e spazi separati per evitare ogni contaminazione. Il risultato è una pizza che non sa di \"alternativa\" — sa di pizza. Leggera, fragrante, digeribile.",
+    desc: "Non un'alternativa. Un progetto a sé.",
+    body: "TERA nasce da una scelta precisa: andare oltre.\n\nNon una piccola area dedicata, ma un grande laboratorio, pensato esclusivamente per il senza glutine.\n\nQui abbiamo sviluppato il nostro blend, costruito un metodo e dato vita a un'identità tutta nostra, dove ricerca, materie prime e lavorazioni hanno un solo obiettivo: arrivare al meglio.\n\nPerché quello che accade dentro TERA\nnon vuole imitare la pizza.\nVuole ridefinire ciò che ti aspetti da una pizza senza glutine.",
+  },
+  {
+    icon: FlaskConical,
+    title: "Ricerca",
+    desc: "Sette anni di ricerca. E non sentirli.",
+    body: "TERA nasce da sette anni di studio, prove e continua evoluzione.\n\nOgni dettaglio è stato osservato, testato, messo in discussione.\n\nMa la vera ricerca comincia quando smetti di aspettare che la soluzione arrivi da qualcun altro.\n\nNoi abbiamo scelto di cercarla.\nDi svilupparla.\nE, quando non esisteva come la volevamo, di crearla.\n\nPerché fare la differenza non significa scegliere ciò che il mercato offre.\nSignifica trovare ciò che ancora manca.",
   },
   {
     icon: Leaf,
     title: "Ingredienti Selezionati",
-    desc: "Ogni componente è scelto con cura, per un risultato che unisce qualità e naturalezza.",
-    body: "Le farine TERA sono selezionate tra le migliori fonti naturali senza glutine. Ognuna porta caratteristiche uniche: struttura, sapore, nutrienti. Insieme creano un blend equilibrato che garantisce un impasto lavorabile, digeribile e gustoso.",
+    desc: "Il nostro blend di oggi. La ricerca di domani.",
+    body: "TERA non nasce da una formula immobile.\n\nSorgo, grano saraceno, miglio, teff e piselli sono tra le materie prime che oggi abbiamo scelto perché rappresentano l'equilibrio che, in questa fase della nostra ricerca, riteniamo migliore.\n\nLa nostra ricerca non si limita a formulazioni basate prevalentemente sugli amidi. Esploriamo cereali, pseudocereali e farine proteiche naturalmente senza glutine, selezionandoli per le loro caratteristiche nutrizionali, aromatiche e funzionali.\n\nMa nulla è definitivo.\n\nContinuiamo a studiare nuove materie prime, sperimentare nuovi equilibri e mettere alla prova ciò che abbiamo raggiunto.\n\nPerché dopo sette anni abbiamo imparato una cosa:\nla nostra formula migliore è sempre quella che siamo ancora disposti a migliorare.",
     items: [
-      { name: "Sorgo", desc: "Cereale antico naturalmente senza glutine, ricco di antiossidanti e fibre. Apporta leggerezza e un sapore delicato all'impasto." },
-      { name: "Saraceno", desc: "Pseudocereale ad alto valore proteico, ricco di minerali come magnesio e ferro. Dona struttura e un caratteristico aroma tostato." },
-      { name: "Miglio", desc: "Cereale digestibile e nutriente, fonte di vitamine del gruppo B. Contribuisce alla friabilità e alla digeribilità dell'impasto." },
-      { name: "Piselli", desc: "Farina di piselli ricca di proteine vegetali. Migliora la struttura dell'impasto e aumenta l'apporto nutrizionale senza aggiungere grassi." },
+      {
+        name: "SORGO",
+        desc: "Cereale naturalmente senza glutine, delicato e versatile.",
+      },
+      {
+        name: "GRANO SARACENO",
+        desc: "Pseudocereale dal carattere deciso e dal profilo nutrizionale interessante.",
+      },
+      {
+        name: "MIGLIO",
+        desc: "Cereale naturalmente senza glutine, delicato e naturalmente versatile.",
+      },
+      {
+        name: "TEFF",
+        desc: "Piccolo cereale antico, naturalmente senza glutine, interessante per le sue caratteristiche nutrizionali e aromatiche.",
+      },
+      {
+        name: "PISELLI",
+        desc: "Una fonte proteica vegetale scelta anche per il contributo che può dare alla struttura dell'impasto.",
+      },
     ],
   },
   {
     icon: Heart,
     title: "Benessere",
-    desc: "Un'esperienza premium gluten free dove il gusto incontra la sensazione di leggerezza.",
-    body: "TERA non è solo senza glutine — è un impasto pensato per il benessere. Grazie al blend di farine naturali, l'impasto TERA ha un basso indice glicemico, un alto apporto di fibre e un ricco profilo di vitamine e minerali: calcio, magnesio, zinco, fosforo e ferro. Il risultato è una pizza che nutre senza appesantire, che si digerisce con facilità e che lascia una sensazione di leggerezza reale.",
+    desc: "Non ci basta che sia senza glutine.",
+    body: "TERA nasce con un'ambizione precisa: cercare un equilibrio tra gusto, qualità e benessere.\n\nUna delle sfide su cui stiamo lavorando è il profilo glicemico. Molti mix senza glutine in commercio fanno largo uso di amidi. La nostra ricerca segue una strada diversa, valorizzando cereali e pseudocereali naturalmente senza glutine, farine proteiche e fibre, alla continua ricerca del giusto equilibrio.\n\nLa direzione è chiara: evolvere TERA lavorando non soltanto sul gusto e sulla leggerezza, ma anche sul suo profilo nutrizionale.\n\nPerché per noi la ricerca non serve semplicemente a creare un prodotto da vendere.\nServe a creare qualcosa che possa fare la differenza, anche nel benessere di chi lo sceglie.",
   },
 ];
 
@@ -212,7 +228,7 @@ function FeatureCard({
         <h3 className="relative text-white text-sm tracking-[0.12em] uppercase font-medium mb-2 transition-colors duration-500 group-hover:text-white" style={{ transform: "translateZ(20px)" }}>
           {feature.title}
         </h3>
-        <p className="relative text-white/55 text-sm font-light leading-relaxed transition-colors duration-500 group-hover:text-white/72" style={{ transform: "translateZ(10px)" }}>
+        <p className="relative text-white/62 text-sm font-light leading-relaxed transition-colors duration-500 group-hover:text-white/78" style={{ transform: "translateZ(10px)" }}>
           {feature.desc}
         </p>
         <div className="relative mt-3 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500" style={{ transform: "translateZ(15px)" }}>
