@@ -86,14 +86,14 @@ function SectionHeading({
 }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
-      <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.34em] text-gold/80 sm:text-xs">
+      <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.34em] text-[#c8a97e] sm:text-xs">
         {eyebrow}
       </p>
-      <h2 className="text-3xl font-light tracking-[-0.02em] text-[#f5f0e8] sm:text-5xl lg:text-6xl">
+      <h2 className="text-3xl font-light tracking-[-0.02em] text-[#fffaf0] sm:text-5xl lg:text-6xl">
         {title}
       </h2>
       {copy && (
-        <p className="mx-auto mt-5 max-w-2xl text-sm font-light leading-7 text-[#f5f0e8]/55 sm:text-base sm:leading-8">
+        <p className="mx-auto mt-5 max-w-2xl text-sm font-light leading-7 text-[#cfc8bd] sm:text-base sm:leading-8">
           {copy}
         </p>
       )}
@@ -137,9 +137,9 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
         </span>
       </div>
       <div className="p-5 sm:p-6">
-        <h3 className="text-xl font-light tracking-wide text-[#f5f0e8]">{item.name}</h3>
+        <h3 className="text-xl font-light tracking-wide text-[#fffaf0]">{item.name}</h3>
         {item.description && (
-          <p className="mt-3 text-sm font-light leading-6 text-[#f5f0e8]/52">
+          <p className="mt-3 text-sm font-light leading-6 text-[#c9c2b8]">
             {item.description}
           </p>
         )}
@@ -168,18 +168,18 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
         ) : (
           <PlaceholderVisual label={category.title} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080706] via-[#080706]/58 to-black/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080706] via-[#080706]/68 to-black/10" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
           <div className="mb-4 flex items-center gap-3">
-            <span className="text-[9px] uppercase tracking-[0.3em] text-gold/75">
+            <span className="text-[9px] uppercase tracking-[0.3em] text-[#c8a97e]">
               {String(index + 1).padStart(2, "0")}
             </span>
-            <div className="h-px w-10 bg-gold/30" />
+            <div className="h-px w-10 bg-[#c8a97e]/35" />
           </div>
           <div className="flex items-end justify-between gap-5">
             <div>
-              <h3 className="text-2xl font-light text-[#f5f0e8] sm:text-3xl">{category.title}</h3>
-              <p className="mt-3 max-w-xl text-sm font-light leading-6 text-[#f5f0e8]/58">
+              <h3 className="text-2xl font-light text-[#fffaf0] sm:text-3xl">{category.title}</h3>
+              <p className="mt-3 max-w-xl text-sm font-light leading-6 text-[#d0c9be]">
                 {description}
               </p>
             </div>
@@ -187,7 +187,7 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
               <Plus className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-5 text-[9px] uppercase tracking-[0.26em] text-gold/60">
+          <p className="mt-5 text-[9px] uppercase tracking-[0.26em] text-[#c8a97e]">
             Scopri le proposte
           </p>
         </div>
@@ -196,10 +196,10 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
       <div className="border-t border-white/[0.07] bg-[#0b0907]/90 px-6 py-7 sm:px-8 sm:py-9">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.28em] text-gold/65">La selezione</p>
-            <h4 className="mt-2 text-xl font-light text-[#f5f0e8]">{category.title}</h4>
+            <p className="text-[9px] uppercase tracking-[0.28em] text-[#c8a97e]">La selezione</p>
+            <h4 className="mt-2 text-xl font-light text-[#fffaf0]">{category.title}</h4>
           </div>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/28">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-[#9f988e]">
             {category.items.length} proposte
           </span>
         </div>
@@ -207,9 +207,9 @@ function ShowcaseCard({ category, index }: { category: MenuCategory; index: numb
         <div className="divide-y divide-white/[0.07]">
           {category.items.map((item) => (
             <div key={item.name} className="py-4 first:pt-0 last:pb-0">
-              <h5 className="text-sm font-medium tracking-wide text-[#f5f0e8]/88">{item.name}</h5>
+              <h5 className="text-sm font-medium tracking-wide text-[#f4eee5]">{item.name}</h5>
               {item.description && (
-                <p className="mt-1.5 text-xs font-light leading-5 text-[#f5f0e8]/42">
+                <p className="mt-1.5 text-xs font-light leading-5 text-[#aaa298]">
                   {item.description}
                 </p>
               )}
@@ -233,30 +233,30 @@ export default function MenuScene() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#090705]/94 via-[#090705]/58 to-[#090705]/16" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907] via-transparent to-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#090705]/96 via-[#090705]/66 to-[#090705]/22" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0907] via-transparent to-black/30" />
 
         <div className="relative z-10 mx-auto flex min-h-[88svh] max-w-7xl flex-col px-5 pb-14 pt-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-white/55 transition-colors hover:text-gold"
+              className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-[#d7d0c5] transition-colors hover:text-gold"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Torna a Timilia
             </Link>
-            <span className="text-[10px] uppercase tracking-[0.38em] text-gold/75">Pizzaioli per passione</span>
+            <span className="text-[10px] uppercase tracking-[0.38em] text-[#c8a97e]">Pizzaioli per passione</span>
           </div>
 
           <div className="mt-auto max-w-4xl pb-8 sm:pb-14">
-            <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.36em] text-gold/85 sm:text-xs">
+            <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.36em] text-[#c8a97e] sm:text-xs">
               Timilia · Via Maqueda · Palermo
             </p>
-            <h1 className="max-w-4xl text-5xl font-light leading-[0.96] tracking-[-0.04em] sm:text-7xl lg:text-[7.4rem]">
+            <h1 className="max-w-4xl text-5xl font-light leading-[0.96] tracking-[-0.04em] text-[#fffaf0] sm:text-7xl lg:text-[7.4rem]">
               Il menu Timilia.
-              <span className="mt-2 block text-gold">Pizza contemporanea. Anima siciliana.</span>
+              <span className="mt-2 block text-[#e4d1b3]">Pizza contemporanea. Anima siciliana.</span>
             </h1>
-            <p className="mt-7 max-w-2xl text-base font-light leading-8 text-white/62 sm:text-lg">
+            <p className="mt-7 max-w-2xl text-base font-light leading-8 text-[#d3ccc2] sm:text-lg">
               Impasti curati, materie prime selezionate e combinazioni che parlano di Sicilia con un linguaggio contemporaneo.
             </p>
             <a
@@ -299,13 +299,13 @@ export default function MenuScene() {
                   ) : (
                     <PlaceholderVisual label={item.name} />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#090705]/96 via-[#090705]/42 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#090705]/98 via-[#090705]/68 to-black/5" />
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                    <span className="text-[9px] uppercase tracking-[0.3em] text-gold/75">
+                    <span className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#c8a97e]">
                       Impasto {String(index + 1).padStart(2, "0")}
                     </span>
-                    <h3 className="mt-3 text-3xl font-light sm:text-4xl">{item.name}</h3>
-                    <p className="mt-4 max-w-xl text-sm font-light leading-7 text-white/58">
+                    <h3 className="mt-3 text-3xl font-light text-[#fff8ec] sm:text-4xl">{item.name}</h3>
+                    <p className="mt-4 max-w-xl text-sm font-normal leading-7 text-[#d9d2c8]">
                       {item.description}
                     </p>
                   </div>
