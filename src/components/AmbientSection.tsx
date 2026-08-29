@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const chapters = [
   {
-    kicker: "Via Maqueda 221",
+    kicker: "Via Maqueda 221 · Palermo",
     title: "Una pizzeria viva, davvero.",
     body: [
       "Timilia nasce nel cuore di Palermo, lungo Via Maqueda, dove la città non fa semplicemente da sfondo: si sente nelle voci, nel movimento, nei profumi e nell’energia che accompagna ogni giornata.",
