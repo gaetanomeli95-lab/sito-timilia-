@@ -55,7 +55,7 @@ export default function TeraFeatureModal({ content, onClose }: TeraFeatureModalP
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-[1.8rem] border border-white/12 bg-[linear-gradient(160deg,#1a1f1c_0%,#121613_60%,#0c0f0d_100%)] p-6 sm:p-8 shadow-[0_40px_120px_rgba(0,0,0,0.5)]"
+            className="relative z-10 w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-[1.8rem] border border-white/12 bg-[linear-gradient(160deg,#1a1f1c_0%,#121613_60%,#0c0f0d_100%)] p-6 sm:p-8 shadow-[0_40px_120px_rgba(0,0,0,0.5)]"
           >
             <button
               onClick={onClose}
@@ -73,13 +73,13 @@ export default function TeraFeatureModal({ content, onClose }: TeraFeatureModalP
                 <h3 className="text-white text-lg sm:text-xl font-light tracking-[0.06em] uppercase">
                   {content.title}
                 </h3>
-                <p className="text-[#a8b8a4]/60 text-xs sm:text-sm font-light mt-0.5">
+                <p className="text-[#c9d5c5] text-xs sm:text-sm font-light mt-1 leading-relaxed">
                   {content.desc}
                 </p>
               </div>
             </div>
 
-            <p className="text-white/72 text-sm sm:text-base font-light leading-relaxed mb-6">
+            <p className="whitespace-pre-line text-white/76 text-sm sm:text-base font-light leading-[1.8] mb-7">
               {content.body}
             </p>
 
@@ -98,18 +98,18 @@ export default function TeraFeatureModal({ content, onClose }: TeraFeatureModalP
 
             {content.items && content.items.length > 0 && (
               <div className="space-y-3">
-                <span className="text-[#a8b8a4] text-[10px] tracking-[0.3em] uppercase font-medium block mb-3">
-                  Le farine TERA
+                <span className="text-[#b8c7b4] text-[10px] tracking-[0.3em] uppercase font-medium block mb-4">
+                  Le materie prime di oggi
                 </span>
                 {content.items.map((item) => (
                   <div
                     key={item.name}
-                    className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-4 transition-colors duration-300 hover:border-[#748470]/30 hover:bg-white/[0.04]"
+                    className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 transition-colors duration-300 hover:border-[#748470]/35 hover:bg-white/[0.055]"
                   >
-                    <h4 className="text-white text-sm font-medium tracking-wide mb-1">
+                    <h4 className="text-white text-sm font-medium tracking-wide mb-1.5">
                       {item.name}
                     </h4>
-                    <p className="text-white/50 text-sm font-light leading-relaxed">
+                    <p className="text-white/58 text-sm font-light leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -117,8 +117,8 @@ export default function TeraFeatureModal({ content, onClose }: TeraFeatureModalP
               </div>
             )}
 
-            <div className="mt-6 pt-5 border-t border-white/[0.06]">
-              <p className="text-[#a8b8a4]/40 text-[10px] tracking-[0.2em] uppercase font-light text-center">
+            <div className="mt-7 pt-5 border-t border-white/[0.06]">
+              <p className="text-[#a8b8a4]/45 text-[10px] tracking-[0.2em] uppercase font-light text-center">
                 TERA — Progetto Gluten Free TIMILIA
               </p>
             </div>
