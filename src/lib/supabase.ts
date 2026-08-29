@@ -1,6 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 
-type SupabaseAdminClient = ReturnType<typeof createClient>;
+function createSupabaseAdminClient(supabaseUrl: string, serviceRoleKey: string) {
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+type SupabaseAdminClient = ReturnType<typeof createSupabaseAdminClient>;
 
 let adminClient: SupabaseAdminClient | null = null;
 
@@ -14,13 +23,7 @@ function getSupabaseAdminClient(): SupabaseAdminClient {
     throw new Error("Supabase admin environment variables are not configured.");
   }
 
-  adminClient = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-
+  adminClient = createSupabaseAdminClient(supabaseUrl, serviceRoleKey);
   return adminClient;
 }
 
