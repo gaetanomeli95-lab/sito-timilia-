@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const chapters = [
   {
-    kicker: "Via Maqueda · Palermo",
+    kicker: "Via Maqueda 221",
     title: "Una pizzeria viva, davvero.",
     body: [
       "Timilia nasce nel cuore di Palermo, lungo Via Maqueda, dove la città non fa semplicemente da sfondo: si sente nelle voci, nel movimento, nei profumi e nell’energia che accompagna ogni giornata.",
@@ -15,7 +15,7 @@ const chapters = [
     image: "/images/ambient-experience.png",
     imageAlt: "Atmosfera di Timilia nel centro storico di Palermo",
     imagePosition: "center",
-    visualLabel: "Via Maqueda, Palermo · il luogo",
+    visualLabel: "Via Maqueda 221 · Palermo",
   },
   {
     kicker: "Materia · tempo · fermentazione",
@@ -36,10 +36,10 @@ const chapters = [
       "Da Timilia può capitare di aspettare, soprattutto quando Via Maqueda si riempie e tante persone scelgono di venirci a trovare nello stesso momento.",
       "Il nostro impasto aspetta. Le fermentazioni hanno bisogno del loro tempo. Il forno ha i suoi ritmi. E una pizza preparata al momento non ama avere fretta.",
     ],
-    image: "/images/hero-banner-nuova.png",
-    imageAlt: "Il lavoro e i tempi della pizza Timilia",
+    image: "/images/tera-experience.png",
+    imageAlt: "Ricerca, farina e lavorazione dell'impasto Timilia",
     imagePosition: "center",
-    visualLabel: "Tempo · fermentazione · forno",
+    visualLabel: "Tempo · fermentazione · lavorazione",
   },
   {
     kicker: "Il carattere del posto",
@@ -72,8 +72,8 @@ const chapters = [
       "Ascoltiamo ciò che ci viene detto. I complimenti ci fanno piacere, ma spesso sono proprio le osservazioni più critiche ad aiutarci a migliorare.",
       "Timilia non è un progetto concluso: è un luogo che continua a crescere, sperimentare e correggersi ogni giorno.",
     ],
-    image: "/images/hero-banner.jpg",
-    imageAlt: "Esperienza e ricerca continua Timilia",
+    image: "/images/ambient-experience.png",
+    imageAlt: "Esperienza Timilia nel cuore di Palermo",
     imagePosition: "center",
     visualLabel: "Crescere · sperimentare · migliorare",
   },
