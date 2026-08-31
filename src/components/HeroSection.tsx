@@ -46,9 +46,9 @@ export default function HeroSection() {
       <section id="hero" className="relative h-[100svh] w-full overflow-hidden bg-black">
         <div className="absolute inset-0">
           <picture className="absolute inset-0 block h-full w-full">
-            <source media="(min-width: 768px)" srcSet="/images/hero-iniziale-desktop.webp" />
+            <source media="(min-width: 768px)" srcSet="/images/hero-timilia-2026-desktop.webp" />
             <img
-              src="/images/hero-iniziale-mobile.webp"
+              src="/images/hero-timilia-2026-mobile.webp"
               alt="Timilia nel cuore del centro storico di Palermo"
               className="h-full w-full object-cover object-center"
               loading="eager"
