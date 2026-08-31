@@ -28,6 +28,11 @@ const story = [
   "Dieci anni dopo continuiamo a fare quello che volevamo fare il primo giorno: mettere in tavola il meglio che riusciamo a trovare, lavorarlo al meglio delle nostre capacità e condividerlo con chi sceglie di stare con noi.",
 ];
 
+const HERO_DESKTOP =
+  "https://raw.githubusercontent.com/gaetanomeli95-lab/sito-timilia-/main/public/images/hero-timilia-2026-desktop.webp";
+const HERO_MOBILE =
+  "https://raw.githubusercontent.com/gaetanomeli95-lab/sito-timilia-/main/public/images/hero-timilia-2026-mobile.webp";
+
 export default function HeroSection() {
   const reduceMotion = useReducedMotion();
   const [storyOpen, setStoryOpen] = useState(false);
@@ -46,9 +51,9 @@ export default function HeroSection() {
       <section id="hero" className="relative h-[100svh] w-full overflow-hidden bg-black">
         <div className="absolute inset-0">
           <picture className="absolute inset-0 block h-full w-full">
-            <source media="(min-width: 768px)" srcSet="/images/hero-timilia-2026-desktop.webp" />
+            <source media="(min-width: 768px)" srcSet={HERO_DESKTOP} />
             <img
-              src="/images/hero-timilia-2026-mobile.webp"
+              src={HERO_MOBILE}
               alt="Timilia nel cuore del centro storico di Palermo"
               className="h-full w-full object-cover object-center"
               loading="eager"
