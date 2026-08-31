@@ -28,10 +28,8 @@ const story = [
   "Dieci anni dopo continuiamo a fare quello che volevamo fare il primo giorno: mettere in tavola il meglio che riusciamo a trovare, lavorarlo al meglio delle nostre capacità e condividerlo con chi sceglie di stare con noi.",
 ];
 
-const HERO_DESKTOP =
-  "https://raw.githubusercontent.com/gaetanomeli95-lab/sito-timilia-/main/public/images/hero-timilia-2026-desktop.webp";
-const HERO_MOBILE =
-  "https://raw.githubusercontent.com/gaetanomeli95-lab/sito-timilia-/main/public/images/hero-timilia-2026-mobile.webp";
+const HERO_DESKTOP = "/images/hero-iniziale-desktop.png";
+const HERO_MOBILE = "/images/hero-iniziale-mobile.png";
 
 export default function HeroSection() {
   const reduceMotion = useReducedMotion();
