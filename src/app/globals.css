@@ -130,6 +130,11 @@ body {
   opacity: 1 !important;
 }
 
+/* The four-dough showcase has been intentionally removed from the homepage flow. */
+#ambient > .relative.z-10 > .mt-14.border-y {
+  display: none !important;
+}
+
 @media (max-width: 767px) {
   .edge-fade,
   .edge-fade-wide,
