@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
@@ -46,22 +45,16 @@ export default function HeroSection() {
     <>
       <section id="hero" className="relative h-[100svh] w-full overflow-hidden bg-black">
         <div className="absolute inset-0">
-          <Image
-            src="/images/hero-iniziale-desktop.webp"
-            alt="Timilia nel cuore del centro storico di Palermo"
-            fill
-            className="hidden object-cover object-center md:block"
-            priority
-            sizes="100vw"
-          />
-          <Image
-            src="/images/hero-iniziale-mobile.webp"
-            alt="Timilia nel cuore del centro storico di Palermo"
-            fill
-            className="object-cover object-center md:hidden"
-            priority
-            sizes="100vw"
-          />
+          <picture className="absolute inset-0 block h-full w-full">
+            <source media="(min-width: 768px)" srcSet="/images/hero-iniziale-desktop.webp" />
+            <img
+              src="/images/hero-iniziale-mobile.webp"
+              alt="Timilia nel cuore del centro storico di Palermo"
+              className="h-full w-full object-cover object-center"
+              loading="eager"
+              fetchPriority="high"
+            />
+          </picture>
 
           <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(0,0,0,0.82)_0%,rgba(0,0,0,0.56)_28%,rgba(0,0,0,0.08)_60%,rgba(0,0,0,0.18)_100%)] md:block" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.20)_0%,rgba(0,0,0,0.08)_38%,rgba(0,0,0,0.88)_100%)] md:bg-[linear-gradient(180deg,rgba(0,0,0,0.26)_0%,transparent_42%,rgba(0,0,0,0.58)_100%)]" />
