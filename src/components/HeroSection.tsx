@@ -29,7 +29,9 @@ const story = [
 ];
 
 const HERO_DESKTOP = "/images/hero-iniziale-desktop.png";
+const HERO_DESKTOP_WEBP = "/images/hero-iniziale-desktop.webp";
 const HERO_MOBILE = "/images/hero-iniziale-mobile.png";
+const HERO_MOBILE_WEBP = "/images/hero-iniziale-mobile.webp";
 
 export default function HeroSection() {
   const reduceMotion = useReducedMotion();
@@ -49,7 +51,9 @@ export default function HeroSection() {
       <section id="hero" className="relative h-[100svh] w-full overflow-hidden bg-black">
         <div className="absolute inset-0">
           <picture className="absolute inset-0 block h-full w-full">
+            <source media="(min-width: 768px)" type="image/webp" srcSet={HERO_DESKTOP_WEBP} />
             <source media="(min-width: 768px)" srcSet={HERO_DESKTOP} />
+            <source type="image/webp" srcSet={HERO_MOBILE_WEBP} />
             <img
               src={HERO_MOBILE}
               alt="Timilia nel cuore del centro storico di Palermo"

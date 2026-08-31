@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // La scala predefinita copre solo i multipli di 5: valori come /74 o /98
+      // non generano CSS e la classe viene ignorata silenziosamente.
+      opacity: Object.fromEntries(
+        Array.from({ length: 101 }, (_, i) => [String(i), String(i / 100)])
+      ),
       colors: {
         background: "#050505",
         foreground: "#f5f0e8",
