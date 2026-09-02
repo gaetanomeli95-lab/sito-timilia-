@@ -8,6 +8,7 @@ import Link from "next/link";
 import TeraWordmark from "@/components/TeraWordmark";
 import TeraFeatureModal, { type TeraFeatureContent } from "@/components/TeraFeatureModal";
 import TeraShop from "@/components/TeraShop";
+import TeraCreations from "@/components/TeraCreations";
 import { ArrowLeft, WheatOff, FlaskConical, Leaf, Heart, Sparkles, ArrowRight, Microscope, Compass, Sun, Sprout } from "lucide-react";
 
 const farine: TeraFeatureContent[] = [
@@ -397,6 +398,14 @@ export default function TeraPage() {
             non vediamo l'ora di stupirvi sempre di più.
           </p>
         </motion.div>
+      </div>
+
+      {/* Creazioni con TERA — la prova, per immagini */}
+      <div className="relative z-10 mb-16 md:mb-24">
+        <TeraCreations />
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
 
         {/* Giuseppe D'Angelo — il Maestro di Timilia */}
         <motion.div
