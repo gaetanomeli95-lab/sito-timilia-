@@ -10,6 +10,7 @@ export type PizzaMoment = {
   eyebrow: string;
   composition: IngredientNote[];
   outro?: string;
+  landscape?: boolean;
 };
 
 export const prologue = {
@@ -32,19 +33,20 @@ export const chapterOne = {
   manifestoTwoSub: "Capire la farina che si ha tra le mani e saperla lavorare nel modo giusto.",
 };
 
-export const beddaMatri: PizzaMoment = {
-  name: "Bedda Matri",
-  image: "/images/menu-story/bedda-matri.jpeg",
-  alt: "Pizza Bedda Matri di Timilia: crema di zucchine, ricotta fresca, salsiccia, tuma e chips di zucchine fritte",
+export const caprese: PizzaMoment = {
+  name: "Caprese",
+  image: "/images/menu-story/caprese.png",
+  alt: "Pizza Caprese di Timilia: fiordilatte alla base, bufala a crudo in uscita, pomodoro fresco, basilico e olio extravergine di oliva",
   eyebrow: "Dal nostro menù",
   composition: [
-    { ingredient: "Crema di zucchine", role: "la base vegetale" },
-    { ingredient: "Ricotta fresca", role: "la morbidezza" },
-    { ingredient: "Salsiccia", role: "l'intensità" },
-    { ingredient: "Tuma", role: "l'identità siciliana" },
-    { ingredient: "Chips di zucchine fritte", role: "il contrasto finale, in uscita" },
+    { ingredient: "Fiordilatte", role: "la base, ciò che entra in forno" },
+    { ingredient: "Bufala a crudo", role: "in uscita — la freschezza intatta" },
+    { ingredient: "Pomodoro fresco", role: "la semplicità che non mente" },
+    { ingredient: "Basilico", role: "il profumo" },
+    { ingredient: "Olio EVO", role: "il finale, essenziale" },
   ],
-  outro: "La qualità non è quanto è grande il cornicione. È ciò che abbiamo deciso di metterci dentro.",
+  outro: "La più semplice delle nostre pizze. Ed è proprio nella semplicità che la qualità non ha dove nascondersi.",
+  landscape: true,
 };
 
 export const chapterTwo = {
@@ -78,7 +80,7 @@ export const chapterThree = {
 
 export const bufalina: PizzaMoment = {
   name: "A Bufalina",
-  image: "/images/menu-story/bufalina.jpeg",
+  image: "/images/menu-story/bufalina.png",
   alt: "Pizza A Bufalina di Timilia: salsa di pomodorino siccagno, bufala DOP, pomodorino confit, olio EVO e basilico",
   eyebrow: "La materia prima, senza nascondigli",
   composition: [
@@ -91,7 +93,7 @@ export const bufalina: PizzaMoment = {
 
 export const camurria: PizzaMoment = {
   name: "Camurria",
-  image: "/images/menu-story/camurria.jpeg",
+  image: "/images/menu-story/camurria.png",
   alt: "Pizza Camurria di Timilia: fiordilatte belmontese e, in uscita, prosciutto crudo 30 mesi, burrata, pomodorini confit, basilico cristallizzato e miele di acacia",
   eyebrow: "La qualità decisa prima, arriva anche dopo",
   composition: [

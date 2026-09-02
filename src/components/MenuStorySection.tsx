@@ -14,7 +14,7 @@ import {
   chapterTwo,
   chapterThree,
   chapterFour,
-  beddaMatri,
+  caprese,
   bufalina,
   camurria,
   epilogue,
@@ -76,18 +76,6 @@ function Parallax({
   );
 }
 
-/* Dissolvenza sottile sui bordi: la foto si fonde con la carta senza cornici */
-function EdgeFade() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      <div className="absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-[#f3ecdf] to-transparent md:h-6" />
-      <div className="absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-[#f3ecdf] to-transparent md:h-6" />
-      <div className="absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-[#f3ecdf] to-transparent md:w-6" />
-      <div className="absolute inset-y-0 right-0 w-5 bg-gradient-to-l from-[#f3ecdf] to-transparent md:w-6" />
-    </div>
-  );
-}
-
 function ChapterMark({
   title,
   tone = "dark",
@@ -140,8 +128,9 @@ function LightPanel({
             backgroundSize: "cover",
             backgroundPosition: "center bottom",
             WebkitMaskImage:
-              "linear-gradient(to top, black 55%, transparent 100%)",
-            maskImage: "linear-gradient(to top, black 55%, transparent 100%)",
+              "linear-gradient(to top, transparent 0%, black 16%, black 60%, transparent 100%)",
+            maskImage:
+              "linear-gradient(to top, transparent 0%, black 16%, black 60%, transparent 100%)",
           }}
         />
       )}
@@ -234,8 +223,9 @@ function Prologue() {
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           WebkitMaskImage:
-            "linear-gradient(to top, black 50%, transparent 100%)",
-          maskImage: "linear-gradient(to top, black 50%, transparent 100%)",
+            "linear-gradient(to top, transparent 0%, black 16%, black 55%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to top, transparent 0%, black 16%, black 55%, transparent 100%)",
         }}
       />
 
@@ -311,11 +301,15 @@ function PizzaInStory({
         {/* La foto si fonde con la carta: bordi dissolti, niente cornici */}
         <Parallax
           amount={30}
-          className={`relative mx-auto w-[88%] max-w-[26rem] md:max-w-[28rem] ${
-            align === "left" ? "lg:ml-0" : "lg:mr-0 lg:ml-auto"
-          }`}
+          className={`relative mx-auto w-full ${
+            pizza.landscape ? "max-w-[34rem] md:max-w-[38rem]" : "max-w-[30rem] md:max-w-[34rem]"
+          } ${align === "left" ? "lg:ml-0" : "lg:mr-0 lg:ml-auto"}`}
         >
-          <div className="relative aspect-[4/5] overflow-hidden">
+          <div
+            className={`relative overflow-hidden edge-fade ${
+              pizza.landscape ? "aspect-[4/3]" : "aspect-[4/5]"
+            }`}
+          >
             <Image
               src={pizza.image}
               alt={pizza.alt}
@@ -324,7 +318,6 @@ function PizzaInStory({
               sizes="(max-width: 1024px) 88vw, 38vw"
               quality={82}
             />
-            <EdgeFade />
           </div>
         </Parallax>
       </Reveal>
@@ -386,9 +379,9 @@ function ChapterOne() {
             <Reveal>
               <Parallax
                 amount={26}
-                className="relative mx-auto w-[88%] max-w-[24rem] lg:w-full lg:max-w-[28rem]"
+                className="relative mx-auto w-full max-w-[28rem] lg:max-w-[34rem]"
               >
-                <div className="relative aspect-[4/5] overflow-hidden">
+                <div className="relative aspect-[4/5] overflow-hidden edge-fade">
                   <Image
                     src="/images/menu-story/piatto-gourmet.png"
                     alt="Piccolo lievitato fritto con tartufo e fiori: la qualità non dipende dalla dimensione"
@@ -397,8 +390,7 @@ function ChapterOne() {
                     sizes="(max-width: 1024px) 88vw, 36vw"
                     quality={82}
                   />
-                  <EdgeFade />
-                </div>
+                      </div>
               </Parallax>
             </Reveal>
             <div className="flex flex-col justify-center gap-10">
@@ -420,8 +412,8 @@ function ChapterOne() {
             </p>
           </Reveal>
 
-          {/* Bedda Matri emerge come prima dimostrazione della tesi */}
-          <PizzaInStory pizza={beddaMatri} align="left" />
+          {/* La Caprese emerge come prima dimostrazione della tesi */}
+          <PizzaInStory pizza={caprese} align="left" />
         </div>
       </LightPanel>
     </div>
@@ -443,12 +435,14 @@ function ChapterTwo() {
         alt=""
         fill
         className="object-cover"
+        style={{
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 55%, transparent 90%)",
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 55%, transparent 90%)",
+        }}
         sizes="100vw"
         quality={78}
       />
       <div className="absolute inset-0 bg-[#f3ecdf]/45" />
-      <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f3ecdf] to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-b from-transparent to-[#f3ecdf]" />
     </div>
     <div className="relative mx-auto max-w-7xl px-6 md:px-12 lg:px-20">
       <ChapterMark title={chapterTwo.title} tone="light" />
@@ -490,9 +484,9 @@ function ChapterTwo() {
         <Reveal>
           <Parallax
             amount={26}
-            className="relative mx-auto w-[80%] max-w-[20rem] lg:w-full lg:max-w-[24rem]"
+            className="relative mx-auto w-full max-w-[24rem] lg:max-w-[28rem]"
           >
-            <div className="relative aspect-[3/5] overflow-hidden">
+            <div className="relative aspect-[3/5] overflow-hidden edge-fade">
               <Image
                 src="/images/menu-story/foto-3.png"
                 alt="Bocconi panati e fritti su crema arancione: precisione e tecnica nel piatto"
@@ -501,8 +495,7 @@ function ChapterTwo() {
                 sizes="(max-width: 1024px) 80vw, 28vw"
                 quality={82}
               />
-              <EdgeFade />
-            </div>
+              </div>
           </Parallax>
         </Reveal>
         <div className="flex flex-col justify-center gap-10">
@@ -534,12 +527,14 @@ function ChapterTwo() {
           alt=""
           fill
           className="object-cover"
+          style={{
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 28%, black 60%, transparent 92%)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 28%, black 60%, transparent 92%)",
+          }}
           sizes="100vw"
           quality={80}
         />
         <div className="absolute inset-0 bg-[#f3ecdf]/15" />
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f3ecdf] to-transparent md:h-44" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f3ecdf] to-transparent md:h-44" />
       </div>
       <div className="relative flex min-h-[80svh] items-center justify-center px-6 py-24">
         <div className="text-center">
@@ -592,9 +587,9 @@ function ChapterThree() {
             <Reveal>
               <Parallax
                 amount={26}
-                className="relative mx-auto w-[88%] max-w-[24rem] lg:w-full lg:max-w-[28rem]"
+                className="relative mx-auto w-full max-w-[28rem] lg:max-w-[34rem]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[3/4] overflow-hidden edge-fade">
                   <Image
                     src="/images/menu-story/pomodori.png"
                     alt="Pomodori freschi in cassette al mercato: la scelta degli ingredienti prima del forno"
@@ -603,8 +598,7 @@ function ChapterThree() {
                     sizes="(max-width: 1024px) 88vw, 36vw"
                     quality={82}
                   />
-                  <EdgeFade />
-                </div>
+                      </div>
               </Parallax>
             </Reveal>
             <div className="flex flex-col justify-center gap-10">
@@ -632,9 +626,9 @@ function ChapterThree() {
             <Reveal>
               <Parallax
                 amount={26}
-                className="relative mx-auto w-[88%] max-w-[24rem] lg:w-full lg:max-w-[26rem]"
+                className="relative mx-auto w-full max-w-[28rem] lg:max-w-[32rem]"
               >
-                <div className="relative aspect-[4/5] overflow-hidden">
+                <div className="relative aspect-[4/5] overflow-hidden edge-fade">
                   <Image
                     src="/images/menu-story/foto-2.png"
                     alt="Pizza con prosciutto crudo appena sfornata accanto a una bottiglia di olio extravergine di oliva"
@@ -643,8 +637,7 @@ function ChapterThree() {
                     sizes="(max-width: 1024px) 88vw, 34vw"
                     quality={82}
                   />
-                  <EdgeFade />
-                </div>
+                      </div>
               </Parallax>
             </Reveal>
           </div>
@@ -665,14 +658,32 @@ function ChapterFour() {
     <div className="relative mx-auto max-w-7xl px-6 md:px-12 lg:px-20">
       <ChapterMark title={chapterFour.title} tone="light" />
 
-      {/* NOTA: qui parliamo di panificazione — spazio riservato alla foto del pane
-          appena sarà pronta (stesso trattamento: Parallax + EdgeFade, colonna sinistra) */}
-      <div className="mt-16 flex flex-col gap-10 md:mt-20 lg:ml-[30%]">
-        {chapterFour.paragraphs.map((p) => (
-          <Reveal key={p.slice(0, 24)}>
-            <Prose tone="light" className="max-w-xl">{p}</Prose>
-          </Reveal>
-        ))}
+      {/* Il nostro pane: la panificazione raccontata per immagini */}
+      <div className="mt-16 grid items-center gap-12 md:mt-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+        <Reveal>
+          <Parallax
+            amount={26}
+            className="relative mx-auto w-full max-w-[30rem] lg:max-w-[36rem]"
+          >
+            <div className="relative aspect-[4/3] overflow-hidden edge-fade">
+              <Image
+                src="/images/menu-story/pane.png"
+                alt="Il nostro pane: pagnotte artigianali a lievitazione naturale appena sfornate"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 88vw, 34vw"
+                quality={82}
+              />
+            </div>
+          </Parallax>
+        </Reveal>
+        <div className="flex flex-col justify-center gap-10">
+          {chapterFour.paragraphs.map((p) => (
+            <Reveal key={p.slice(0, 24)}>
+              <Prose tone="light" className="max-w-xl">{p}</Prose>
+            </Reveal>
+          ))}
+        </div>
       </div>
 
       {/* Il gesto: tre parole che respirano */}
@@ -704,9 +715,9 @@ function ChapterFour() {
         <Reveal>
           <Parallax
             amount={26}
-            className="relative mx-auto w-[88%] max-w-[26rem] lg:w-full lg:max-w-[30rem]"
+            className="relative mx-auto w-full max-w-[30rem] lg:max-w-[38rem]"
           >
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div className="relative aspect-[4/3] overflow-hidden edge-fade">
               <Image
                 src="/images/menu-story/foto-1.png"
                 alt="Focaccia farcita con mortadella e parmigiano grattugiato su piatto artigianale"
@@ -715,8 +726,7 @@ function ChapterFour() {
                 sizes="(max-width: 1024px) 88vw, 38vw"
                 quality={82}
               />
-              <EdgeFade />
-            </div>
+              </div>
           </Parallax>
         </Reveal>
         <div className="flex flex-col justify-center gap-10">
@@ -750,9 +760,9 @@ function ChapterFour() {
         <Reveal>
           <Parallax
             amount={26}
-            className="relative mx-auto w-[80%] max-w-[20rem] lg:w-full lg:max-w-[24rem]"
+            className="relative mx-auto w-full max-w-[24rem] lg:max-w-[28rem]"
           >
-            <div className="relative aspect-[2/3] overflow-hidden">
+            <div className="relative aspect-[2/3] overflow-hidden edge-fade">
               <Image
                 src="/images/menu-story/foto-4.png"
                 alt="Piccolo lievitato fritto con stracciatella, tartare e fiori eduli in ciotola artigianale"
@@ -761,8 +771,7 @@ function ChapterFour() {
                 sizes="(max-width: 1024px) 80vw, 28vw"
                 quality={82}
               />
-              <EdgeFade />
-            </div>
+              </div>
           </Parallax>
         </Reveal>
       </div>
