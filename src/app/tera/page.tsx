@@ -144,8 +144,8 @@ export default function TeraPage() {
         <span className="text-white/78 text-[10px] tracking-[0.34em] uppercase font-light">
           Tera · Pura Natura
         </span>
-        <Link href="/menu" className="text-white/70 hover:text-white transition-colors text-[10px] tracking-[0.24em] uppercase font-medium">
-          Menu
+        <Link href="/la-nostra-pizza" className="text-white/70 hover:text-white transition-colors text-[10px] tracking-[0.24em] uppercase font-medium">
+          La Pizza
         </Link>
       </header>
 
@@ -458,10 +458,10 @@ export default function TeraPage() {
           className="text-center"
         >
           <a
-            href="/menu"
+            href="/la-nostra-pizza"
             className="inline-flex items-center gap-3 px-10 py-5 bg-white/10 border border-white/20 text-white text-xs tracking-[0.25em] uppercase font-medium hover:bg-white/15 hover:border-white/40 transition-all duration-500 group rounded-full backdrop-blur-sm"
           >
-            Scopri il menu Timilia
+            Scopri la nostra pizza
             <ArrowRight className="w-4 h-4 transition-transform duration-500 group-hover:translate-x-1" />
           </a>
           <p className="text-white/40 text-[10px] tracking-[0.2em] uppercase font-light mt-6">

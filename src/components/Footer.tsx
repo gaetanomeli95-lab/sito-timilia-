@@ -151,7 +151,7 @@ export default function Footer() {
               {[
                 { label: "Home", href: "#hero" },
                 { label: "Tera", href: "#tera" },
-                { label: "Menu", href: "/menu" },
+                { label: "La Pizza", href: "/la-nostra-pizza" },
                 { label: "Recensioni", href: "#recensioni" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Contatti", href: "#contatti" },

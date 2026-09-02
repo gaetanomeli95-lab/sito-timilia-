@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { X, AlertTriangle, Share2, MessageCircle, Copy, Facebook } from "lucide-react";
+import { X, AlertTriangle, Share2, MessageCircle, Copy, Facebook, Link2, Check } from "lucide-react";
 import type { MenuItem } from "@/data/menuData";
 import { useFavorites, FavoriteButton } from "./Favorites";
 
@@ -42,6 +42,8 @@ export default function ProductModal({
   onClose,
 }: ProductModalProps) {
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const { isFavorite, toggleFavorite, isLoggedIn } = useFavorites();
 
   useEffect(() => {
@@ -66,6 +68,7 @@ export default function ProductModal({
   const allergens = parseAllergens(item.note);
   const allImages = item.images ?? (item.image ? [item.image] : []);
   const hasMultipleImages = allImages.length > 1;
+  const shareUrl = `https://pizzeriatimilia.com/menu?piatto=${encodeURIComponent(item.name.replace(/["']/g, "").trim())}`;
 
   return (
     <AnimatePresence>
@@ -87,7 +90,7 @@ export default function ProductModal({
             animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.96, y: 20, filter: "blur(8px)" }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 w-full max-w-4xl max-h-[90vh] md:max-h-[80vh] overflow-y-auto md:overflow-hidden bg-[#0a0a0a] border border-white/[0.08] rounded-lg shadow-2xl"
+            className="relative z-10 w-full max-w-4xl max-h-[90vh] md:max-h-[80vh] overflow-hidden bg-[#0a0a0a] border border-white/[0.08] rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             style={{
               boxShadow:
@@ -103,7 +106,7 @@ export default function ProductModal({
             </button>
 
             {/* Image Gallery + Content — side by side on desktop */}
-            <div className="flex flex-col md:flex-row md:h-[80vh]">
+            <div className="flex flex-col md:flex-row md:h-[80vh] overflow-hidden">
             {/* Image Gallery */}
             {allImages.length > 0 && (
               <div className="relative w-full md:w-[60%] md:h-full overflow-hidden rounded-t-lg md:rounded-tl-lg md:rounded-tr-none bg-[#111] flex flex-col">
@@ -183,64 +186,87 @@ export default function ProductModal({
             )}
 
             {/* Content */}
-            <div className="flex-1 md:w-[40%] p-6 md:p-8 lg:p-10 overflow-y-auto md:overflow-y-auto scrollbar-hide">
+            <div className="flex-1 md:w-[40%] p-6 md:p-8 lg:p-10 overflow-y-auto overflow-x-hidden scrollbar-hide">
               <span className="text-gold/70 text-[10px] tracking-[0.3em] uppercase font-medium block mb-3">
                 {categoryTitle}
               </span>
 
-              <div className="flex justify-between items-start gap-4 mb-5">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-2xl md:text-3xl font-light tracking-[0.03em] text-foreground leading-tight">
-                    {item.name}
-                  </h2>
-                  <FavoriteButton
-                    itemName={item.name}
-                    isFavorite={isFavorite(item.name)}
-                    onToggle={toggleFavorite}
-                    isLoggedIn={isLoggedIn}
-                    onRequireLogin={() => window.dispatchEvent(new CustomEvent("timilia:openAuth"))}
-                    size={16}
-                  />
-                </div>
-                {item.price !== undefined && (
-                  <span className="text-gold text-xl md:text-2xl font-light whitespace-nowrap shrink-0">
-                    € {item.price.toFixed(2)}
-                  </span>
-                )}
+              <div className="flex items-start gap-3 mb-5">
+                <h2 className="text-2xl md:text-3xl font-light tracking-[0.03em] text-foreground leading-tight">
+                  {item.name}
+                </h2>
+                <FavoriteButton
+                  itemName={item.name}
+                  isFavorite={isFavorite(item.name)}
+                  onToggle={toggleFavorite}
+                  isLoggedIn={isLoggedIn}
+                  onRequireLogin={() => window.dispatchEvent(new CustomEvent("timilia:openAuth"))}
+                  size={16}
+                />
               </div>
 
-              {/* Social share */}
-              <div className="flex items-center gap-2 mb-5">
-                <span className="text-foreground/30 text-[10px] tracking-[0.2em] uppercase font-light mr-1">
-                  Condividi
-                </span>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`Ho scoperto ${item.name} da TIMILIA – Pizza di Sicilia, Palermo! Guarda il menu: https://pizzeriatimilia.com/menu`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
-                  aria-label="Condividi su WhatsApp"
-                >
-                  <MessageCircle size={14} strokeWidth={1.5} />
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://pizzeriatimilia.com/menu")}&quote=${encodeURIComponent(`${item.name} da TIMILIA – Pizza di Sicilia, Palermo!`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
-                  aria-label="Condividi su Facebook"
-                >
-                  <Facebook size={14} strokeWidth={1.5} />
-                </a>
+              {/* Share button */}
+              <div className="relative mb-6">
                 <button
-                  onClick={() => {
-                    navigator.clipboard?.writeText(`https://pizzeriatimilia.com/menu`);
-                  }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-white/[0.04] border border-white/[0.08] text-foreground/40 hover:text-gold hover:border-gold/30 transition-all duration-300"
-                  aria-label="Copia link"
+                  onClick={() => setShareOpen((v) => !v)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/20 hover:border-gold/50 transition-all duration-300"
                 >
-                  <Copy size={14} strokeWidth={1.5} />
+                  <Share2 size={14} strokeWidth={1.5} />
+                  Condividi
                 </button>
+
+                {shareOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShareOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute top-full left-0 mt-2 z-50 w-56 rounded-xl bg-[#111] border border-white/[0.08] shadow-2xl overflow-hidden"
+                    >
+                      <div className="px-4 py-3 border-b border-white/[0.05]">
+                        <span className="text-gold/60 text-[9px] tracking-[0.3em] uppercase font-medium">
+                          Condividi su
+                        </span>
+                      </div>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(`${item.name} da TIMILIA – Pizza di Sicilia, Palermo! ${shareUrl}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors duration-200"
+                      >
+                        <MessageCircle size={16} strokeWidth={1.5} className="text-foreground/60" />
+                        <span className="text-foreground/70 text-sm font-light">WhatsApp</span>
+                      </a>
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors duration-200"
+                      >
+                        <Facebook size={16} strokeWidth={1.5} className="text-foreground/60" />
+                        <span className="text-foreground/70 text-sm font-light">Facebook</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard?.writeText(shareUrl);
+                          setLinkCopied(true);
+                          setTimeout(() => setLinkCopied(false), 2000);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors duration-200"
+                      >
+                        {linkCopied ? (
+                          <Check size={16} strokeWidth={1.5} className="text-gold" />
+                        ) : (
+                          <Link2 size={16} strokeWidth={1.5} className="text-foreground/60" />
+                        )}
+                        <span className="text-foreground/70 text-sm font-light">
+                          {linkCopied ? "Link copiato!" : "Copia link"}
+                        </span>
+                      </button>
+                    </motion.div>
+                  </>
+                )}
               </div>
 
               <div className="w-12 h-[1px] bg-gold/30 mb-6" />

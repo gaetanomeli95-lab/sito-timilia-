@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AmbientSection from "@/components/AmbientSection";
 import TeraSection from "@/components/TeraSection";
-import MenuPreview from "@/components/MenuPreview";
+import MenuStoryTeaser from "@/components/MenuStoryTeaser";
 import BrandDetails from "@/components/BrandDetails";
 import FounderSection from "@/components/FounderSection";
 import ReviewsSection from "@/components/ReviewsSection";
@@ -20,7 +20,7 @@ export default function Home() {
         <HeroSection />
         <AmbientSection />
         <TeraSection />
-        <MenuPreview />
+        <MenuStoryTeaser />
         <BrandDetails />
         <FounderSection />
         <ReviewsSection />

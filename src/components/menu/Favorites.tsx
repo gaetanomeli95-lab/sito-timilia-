@@ -105,10 +105,14 @@ export function FavoriteButton({
   size?: number;
   onRequireLogin?: () => void;
 }) {
+  const [showToast, setShowToast] = useState(false);
+
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (!isLoggedIn) {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
       onRequireLogin?.();
       return;
     }
@@ -116,21 +120,30 @@ export function FavoriteButton({
   };
 
   return (
-    <button
-      onClick={handleClick}
-      className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
-        isFavorite && isLoggedIn
-          ? "text-gold bg-gold/10 border border-gold/30"
-          : "text-foreground/30 hover:text-gold border border-white/[0.08] bg-white/[0.03]"
-      }`}
-      aria-label={isFavorite && isLoggedIn ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
-      title={!isLoggedIn ? "Accedi per salvare i preferiti" : undefined}
-    >
-      <Heart
-        size={size}
-        strokeWidth={1.5}
-        className={isFavorite && isLoggedIn ? "fill-gold" : ""}
-      />
-    </button>
+    <div className="relative">
+      <button
+        onClick={handleClick}
+        className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
+          isFavorite && isLoggedIn
+            ? "text-gold bg-gold/10 border border-gold/30"
+            : "text-foreground/30 hover:text-gold border border-white/[0.08] bg-white/[0.03]"
+        }`}
+        aria-label={isFavorite && isLoggedIn ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
+        title={!isLoggedIn ? "Accedi per salvare i preferiti" : undefined}
+      >
+        <Heart
+          size={size}
+          strokeWidth={1.5}
+          className={isFavorite && isLoggedIn ? "fill-gold" : ""}
+        />
+      </button>
+      {showToast && (
+        <div className="absolute top-full mt-2 right-0 z-50 whitespace-nowrap rounded-lg bg-[#1a1a1a] border border-gold/30 px-4 py-2.5 shadow-xl">
+          <p className="text-gold text-xs font-light tracking-wide">
+            Registrati per aggiungere ai preferiti
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

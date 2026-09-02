@@ -133,11 +133,6 @@ export default function LargeProductCard({
               size={14}
             />
           </div>
-          {item.price !== undefined && (
-            <span className="relative text-gold text-base sm:text-lg lg:text-2xl font-light whitespace-nowrap shrink-0">
-              €{item.price.toFixed(2)}
-            </span>
-          )}
         </div>
         {item.description && (
           <p className="relative text-[#f5f0e8]/55 text-sm font-light leading-relaxed group-hover:text-[#f5f0e8]/72 transition-colors duration-500 line-clamp-3">

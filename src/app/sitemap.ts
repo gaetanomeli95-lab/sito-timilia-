@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: "https://pizzeriatimilia.com/menu",
+      url: "https://pizzeriatimilia.com/la-nostra-pizza",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,

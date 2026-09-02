@@ -14,7 +14,7 @@ const navLinks = [
   { href: "#hero", label: "Home", type: "anchor" },
   { href: "#ambient", label: "Esperienza", type: "anchor" },
   { href: "#tera", label: "Tera", type: "anchor" },
-  { href: "/menu", label: "Menu", type: "route" },
+  { href: "/la-nostra-pizza", label: "La Pizza", type: "route" },
   { href: "#brand", label: "Brand", type: "anchor" },
   { href: "#recensioni", label: "Recensioni", type: "anchor" },
   { href: "/faq", label: "FAQ", type: "route" },
