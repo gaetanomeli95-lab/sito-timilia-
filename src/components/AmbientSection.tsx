@@ -337,41 +337,6 @@ export default function AmbientSection() {
           </div>
         </motion.div>
 
-        <div className="mx-auto mt-20 max-w-4xl text-center md:mt-28">
-          <motion.div
-            variants={reveal}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            transition={transition}
-          >
-            <span className="text-[10px] uppercase tracking-[0.34em] text-gold md:text-xs">La nostra idea di ospitalità</span>
-            <h3 className="mt-6 text-3xl font-light leading-tight tracking-[-0.02em] text-white md:text-5xl">
-              Portare via qualcosa, oltre alla pizza.
-            </h3>
-            <p className="mx-auto mt-7 max-w-2xl text-base font-light leading-[1.85] text-white/54 md:text-lg">
-              Il ricordo di un impasto particolare. Un ingrediente siciliano scoperto per la prima volta.
-              Una pizza condivisa. Una risata al tavolo. Il rumore di Via Maqueda fuori dalla porta.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ ...transition, delay: reduceMotion ? 0 : 0.12 }}
-            className="mt-14 border-t border-white/10 pt-12 md:mt-20 md:pt-16"
-          >
-            <p className="text-2xl font-light leading-relaxed text-white md:text-4xl">
-              Pizza contemporanea.
-              <span className="block text-white/62">Anima siciliana.</span>
-              <span className="block text-gold">Energia di Palermo.</span>
-            </p>
-            <p className="mt-12 text-[10px] uppercase tracking-[0.34em] text-white/34 md:text-xs">
-              E quando la ricerca sull&apos;impasto diventa un progetto a sé, nasce TERA ↓
-            </p>
-          </motion.div>
-        </div>
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-b from-transparent to-background" />
