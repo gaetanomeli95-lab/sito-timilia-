@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TERA – Il Progetto | TIMILIA",
-  description: "TERA è il progetto di ricerca sugli impasti di TIMILIA. Un blend di grani antichi siciliani per una pizza leggera, digeribile e senza glutine. Scopri la rivoluzione di Giuseppe D'Angelo.",
+  title: "TERA – Il progetto senza glutine | TIMILIA",
+  description:
+    "Quando cambia la materia, ricomincia la ricerca. TERA è il progetto senza glutine di TIMILIA: un impasto costruito con una propria identità, tra materia, prove, osservazione e manualità. Palermo, Via Maqueda 221.",
   openGraph: {
-    title: "TERA – Il Progetto | TIMILIA",
-    description: "Impasti di grani antichi siciliani. Pizza senza glutine leggera e digeribile.",
-    images: ["/images/tera-experience.png"],
+    title: "TERA – Il progetto senza glutine | TIMILIA",
+    description:
+      "Quando cambia la materia, ricomincia la ricerca. L'impasto senza glutine di TIMILIA, costruito con una propria identità.",
+    images: ["/images/tera-hero-1.png"],
   },
 };
 
