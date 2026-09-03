@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu as MenuIcon, X, Instagram, Facebook, User, ShoppingBag, LogOut } from "lucide-react";
+import { Menu as MenuIcon, X, Instagram, Facebook, User, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import CustomerAuthModal from "./CustomerAuthModal";
@@ -177,14 +177,6 @@ export default function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center gap-3 ml-2 pl-6 border-l border-white/10">
-              <a
-                href="/tera#shop"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/25 hover:border-gold/50 transition-all duration-300"
-                aria-label="Shop TERA"
-              >
-                <ShoppingBag size={16} strokeWidth={1.5} />
-                <span>Shop</span>
-              </a>
               <LanguageSelector />
               {authUser ? (
                 <div className="relative">
@@ -305,15 +297,6 @@ export default function Navbar() {
                 transition={{ delay: 0.6 }}
                 className="flex items-center gap-6 mt-4"
               >
-                <a
-                  href="/tera#shop"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/15 border border-gold/30 text-gold text-sm tracking-[0.15em] uppercase font-medium hover:bg-gold/25 hover:border-gold/50 transition-all duration-300"
-                  aria-label="Shop TERA"
-                >
-                  <ShoppingBag size={18} strokeWidth={1.5} />
-                  <span>Shop</span>
-                </a>
                 {authUser ? (
                   <>
                     <button

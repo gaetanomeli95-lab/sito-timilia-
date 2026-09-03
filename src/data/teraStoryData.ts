@@ -39,11 +39,11 @@ export const origin = {
     "Per farlo non bastava una ricetta. Bisognava tornare all'inizio: alla materia, e a quello che la materia permette di fare.",
   ],
   photo: {
-    src: "/images/tera-creazioni/creazione-9.png",
-    alt: "Sezione di un pane TERA: l'alveolatura interna dell'impasto senza glutine",
-    ratio: 1420 / 1108,
+    src: "/images/tera-creazioni/creazione-3.png",
+    alt: "Pizzette TERA con pomodoro, mozzarella e basilico appena sfornate",
+    ratio: 1086 / 1448,
   } satisfies TeraPhoto,
-  caption: "L'interno di un impasto racconta tutto quello che è successo prima.",
+  caption: "Non un'alternativa. Un impasto con la sua identità.",
 };
 
 export const matter = {
@@ -70,15 +70,6 @@ export const research = {
     "TERA nasce da prove, osservazione e correzione. Sette anni in cui ogni impasto è stato guardato, toccato, messo in discussione e rifatto.",
     "Non cercavamo una scorciatoia. Cercavamo di capire.",
   ],
-  person: {
-    name: "Giuseppe D'Angelo",
-    role: "Maestro pizzaiolo e tecnico di panificazione, ideatore di blend di farine e impasti alternativi. Il blend TERA nasce dal suo lavoro.",
-    photo: {
-      src: "/images/giuseppe-dangelo-color.png",
-      alt: "Giuseppe D'Angelo osserva e annusa un impasto appena formato",
-      ratio: 1354 / 1162,
-    } satisfies TeraPhoto,
-  },
   ledger: [
     { verb: "Provare", note: "Ogni impasto è un'ipotesi." },
     { verb: "Osservare", note: "Come assorbe, come tiene, come cresce." },
@@ -109,18 +100,11 @@ export const blend = {
     "È un equilibrio che non consideriamo definitivo. Continuiamo a metterlo alla prova, perché la formula migliore è quella che siamo ancora disposti a cambiare.",
   ],
   words: ["Struttura", "Aroma", "Tenuta", "Colore"],
-  photos: [
-    {
-      src: "/images/tera-creazioni/creazione-8.png",
-      alt: "Filoni di pane TERA con crosta dorata su una griglia",
-      ratio: 1086 / 1448,
-    },
-    {
-      src: "/images/tera-creazioni/creazione-13.png",
-      alt: "Pagnotta TERA con crosta screpolata appena sfornata",
-      ratio: 1402 / 1122,
-    },
-  ] satisfies TeraPhoto[],
+  photo: {
+    src: "/images/tera-creazioni/creazione-8.png",
+    alt: "Filoni di pane TERA con crosta dorata su una griglia",
+    ratio: 1086 / 1448,
+  } satisfies TeraPhoto,
 };
 
 export const arrival = {
@@ -149,8 +133,9 @@ export const strip = {
   headline: "Quello che abbiamo imparato a fare.",
   sub: "La ricerca è nata per la pizza. Poi l'impasto ha cominciato a chiedere altro: pane, panini, lievitati.",
   photos: [
-    { src: "/images/tera-creazioni/creazione-3.png", alt: "Pizzette TERA con pomodoro, mozzarella e basilico", ratio: 1086 / 1448 },
+    { src: "/images/tera-creazioni/creazione-9.png", alt: "Sezione di un pane TERA: l'alveolatura interna dell'impasto", ratio: 1420 / 1108 },
     { src: "/images/tera-creazioni/creazione-5.png", alt: "Panino TERA con semi di sesamo nero", ratio: 1448 / 1086 },
+    { src: "/images/tera-creazioni/creazione-13.png", alt: "Pagnotta TERA con crosta screpolata appena sfornata", ratio: 1402 / 1122 },
     { src: "/images/tera-creazioni/creazione-6.png", alt: "Piccoli lievitati salati TERA con sesamo", ratio: 1448 / 1086 },
     { src: "/images/tera-creazioni/creazione-7.png", alt: "Bocconi fritti TERA con guarnizioni fresche", ratio: 1448 / 1086 },
     { src: "/images/tera-creazioni/creazione-11.png", alt: "Croissant TERA con granella di pistacchio", ratio: 1536 / 1024 },
@@ -159,20 +144,15 @@ export const strip = {
   ] satisfies TeraPhoto[],
 };
 
-export const beyond = {
-  number: "06",
-  title: "Oltre il tavolo",
-  headline: "La ricerca non finisce al tavolo.",
-  paragraphs: [
-    "Stiamo lavorando per portare il blend TERA anche fuori dalla pizzeria, in confezioni da un chilo, per chi vuole impastare a casa.",
-    "Non è ancora disponibile. Lo sarà a breve.",
-  ],
-  contactLabel: "Per informazioni e ordini anticipati",
-  contactEmail: "info@pizzeriatimilia.com",
+/* Le persone: un passaggio breve, verso la fine, senza biografia istituzionale */
+export const people = {
+  title: "Le persone",
+  name: "Giuseppe D'Angelo",
+  role: "Maestro pizzaiolo e tecnico di panificazione, ideatore di blend di farine e impasti alternativi. Il blend TERA nasce dal suo lavoro.",
   photo: {
-    src: "/images/tera-flour-package.png",
-    alt: "Confezione del blend TERA senza glutine da un chilo",
-    ratio: 1024 / 1536,
+    src: "/images/giuseppe-dangelo-color.png",
+    alt: "Giuseppe D'Angelo osserva e annusa un impasto appena formato",
+    ratio: 1354 / 1162,
   } satisfies TeraPhoto,
 };
 

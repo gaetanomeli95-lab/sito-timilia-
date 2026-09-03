@@ -13,13 +13,13 @@ import {
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import {
   arrival,
-  beyond,
   blend,
   closing,
   hero,
   heroImages,
   matter,
   origin,
+  people,
   research,
   strip,
   type TeraPhoto,
@@ -439,18 +439,8 @@ function Research() {
           </motion.p>
         </div>
 
-        {/* Giuseppe dentro la ricerca, non in una biografia */}
-        <div className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-          <Reveal>
-            <Parallax amount={26} className="mx-auto w-full max-w-[26rem] lg:max-w-[30rem]">
-              <Photo
-                photo={research.person.photo}
-                className="aspect-[4/5]"
-                imgClassName="object-[58%_center]"
-                sizes="(max-width: 1024px) 86vw, 32vw"
-              />
-            </Parallax>
-          </Reveal>
+        {/* Osservare: il testo a sinistra, la sfogliatura in sezione a destra */}
+        <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
           <div>
             <Reveal>
               <h3 className="max-w-[16ch] text-[clamp(1.7rem,3.6vw,3.4rem)] font-light leading-[1.12] tracking-[-0.02em]">
@@ -466,13 +456,16 @@ function Research() {
                 </Reveal>
               ))}
             </div>
-            <Reveal delay={0.2} className="mt-10 border-t border-[#262b25]/12 pt-6">
-              <p className="text-xs font-medium uppercase tracking-[0.2em]">{research.person.name}</p>
-              <p className="mt-2 max-w-md text-sm font-light leading-[1.75] text-[#262b25]/62">
-                {research.person.role}
-              </p>
-            </Reveal>
           </div>
+          <Reveal>
+            <Parallax amount={26} className="mx-auto w-full max-w-[22rem] lg:ml-auto lg:mr-0 lg:max-w-[26rem]">
+              <Photo
+                photo={research.photos[0]}
+                className="aspect-[4/5]"
+                sizes="(max-width: 1024px) 80vw, 28vw"
+              />
+            </Parallax>
+          </Reveal>
         </div>
 
         {/* Il registro: i gesti della ricerca, uno sotto l'altro */}
@@ -499,30 +492,20 @@ function Research() {
           ))}
         </ol>
 
-        {/* Due prove, una composizione asimmetrica */}
-        <div className="mt-[10svh] grid grid-cols-12 items-end gap-4 md:mt-[14svh] md:gap-6">
-          <Reveal className="col-span-7 md:col-span-5">
-            <Parallax amount={24}>
+        {/* Una prova, larga: la teglia dopo il forno */}
+        <div className="mt-[10svh] md:mt-[14svh]">
+          <Reveal>
+            <Parallax amount={28} className="mx-auto w-full max-w-[64rem]">
               <Photo
-                photo={research.photos[0]}
-                className="aspect-[4/5]"
-                sizes="(max-width: 768px) 56vw, 34vw"
+                photo={research.photos[1]}
+                className="aspect-[4/3] md:aspect-[16/9]"
+                fade="edge-fade-wide"
+                sizes="(max-width: 1024px) 100vw, 1024px"
               />
             </Parallax>
           </Reveal>
-          <div className="col-span-5 md:col-span-6 md:col-start-7">
-            <Reveal delay={0.12}>
-              <Parallax amount={-18}>
-                <Photo
-                  photo={research.photos[1]}
-                  className="aspect-[4/5] md:aspect-[4/3]"
-                  sizes="(max-width: 768px) 40vw, 44vw"
-                />
-              </Parallax>
-            </Reveal>
-          </div>
-          <Reveal delay={0.2} className="col-span-12 md:col-span-6 md:col-start-7">
-            <p className="mt-2 text-[11px] uppercase tracking-[0.22em] text-[#262b25]/55">
+          <Reveal delay={0.2} className="mx-auto mt-5 w-full max-w-[64rem]">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#262b25]/55 md:text-right">
               {research.photosCaption}
             </p>
           </Reveal>
@@ -570,29 +553,17 @@ function Blend() {
           </Reveal>
         </div>
 
-        {/* Due pani sovrapposti: la stessa materia, forme diverse */}
-        <div className="relative pb-[14%] md:pb-[10%]">
-          <Reveal>
-            <Parallax amount={26} className="ml-auto w-[80%] md:w-[74%]">
-              <Photo
-                photo={blend.photos[0]}
-                className="aspect-[3/4]"
-                fade="edge-fade-soft"
-                sizes="(max-width: 1024px) 72vw, 36vw"
-              />
-            </Parallax>
-          </Reveal>
-          <Reveal delay={0.15} className="absolute bottom-0 left-0 w-[56%] md:w-[52%]">
-            <Parallax amount={-22}>
-              <Photo
-                photo={blend.photos[1]}
-                className="aspect-[4/3]"
-                fade="edge-fade"
-                sizes="(max-width: 1024px) 50vw, 26vw"
-              />
-            </Parallax>
-          </Reveal>
-        </div>
+        {/* Il pane che nasce dall'equilibrio: una sola fotografia, alta */}
+        <Reveal>
+          <Parallax amount={26} className="mx-auto w-full max-w-[26rem] lg:ml-auto lg:mr-0 lg:max-w-[30rem]">
+            <Photo
+              photo={blend.photo}
+              className="aspect-[3/4]"
+              fade="edge-fade-soft"
+              sizes="(max-width: 1024px) 86vw, 34vw"
+            />
+          </Parallax>
+        </Reveal>
       </div>
     </section>
   );
@@ -791,22 +762,22 @@ function Strip() {
             <p className="mt-5 max-w-md text-sm font-light leading-[1.8] text-[#262b25]/68 md:text-base">{strip.sub}</p>
           </Reveal>
         </div>
-        <Reveal delay={0.2} className="hidden items-center gap-3 md:flex">
+        <Reveal delay={0.2} className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => scrollBy(-1)}
-            aria-label="Indietro"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#262b25]/20 text-[#262b25]/70 transition-colors hover:border-[#262b25] hover:text-[#262b25]"
+            aria-label="Foto precedenti"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-[#262b25] bg-[#262b25] text-[#f4f1ea] transition-all duration-300 hover:bg-[#5a6957] hover:border-[#5a6957] md:h-14 md:w-14"
           >
-            <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+            <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
           <button
             type="button"
             onClick={() => scrollBy(1)}
-            aria-label="Avanti"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#262b25]/20 text-[#262b25]/70 transition-colors hover:border-[#262b25] hover:text-[#262b25]"
+            aria-label="Foto successive"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-[#262b25] bg-[#262b25] text-[#f4f1ea] transition-all duration-300 hover:bg-[#5a6957] hover:border-[#5a6957] md:h-14 md:w-14"
           >
-            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+            <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </Reveal>
       </div>
@@ -830,9 +801,10 @@ function Strip() {
                 src={photo.src}
                 alt={photo.alt}
                 fill
+                loading="eager"
                 className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                 sizes="(max-width: 768px) 80vw, 46vw"
-                quality={78}
+                quality={76}
               />
             </button>
           ))}
@@ -858,77 +830,56 @@ function Strip() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 06 — Oltre il tavolo + chiusura                                     */
+/* Le persone — un passaggio breve, prima della chiusura               */
 /* ------------------------------------------------------------------ */
 
-function Beyond() {
-  const reduce = useReducedMotion();
-  const [payment, setPayment] = useState<"success" | "cancelled" | null>(null);
-
-  useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get("payment");
-    if (p === "success" || p === "cancelled") setPayment(p);
-  }, []);
-
+function People() {
   return (
-    <section id="shop" className="relative scroll-mt-20 overflow-hidden bg-[#262e26] text-[#f4f1ea]">
-      <Grain light />
-      <div className={`${container} relative grid items-center gap-14 py-[12svh] md:py-[16svh] lg:grid-cols-[1.1fr_0.9fr] lg:gap-24`}>
-        <div>
-          <Chapter number={beyond.number} title={beyond.title} tone="light" />
-          <Reveal delay={0.1} className="mt-10 md:mt-14">
-            <h2 className="max-w-[16ch] text-[clamp(2rem,4.6vw,4.2rem)] font-light leading-[1.08] tracking-[-0.02em] text-[#f7f5ee]">
-              {beyond.headline}
-            </h2>
+    <section className="relative bg-[#f4f1ea] text-[#262b25]">
+      <Grain />
+      <div className={`${container} relative border-t border-[#262b25]/12 py-[8svh] md:py-[10svh]`}>
+        <div className="grid items-center gap-8 md:grid-cols-[10rem_1fr] md:gap-12 lg:grid-cols-[12rem_1fr]">
+          <Reveal>
+            <Photo
+              photo={people.photo}
+              className="aspect-[4/5] w-[10rem] md:w-full"
+              imgClassName="object-[58%_center]"
+              sizes="(max-width: 768px) 160px, 192px"
+            />
           </Reveal>
-          <div className="mt-8 flex max-w-xl flex-col gap-5 md:mt-10">
-            {beyond.paragraphs.map((p, i) => (
-              <Reveal key={p.slice(0, 20)} delay={0.08 * i}>
-                <Prose tone="light">{p}</Prose>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={0.2} className="mt-10 border-t border-white/12 pt-6">
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#f4f1ea]/55">{beyond.contactLabel}</p>
-            <a
-              href={`mailto:${beyond.contactEmail}`}
-              className="mt-3 inline-block border-b border-white/30 pb-1 text-sm font-light tracking-wide text-[#f4f1ea]/85 transition-colors hover:border-[#c9d3c2] hover:text-[#c9d3c2] md:text-base"
-            >
-              {beyond.contactEmail}
-            </a>
-            {payment && (
-              <p className="mt-6 text-sm font-light text-[#f4f1ea]/70">
-                {payment === "success"
-                  ? "Pagamento completato. Riceverai una conferma via email."
-                  : "Pagamento annullato. Non è stato effettuato alcun addebito."}
+          <div>
+            <Reveal className="flex items-center gap-4">
+              <span className="h-px w-10 bg-[#262b25]/20" />
+              <span className="text-[10px] font-medium uppercase tracking-[0.34em] text-[#262b25]/60 md:text-xs">
+                {people.title}
+              </span>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="mt-5 text-xl font-light tracking-[-0.01em] md:text-2xl">{people.name}</p>
+            </Reveal>
+            <Reveal delay={0.16}>
+              <p className="mt-3 max-w-xl text-[0.95rem] font-light leading-[1.8] text-[#262b25]/68 md:text-base">
+                {people.role}
               </p>
-            )}
-          </Reveal>
+            </Reveal>
+          </div>
         </div>
-
-        <Reveal className="relative mx-auto w-[min(72vw,19rem)] lg:mr-0 lg:w-[23rem]">
-          <Parallax amount={20}>
-            <div className="relative aspect-[2/3] overflow-hidden edge-fade-soft">
-              <Image
-                src={beyond.photo.src}
-                alt={beyond.photo.alt}
-                fill
-                className="object-cover object-[50%_42%]"
-                sizes="(max-width: 1024px) 72vw, 368px"
-                quality={80}
-              />
-              <div
-                className="absolute inset-x-0 bottom-0 h-2/5"
-                style={{ background: `linear-gradient(to bottom, transparent, ${MINERAL_DEEP})` }}
-              />
-            </div>
-          </Parallax>
-        </Reveal>
       </div>
+    </section>
+  );
+}
 
-      {/* Chiusura: la filosofia Timilia, tre righe */}
-      <div className="relative border-t border-white/10">
-        <div className={`${container} flex flex-col items-center py-[12svh] text-center md:py-[16svh]`}>
+/* ------------------------------------------------------------------ */
+/* Chiusura: la filosofia Timilia, tre righe                           */
+/* ------------------------------------------------------------------ */
+
+function Closing() {
+  const reduce = useReducedMotion();
+  return (
+    <section className="relative overflow-hidden text-[#f4f1ea]" style={{ background: MINERAL_DEEP }}>
+      <Grain light />
+      <div className="relative">
+        <div className={`${container} flex flex-col items-center py-[14svh] text-center md:py-[18svh]`}>
           {closing.lines.map((line, i) => (
             <motion.p
               key={line}
@@ -977,7 +928,8 @@ export default function TeraStory() {
       <Blend />
       <Arrival />
       <Strip />
-      <Beyond />
+      <People />
+      <Closing />
     </div>
   );
 }

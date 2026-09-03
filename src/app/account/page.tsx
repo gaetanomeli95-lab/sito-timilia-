@@ -597,13 +597,6 @@ export default function AccountPage() {
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-gold/[0.03] rounded-full blur-3xl" />
                   <ShoppingBag size={40} strokeWidth={1} className="text-foreground/20 mx-auto mb-4 relative" />
                   <p className="text-foreground/40 text-sm font-light relative">Nessun ordine ancora effettuato</p>
-                  <a
-                    href="/tera#shop"
-                    className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-gold/15 border border-gold/30 text-gold text-xs tracking-[0.15em] uppercase font-medium hover:bg-gold/25 transition-colors relative"
-                  >
-                    <ShoppingBag size={15} strokeWidth={1.5} />
-                    Vai allo shop
-                  </a>
                 </div>
               ) : (
                 orders.map((order, i) => (
