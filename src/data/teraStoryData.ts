@@ -146,7 +146,7 @@ export const strip = {
 
 /* Le persone: un passaggio breve, verso la fine, senza biografia istituzionale */
 export const people = {
-  title: "Le persone",
+  title: "Dietro la ricerca",
   name: "Giuseppe D'Angelo",
   role: "Maestro pizzaiolo e tecnico di panificazione, ideatore di blend di farine e impasti alternativi. Il blend TERA nasce dal suo lavoro.",
   photo: {

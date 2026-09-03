@@ -838,13 +838,13 @@ function People() {
     <section className="relative bg-[#f4f1ea] text-[#262b25]">
       <Grain />
       <div className={`${container} relative border-t border-[#262b25]/12 py-[8svh] md:py-[10svh]`}>
-        <div className="grid items-center gap-8 md:grid-cols-[10rem_1fr] md:gap-12 lg:grid-cols-[12rem_1fr]">
+        <div className="grid items-center gap-8 md:grid-cols-[15rem_1fr] md:gap-14 lg:grid-cols-[18rem_1fr] lg:gap-16">
           <Reveal>
             <Photo
               photo={people.photo}
-              className="aspect-[4/5] w-[10rem] md:w-full"
+              className="aspect-[4/5] w-[14rem] md:w-full"
               imgClassName="object-[58%_center]"
-              sizes="(max-width: 768px) 160px, 192px"
+              sizes="(max-width: 768px) 224px, 288px"
             />
           </Reveal>
           <div>
