@@ -83,6 +83,38 @@ body {
   mask-composite: intersect;
 }
 
+/* TERA in Home: il trailer dei capitoli */
+@keyframes tera-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes tera-caption-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tera-num-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tera-caption-in {
+  /* il testo arriva quando la pagina ha quasi finito di aprirsi */
+  animation: tera-caption-in 800ms cubic-bezier(0.16, 1, 0.3, 1) 260ms both;
+}
+
+.tera-num-in {
+  animation: tera-num-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tera-caption-in,
+  .tera-num-in {
+    animation: none;
+  }
+}
+
 .section-glow {
   position: absolute;
   inset: 0;

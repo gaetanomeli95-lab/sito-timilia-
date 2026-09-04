@@ -1,241 +1,265 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef, useState, useCallback } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import TeraWordmark from "@/components/TeraWordmark";
-import TeraFeatureModal, { type TeraFeatureContent } from "@/components/TeraFeatureModal";
-import { FlaskConical, Leaf, Heart, WheatOff } from "lucide-react";
+import Link from "next/link";
+import Grain from "@/components/tera/Grain";
+import { chapters, type TeraChapter } from "@/data/teraStoryData";
 
-const features: TeraFeatureContent[] = [
-  {
-    icon: WheatOff,
-    title: "Senza Glutine",
-    desc: "Non un'alternativa. Un progetto a sé.",
-    body: "TERA nasce da una scelta precisa: andare oltre.\n\nNon una piccola area dedicata, ma un grande laboratorio, pensato esclusivamente per il senza glutine.\n\nQui abbiamo sviluppato il nostro blend, costruito un metodo e dato vita a un'identità tutta nostra, dove ricerca, materie prime e lavorazioni hanno un solo obiettivo: arrivare al meglio.\n\nPerché quello che accade dentro TERA\nnon vuole imitare la pizza.\nVuole ridefinire ciò che ti aspetti da una pizza senza glutine.",
-  },
-  {
-    icon: FlaskConical,
-    title: "Ricerca",
-    desc: "Sette anni di ricerca. E non sentirli.",
-    body: "TERA nasce da sette anni di studio, prove e continua evoluzione.\n\nOgni dettaglio è stato osservato, testato, messo in discussione.\n\nMa la vera ricerca comincia quando smetti di aspettare che la soluzione arrivi da qualcun altro.\n\nNoi abbiamo scelto di cercarla.\nDi svilupparla.\nE, quando non esisteva come la volevamo, di crearla.\n\nPerché fare la differenza non significa scegliere ciò che il mercato offre.\nSignifica trovare ciò che ancora manca.",
-  },
-  {
-    icon: Leaf,
-    title: "Ingredienti Selezionati",
-    desc: "Il nostro blend di oggi. La ricerca di domani.",
-    body: "TERA non nasce da una formula immobile.\n\nSorgo, grano saraceno, miglio, teff e piselli sono tra le materie prime che oggi abbiamo scelto perché rappresentano l'equilibrio che, in questa fase della nostra ricerca, riteniamo migliore.\n\nLa nostra ricerca non si limita a formulazioni basate prevalentemente sugli amidi. Esploriamo cereali, pseudocereali e farine proteiche naturalmente senza glutine, selezionandoli per le loro caratteristiche nutrizionali, aromatiche e funzionali.\n\nMa nulla è definitivo.\n\nContinuiamo a studiare nuove materie prime, sperimentare nuovi equilibri e mettere alla prova ciò che abbiamo raggiunto.\n\nPerché dopo sette anni abbiamo imparato una cosa:\nla nostra formula migliore è sempre quella che siamo ancora disposti a migliorare.",
-    items: [
-      {
-        name: "SORGO",
-        desc: "Cereale naturalmente senza glutine, delicato e versatile.",
-      },
-      {
-        name: "GRANO SARACENO",
-        desc: "Pseudocereale dal carattere deciso e dal profilo nutrizionale interessante.",
-      },
-      {
-        name: "MIGLIO",
-        desc: "Cereale naturalmente senza glutine, delicato e naturalmente versatile.",
-      },
-      {
-        name: "TEFF",
-        desc: "Piccolo cereale antico, naturalmente senza glutine, interessante per le sue caratteristiche nutrizionali e aromatiche.",
-      },
-      {
-        name: "PISELLI",
-        desc: "Una fonte proteica vegetale scelta anche per il contributo che può dare alla struttura dell'impasto.",
-      },
-    ],
-  },
-  {
-    icon: Heart,
-    title: "Benessere",
-    desc: "Non ci basta che sia senza glutine.",
-    body: "TERA nasce con un'ambizione precisa: cercare un equilibrio tra gusto, qualità e benessere.\n\nUna delle sfide su cui stiamo lavorando è il profilo glicemico. Molti mix senza glutine in commercio fanno largo uso di amidi. La nostra ricerca segue una strada diversa, valorizzando cereali e pseudocereali naturalmente senza glutine, farine proteiche e fibre, alla continua ricerca del giusto equilibrio.\n\nLa direzione è chiara: evolvere TERA lavorando non soltanto sul gusto e sulla leggerezza, ma anche sul suo profilo nutrizionale.\n\nPerché per noi la ricerca non serve semplicemente a creare un prodotto da vendere.\nServe a creare qualcosa che possa fare la differenza, anche nel benessere di chi lo sceglie.",
-  },
-];
+const EASE = [0.16, 1, 0.3, 1] as const;
+/* Ritmo del trailer: ogni capitolo resta aperto per questo tempo */
+const AUTOPLAY_MS = 4600;
+
+/* Palette TERA, la stessa della pagina: avorio, inchiostro, salvia */
+const IVORY = "#f4f1ea";
+const HOME_BLACK = "#050505";
 
 export default function TeraSection() {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [activeFeature, setActiveFeature] = useState<TeraFeatureContent | null>(null);
+  const isOnScreen = useInView(ref, { amount: 0.3 });
+  const reduce = useReducedMotion();
 
-  const handleOpenFeature = useCallback((feature: TeraFeatureContent) => {
-    setActiveFeature(feature);
-  }, []);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [cycle, setCycle] = useState(0);
 
-  const handleCloseFeature = useCallback(() => {
-    setActiveFeature(null);
-  }, []);
+  /* Quando nessuno tocca i capitoli, si aprono da soli uno dopo l'altro */
+  useEffect(() => {
+    if (reduce || paused || !isOnScreen) return;
+    const t = setTimeout(() => {
+      setActive((a) => (a + 1) % chapters.length);
+      setCycle((c) => c + 1);
+    }, AUTOPLAY_MS);
+    return () => clearTimeout(t);
+  }, [active, paused, isOnScreen, reduce]);
+
+  const select = (i: number) => {
+    if (i !== active) {
+      setActive(i);
+      setCycle((c) => c + 1);
+    }
+  };
 
   return (
-    <>
-    <section id="tera" ref={ref} className="relative overflow-hidden py-16 md:py-24 lg:py-40">
+    <section id="tera" ref={ref} className="relative overflow-hidden text-[#262b25]" style={{ background: IVORY }}>
+      <Grain />
+      {/* Il foglio avorio emerge dal nero della Home e vi ritorna */}
       <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(circle at 24% 12%, rgba(255,255,255,0.13), transparent 32%), radial-gradient(circle at 78% 72%, rgba(0,0,0,0.24), transparent 36%), linear-gradient(135deg, #748470 0%, #5f6f5c 50%, #2f352d 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-          maskImage:
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-        }}
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 md:h-36"
+        style={{ background: `linear-gradient(to bottom, ${HOME_BLACK}, transparent)` }}
       />
-      <div className="absolute inset-0 opacity-[0.05] bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)] [background-size:34px_34px]" />
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.88fr_1.12fr] lg:gap-16">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 md:h-36"
+        style={{ background: `linear-gradient(to top, ${HOME_BLACK}, transparent)` }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-6 py-28 md:py-36 lg:px-8 lg:py-44">
+        {/* Testata: il progetto, il titolo, l'invito */}
+        <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end lg:gap-16">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 32 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="order-2 lg:order-1"
+            transition={{ duration: 1, ease: EASE }}
           >
-            <span className="text-white/66 text-xs tracking-[0.34em] uppercase font-medium block mb-5">
-              Progetto senza glutine
-            </span>
-            <div className="mb-8 w-[min(88vw,32rem)]">
-              <TeraWordmark compact />
+            <div className="flex flex-wrap items-center gap-5">
+              <Link href="/tera" aria-label="TERA — Pura Natura" className="group/logo block shrink-0">
+                <Image
+                  src="/images/tera-logo-new.png"
+                  alt="TERA — Pura Natura"
+                  width={1568}
+                  height={627}
+                  className="h-auto w-[8.5rem] rounded-[3px] shadow-[0_14px_40px_rgba(38,43,37,0.18)] transition-transform duration-700 group-hover/logo:-translate-y-0.5 md:w-[10rem]"
+                  sizes="(max-width: 768px) 136px, 160px"
+                />
+              </Link>
+              <span className="text-[10px] font-medium uppercase tracking-[0.34em] text-[#262b25]/60 md:text-xs">
+                Il progetto senza glutine di Timilia
+              </span>
             </div>
-            <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-tight tracking-[0.04em] text-white mb-6">
-              Una ricerca diventata identità.
+            <h2 className="mt-9 max-w-[18ch] text-[clamp(2.1rem,4.8vw,4.4rem)] font-light leading-[1.06] tracking-[-0.02em]">
+              Sette anni per un impasto.
+              <br />
+              <span className="text-[#5a6957]">Cinque capitoli per raccontarlo.</span>
             </h2>
-            <p className="text-white/72 text-base md:text-lg font-light leading-relaxed mb-4">
-              TERA è il progetto gluten free di TIMILIA: anni di prove, studio e sacrifici per trasformare il senza glutine in un&apos;esperienza di altissimo livello.
-            </p>
-            <p className="text-white/58 text-base font-light leading-relaxed mb-8">
-              Non una semplice alternativa, ma un mondo dedicato: impasto, metodo, natura e tecnica si incontrano per cambiare la percezione della pizza gluten free.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-9">
-              {features.map((feature, i) => (
-                <FeatureCard key={feature.title} feature={feature} i={i} isInView={isInView} onClick={() => handleOpenFeature(feature)} />
-              ))}
-            </div>
-
-            <motion.a
-              href="/tera"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
-              className="inline-flex items-center gap-3 rounded-full border border-white/35 bg-white/[0.06] px-7 py-3.5 text-white text-xs tracking-[0.22em] uppercase font-medium backdrop-blur-md hover:bg-white hover:text-[#748470] transition-all duration-500 group"
-            >
-              Entra nel mondo TERA
-              <span className="transition-transform duration-500 group-hover:translate-x-1">→</span>
-            </motion.a>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="order-1 lg:order-2 relative overflow-hidden rounded-[2rem] border border-white/12 bg-black/30 p-3 shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-transform duration-700 hover:scale-[1.015]"
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, delay: 0.15, ease: EASE }}
+            className="lg:pb-2"
           >
-            <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-[1.5rem] bg-black/40">
-              <Image
-                src="/images/tera-experience.png"
-                alt="Progetto TERA senza glutine"
-                fill
-                className="object-cover object-center"
-                sizes="(max-width: 1024px) 100vw, 55vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-[#748470]/18" />
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/12 bg-black/20 p-5 backdrop-blur-md">
-              <p className="text-white/86 text-sm md:text-base font-light leading-relaxed">
-                Farina, ricerca, tecnica: il mondo TERA nasce dalla materia prima e diventa esperienza Timilia.
-              </p>
-            </div>
+            <p className="max-w-md text-[0.98rem] font-light leading-[1.85] text-[#262b25]/74 md:text-lg">
+              TERA non racconta ciò che manca. Racconta ciò che abbiamo dovuto imparare per costruire qualcosa di nuovo.
+            </p>
+            <Link
+              href="/tera"
+              className="group mt-6 inline-flex items-center gap-3 border-b border-[#262b25]/25 pb-2 text-[11px] font-medium uppercase tracking-[0.26em] text-[#262b25]/80 transition-colors duration-500 hover:border-[#5a6957] hover:text-[#5a6957] md:text-xs"
+            >
+              Leggi tutta la storia
+              <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+            </Link>
           </motion.div>
         </div>
+
+        {/* I capitoli: cinque pagine affiancate, una si apre alla volta */}
+        <motion.ol
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1.1, delay: 0.25, ease: EASE }}
+          onMouseLeave={() => setPaused(false)}
+          className="mt-14 flex h-[38rem] flex-col gap-2 md:mt-20 md:h-[30rem] md:flex-row md:gap-3 lg:h-[34rem]"
+        >
+          {chapters.map((chapter, i) => (
+            <ChapterPage
+              key={chapter.id}
+              chapter={chapter}
+              isActive={i === active}
+              isFinale={i === chapters.length - 1}
+              cycle={cycle}
+              running={!reduce && !paused && isOnScreen}
+              onActivate={() => {
+                select(i);
+                setPaused(true);
+              }}
+            />
+          ))}
+        </motion.ol>
+
+        {/* Chiusura: il conto dei capitoli e l'ingresso */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.9, delay: 0.6, ease: EASE }}
+          className="mt-10 flex flex-col gap-6 md:mt-12 md:flex-row md:items-center md:justify-between"
+        >
+          <p className="text-[11px] uppercase leading-[1.7] tracking-[0.22em] text-[#262b25]/55">
+            Dal primo impasto alla pizza. Una storia in cinque capitoli.
+          </p>
+          <Link
+            href="/tera"
+            className="group inline-flex items-center gap-3 self-start rounded-full bg-[#262b25] px-7 py-3.5 text-xs font-medium uppercase tracking-[0.22em] text-[#f4f1ea] transition-colors duration-500 hover:bg-[#5a6957] md:self-auto"
+          >
+            Entra nel mondo TERA
+            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+          </Link>
+        </motion.div>
       </div>
     </section>
-
-    <TeraFeatureModal content={activeFeature} onClose={handleCloseFeature} />
-    </>
   );
 }
 
-/* ---------- Premium Feature Card ---------- */
-function FeatureCard({
-  feature,
-  i,
-  isInView,
-  onClick,
+/* ---------- Una pagina del libro ---------- */
+function ChapterPage({
+  chapter,
+  isActive,
+  isFinale,
+  cycle,
+  running,
+  onActivate,
 }: {
-  feature: TeraFeatureContent;
-  i: number;
-  isInView: boolean;
-  onClick: () => void;
+  chapter: TeraChapter;
+  isActive: boolean;
+  isFinale: boolean;
+  cycle: number;
+  running: boolean;
+  onActivate: () => void;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const spotlightRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = cardRef.current;
-    const spot = spotlightRef.current;
-    if (!el || !spot) return;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const rotateX = ((y - cy) / cy) * -6;
-    const rotateY = ((x - cx) / cx) * 6;
-    el.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
-    spot.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.14), transparent 160px)`;
-    spot.style.opacity = "1";
-  };
-
-  const handleMouseLeave = () => {
-    const el = cardRef.current;
-    const spot = spotlightRef.current;
-    if (el) el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
-    if (spot) spot.style.opacity = "0";
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, delay: 0.3 + i * 0.12, ease: "easeOut" }}
+    <li
+      className="relative min-h-0 min-w-0 transition-[flex-grow] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+      style={{ flex: `${isActive ? 3.6 : 1} 1 0%` }}
     >
-      <div
-        ref={cardRef}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClick();
-          }
-        }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="group relative cursor-pointer overflow-hidden rounded-[1.6rem] border border-white/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035))] p-5 backdrop-blur-md transition-all duration-500 hover:border-white/28 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none hover:shadow-[0_24px_80px_rgba(0,0,0,0.24)]"
-        style={{ willChange: "transform", transformStyle: "preserve-3d" }}
+      <Link
+        href={chapter.href}
+        onMouseEnter={onActivate}
+        onFocus={onActivate}
+        aria-current={isActive ? "true" : undefined}
+        aria-label={`Capitolo ${chapter.number}: ${chapter.title}`}
+        className="group relative block h-full w-full overflow-hidden rounded-[1rem] bg-[#262b25] outline-none focus-visible:ring-2 focus-visible:ring-[#5a6957] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f1ea]"
       >
-        <div ref={spotlightRef} className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300" />
-        <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/[0.07] blur-2xl transition-transform duration-700 group-hover:scale-150" />
-        <div className="absolute inset-0 translate-y-full bg-gradient-to-t from-white/[0.08] to-transparent transition-transform duration-500 group-hover:translate-y-0" />
-        <div className="absolute left-0 top-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-700 group-hover:scale-x-100" />
-        <div className="relative mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/12 bg-white/10 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110" style={{ transform: "translateZ(30px)" }}>
-          <div className="absolute inset-0 rounded-2xl bg-white/0 group-hover:bg-white/10 blur-md transition-colors duration-500" />
-          <feature.icon className="relative w-5 h-5 text-white/78 stroke-1 transition-transform duration-500 group-hover:scale-110" />
+        <Image
+          src={chapter.photo.src}
+          alt={chapter.photo.alt}
+          fill
+          className={`object-cover transition-[transform,filter] duration-[1200ms] ease-out ${
+            isActive ? "scale-100 brightness-100" : "scale-[1.12] brightness-[0.62] saturate-[0.85]"
+          } group-hover:scale-[1.03]`}
+          style={{ objectPosition: chapter.position ?? "50% 50%" }}
+          sizes="(max-width: 768px) 100vw, 60vw"
+          quality={78}
+        />
+        {/* Ombra per il testo: dal basso quando la pagina è aperta, piena quando è chiusa */}
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ${
+            isActive
+              ? "bg-[linear-gradient(180deg,rgba(20,26,20,0.10)_0%,transparent_38%,rgba(20,26,20,0.78)_100%)]"
+              : "bg-[linear-gradient(180deg,rgba(20,26,20,0.55)_0%,rgba(20,26,20,0.25)_50%,rgba(20,26,20,0.70)_100%)]"
+          }`}
+        />
+
+        {/* Avanzamento del trailer sul bordo alto della pagina aperta */}
+        {isActive && (
+          <span
+            key={`bar-${cycle}`}
+            className="absolute inset-x-0 top-0 h-[2px] origin-left bg-[#f4f1ea]/85"
+            style={{ animation: running ? `tera-progress ${AUTOPLAY_MS}ms linear both` : "none", transform: running ? undefined : "scaleX(1)" }}
+          />
+        )}
+
+        {/* Il numero del capitolo, grande, in filigrana */}
+        {isActive && (
+          <span
+            key={`num-${cycle}`}
+            aria-hidden
+            className="tera-num-in pointer-events-none absolute right-5 top-4 text-[clamp(3.5rem,8vw,7rem)] font-light leading-none tabular-nums text-[#f4f1ea]/18 md:right-8 md:top-6"
+          >
+            {chapter.number}
+          </span>
+        )}
+
+        {/* La costa del libro: numero e titolo, visibili quando la pagina è chiusa */}
+        <div
+          className={`absolute inset-0 flex items-center justify-between gap-4 px-5 transition-opacity duration-500 md:flex-col md:items-start md:justify-between md:px-0 md:py-5 ${
+            isActive ? "pointer-events-none opacity-0" : "opacity-100"
+          }`}
+        >
+          <span className="text-xs tabular-nums tracking-[0.2em] text-[#f4f1ea]/70 md:pl-5">{chapter.number}</span>
+          <span className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-[#f4f1ea] md:[writing-mode:vertical-rl] md:rotate-180 md:self-center">
+            {chapter.title}
+            {isFinale && <span className="text-[#c9d3c2]/80">· Il finale</span>}
+          </span>
+          <span className="text-[#f4f1ea]/70 md:hidden">→</span>
         </div>
-        <h3 className="relative text-white text-sm tracking-[0.12em] uppercase font-medium mb-2 transition-colors duration-500 group-hover:text-white" style={{ transform: "translateZ(20px)" }}>
-          {feature.title}
-        </h3>
-        <p className="relative text-white/62 text-sm font-light leading-relaxed transition-colors duration-500 group-hover:text-white/78" style={{ transform: "translateZ(10px)" }}>
-          {feature.desc}
-        </p>
-        <div className="relative mt-3 flex items-center gap-1.5 text-white/40 group-hover:text-white/70 transition-colors duration-500" style={{ transform: "translateZ(15px)" }}>
-          <span className="text-[10px] tracking-[0.2em] uppercase font-light">Scopri di più</span>
-          <span className="text-xs transition-transform duration-500 group-hover:translate-x-1">→</span>
+
+        {/* La pagina aperta: capitolo, titolo, una frase, l'invito */}
+        <div
+          className={`absolute inset-x-0 bottom-0 p-6 md:p-8 lg:p-10 ${isActive ? "" : "pointer-events-none opacity-0"}`}
+        >
+          {isActive && (
+            <div key={`open-${cycle}`} className="tera-caption-in w-[min(100%,34rem)]">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.34em] text-[#f4f1ea]/65">
+                Capitolo {chapter.number}
+                {isFinale && <span className="text-[#c9d3c2]"> · Il finale</span>}
+              </span>
+              <span className="mt-3 block text-[clamp(1.6rem,3.2vw,2.8rem)] font-light leading-[1.08] tracking-[-0.02em] text-[#f7f5ee]">
+                {chapter.title}
+              </span>
+              <span className="mt-3 block max-w-md text-sm font-light leading-[1.75] text-[#f4f1ea]/78 md:text-base">
+                {chapter.teaser}
+              </span>
+              <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#f4f1ea] px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.22em] text-[#262b25] transition-colors duration-500 group-hover:bg-[#c9d3c2]">
+                {isFinale ? "Leggi il finale" : "Leggi il capitolo"}
+                <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-1">→</span>
+              </span>
+            </div>
+          )}
         </div>
-      </div>
-    </motion.div>
+      </Link>
+    </li>
   );
 }

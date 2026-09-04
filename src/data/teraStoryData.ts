@@ -31,6 +31,7 @@ export const hero = {
 };
 
 export const origin = {
+  id: "punto-di-partenza",
   number: "01",
   title: "Il punto di partenza",
   headline: ["Non volevamo fare", "la versione senza glutine", "di un'altra pizza."],
@@ -47,6 +48,7 @@ export const origin = {
 };
 
 export const matter = {
+  id: "materia",
   number: "02",
   title: "La materia",
   headline: ["Cambia la materia.", "Non cambia il modo in cui la trattiamo."],
@@ -58,6 +60,7 @@ export const matter = {
 };
 
 export const research = {
+  id: "ricerca",
   number: "03",
   title: "La ricerca",
   /** ogni frase è divisa nei due segmenti che vanno a capo su desktop */
@@ -92,6 +95,7 @@ export const research = {
 };
 
 export const blend = {
+  id: "blend",
   number: "04",
   title: "Il blend",
   headline: ["Non una farina.", "Un equilibrio tra materie diverse."],
@@ -108,6 +112,7 @@ export const blend = {
 };
 
 export const arrival = {
+  id: "pizza",
   number: "05",
   title: "La pizza",
   headline: ["Non imitare.", "Costruire una propria identità."],
@@ -127,6 +132,65 @@ export const arrival = {
     ratio: 1448 / 1086,
   } satisfies TeraPhoto,
 };
+
+/* Indice dei capitoli: usato dalla Home come anteprima della pagina.
+   Ogni voce porta direttamente al capitolo corrispondente. */
+export type TeraChapter = {
+  id: string;
+  number: string;
+  title: string;
+  teaser: string;
+  href: string;
+  photo: TeraPhoto;
+  /** posizione del soggetto quando la foto è ritagliata in orizzontale */
+  position?: string;
+};
+
+export const chapters: TeraChapter[] = [
+  {
+    id: origin.id,
+    number: origin.number,
+    title: origin.title,
+    teaser: "Non la versione senza glutine di un'altra pizza.",
+    href: `/tera#${origin.id}`,
+    photo: origin.photo,
+  },
+  {
+    id: matter.id,
+    number: matter.number,
+    title: matter.title,
+    teaser: "Cambia la materia. Non cambia il modo in cui la trattiamo.",
+    href: `/tera#${matter.id}`,
+    photo: { src: heroImages.hands.src, alt: heroImages.hands.alt, ratio: 16 / 9 },
+    position: "50% 50%",
+  },
+  {
+    id: research.id,
+    number: research.number,
+    title: research.title,
+    teaser: "Sette anni di prove, osservazioni e correzioni.",
+    href: `/tera#${research.id}`,
+    photo: research.photos[1],
+  },
+  {
+    id: blend.id,
+    number: blend.number,
+    title: blend.title,
+    teaser: "Non una farina. Un equilibrio tra materie diverse.",
+    href: `/tera#${blend.id}`,
+    photo: blend.photo,
+    position: "50% 40%",
+  },
+  {
+    id: arrival.id,
+    number: arrival.number,
+    title: arrival.title,
+    teaser: "Non imitare. Costruire una propria identità.",
+    href: `/tera#${arrival.id}`,
+    photo: arrival.hero,
+    position: "50% 48%",
+  },
+];
 
 export const strip = {
   title: "Dallo stesso impasto",
