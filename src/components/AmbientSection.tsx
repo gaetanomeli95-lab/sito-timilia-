@@ -145,7 +145,8 @@ export default function AmbientSection() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.10),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.05),transparent_34%)]" />
         <div className="absolute inset-0 opacity-[0.12] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
         <div className="absolute right-[-10%] top-[8%] h-[34rem] w-[34rem] rounded-full bg-[#b06d2f]/8 blur-[120px]" />
-        <div className="absolute left-0 top-0 h-32 w-full bg-gradient-to-b from-background/70 to-transparent" />
+        {/* Il fondale emerge piano dal nero della hero */}
+        <div className="absolute left-0 top-0 h-56 w-full bg-gradient-to-b from-[#080807] via-[#080807]/70 to-transparent md:h-80" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-24 md:pb-36 md:pt-36 lg:px-8 lg:pb-44 lg:pt-44">

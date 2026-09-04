@@ -15,7 +15,6 @@ const navLinks = [
   { href: "#ambient", label: "Esperienza", type: "anchor" },
   { href: "#tera", label: "Tera", type: "anchor" },
   { href: "/la-nostra-pizza", label: "La Pizza", type: "route" },
-  { href: "#brand", label: "Brand", type: "anchor" },
   { href: "#recensioni", label: "Recensioni", type: "anchor" },
   { href: "/faq", label: "FAQ", type: "route" },
   { href: "#contatti", label: "Contatti", type: "anchor" },
@@ -78,7 +77,7 @@ export default function Navbar() {
 
 
   useEffect(() => {
-    const sections = ["hero", "ambient", "tera", "menu", "brand", "recensioni", "contatti"];
+    const sections = ["hero", "ambient", "tera", "menu", "recensioni", "contatti"];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

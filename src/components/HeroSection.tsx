@@ -66,6 +66,8 @@ export default function HeroSection() {
           <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(0,0,0,0.82)_0%,rgba(0,0,0,0.56)_28%,rgba(0,0,0,0.08)_60%,rgba(0,0,0,0.18)_100%)] md:block" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.20)_0%,rgba(0,0,0,0.08)_38%,rgba(0,0,0,0.88)_100%)] md:bg-[linear-gradient(180deg,rgba(0,0,0,0.26)_0%,transparent_42%,rgba(0,0,0,0.58)_100%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_50%,rgba(206,144,72,0.09),transparent_38%)]" />
+          {/* La foto si scioglie nel nero della sezione successiva: nessun bordo netto */}
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-[#080807]/60 to-[#080807] md:h-64" />
         </div>
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-[1600px] items-end px-6 pb-20 pt-28 md:items-center md:px-10 md:pb-12 lg:px-16 xl:px-24">
