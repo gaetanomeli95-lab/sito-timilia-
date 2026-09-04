@@ -1,168 +1,108 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import { Star, ArrowRight } from "lucide-react";
-import ReviewForm from "./ReviewForm";
+import { useRef } from "react";
 
-interface SiteReview {
-  id: string;
-  customerName: string;
-  rating: number;
-  text: string;
-  createdAt: string;
-}
+/* Tre voci, tre piattaforme diverse. La citazione resta l'elemento principale;
+   la piattaforma si legge subito, ma senza loghi né punteggi. */
+const voices = [
+  {
+    platform: "Google",
+    mark: "G",
+    quote: "Locale nella zona turistica di Palermo, ma con servizio per nulla turistico.",
+    name: "Mattia Fasana",
+    note: "recensione su Google",
+  },
+  {
+    platform: "Tripadvisor",
+    mark: "T",
+    quote: "L'alta qualità dei piatti si sposa con la grande cordialità del personale.",
+    name: "Maddalena",
+    note: "recensione su Tripadvisor",
+  },
+  {
+    platform: "Restaurant Guru",
+    mark: "R",
+    quote: "…mostrava con grande amore il suo lavoro.",
+    name: "Gabriella Scarongella",
+    note: "recensione mostrata su Restaurant Guru",
+  },
+];
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function ReviewsSection() {
   const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const [reviewFormOpen, setReviewFormOpen] = useState(false);
-  const [siteReviews, setSiteReviews] = useState<SiteReview[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-
-  useEffect(() => {
-    setReviewsLoading(true);
-    fetch("/api/reviews")
-      .then((res) => res.json())
-      .then((data) => setSiteReviews(data.reviews || []))
-      .catch(() => {})
-      .finally(() => setReviewsLoading(false));
-  }, [reviewFormOpen]);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section
-      id="recensioni"
-      ref={ref}
-      className="relative overflow-hidden py-24 md:py-32"
-      style={{
-        background:
-          "linear-gradient(to bottom, #0a0908 0%, #2a2218 8%, #332a1e 50%, #2a2218 92%, #0a0908 100%)",
-      }}
-    >
-      {/* Ambient glows */}
-      <div
-        className="absolute top-1/4 left-1/4 w-[500px] h-[400px] rounded-full opacity-[0.15] blur-[130px] pointer-events-none"
-        style={{ background: "radial-gradient(circle, #c9a962 0%, transparent 70%)" }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-[400px] h-[350px] rounded-full opacity-[0.12] blur-[110px] pointer-events-none"
-        style={{ background: "radial-gradient(circle, #d4a574 0%, transparent 70%)" }}
-      />
+    <section id="recensioni" ref={ref} className="relative overflow-hidden py-16 md:py-24">
+      {/* Un respiro caldo dietro le parole, come nelle altre sezioni della Home */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_60%,rgba(200,169,126,0.09),transparent_60%)]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* CTA — Lascia una recensione */}
+      <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
+        {/* Testata: si capisce subito cosa sono, e chi parla */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className="text-center"
+          transition={{ duration: 1, ease: EASE }}
+          className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-12"
         >
-          <div className="inline-block relative">
-            <div className="absolute inset-0 bg-gold/[0.06] blur-2xl rounded-full" />
-            <div className="relative">
-              <p className="text-foreground/45 text-sm font-light tracking-wide mb-5">
-                Hai mangiato da TIMILIA? La tua opinione è preziosa.
-              </p>
-              <button
-                onClick={() => setReviewFormOpen(true)}
-                className="group inline-flex items-center gap-3 px-10 py-4 border border-gold/30 text-gold text-xs tracking-[0.25em] uppercase font-medium hover:bg-gold/10 hover:border-gold/50 transition-all duration-500 cursor-pointer rounded-full"
-              >
-                Lascia una recensione
-                <ArrowRight
-                  size={14}
-                  strokeWidth={1.5}
-                  className="transition-transform duration-500 group-hover:translate-x-1"
-                />
-              </button>
-            </div>
+          <div>
+            <span className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.3em] text-gold/70">
+              <span className="h-px w-8 bg-gold/40" />
+              Recensioni
+            </span>
+            <h2 className="mt-4 max-w-[26ch] text-xl font-light leading-[1.3] tracking-[0.01em] text-foreground md:text-2xl lg:text-3xl">
+              Non siamo noi a raccontare Timilia.{" "}
+              <span className="italic text-gold">Sono le persone che ci sono state.</span>
+            </h2>
           </div>
+          <p className="max-w-xs text-xs font-light leading-[1.8] text-foreground/45 md:text-right md:text-sm">
+            Tre voci, da Google, Tripadvisor e Restaurant Guru. Riportate così come sono state scritte.
+          </p>
         </motion.div>
 
-        {/* Recensioni dal sito — visibili in basso */}
-        {reviewsLoading && (
-          <div className="mt-20">
-            <div className="flex items-center gap-4 mb-10">
-              <div className="h-px w-12 bg-gold/40" />
-              <span className="text-gold/80 text-xs tracking-[0.3em] uppercase font-medium">
-                Recensioni dei clienti
-              </span>
-              <div className="flex-1 h-px bg-white/[0.06]" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="rounded-xl bg-white/[0.02] border border-white/[0.05] p-6 space-y-3 animate-pulse">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white/5" />
-                      <div className="h-3 w-24 bg-white/5 rounded" />
-                    </div>
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, j) => (
-                        <div key={j} className="w-3 h-3 bg-white/5 rounded" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-3 w-full bg-white/[0.04] rounded" />
-                    <div className="h-3 w-4/5 bg-white/[0.04] rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {!reviewsLoading && siteReviews.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
-            className="mt-20"
-          >
-            <div className="flex items-center gap-4 mb-10">
-              <div className="h-px w-12 bg-gold/40" />
-              <span className="text-gold/80 text-xs tracking-[0.3em] uppercase font-medium">
-                Recensioni dei clienti
-              </span>
-              <div className="flex-1 h-px bg-white/[0.06]" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {siteReviews.map((review, idx) => (
-                <motion.div
-                  key={review.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 1.4 + idx * 0.1, ease: "easeOut" }}
-                  className="group relative overflow-hidden rounded-2xl border border-gold/15 p-7 bg-[linear-gradient(160deg,rgba(200,169,126,0.05),rgba(255,255,255,0.02)_40%,rgba(0,0,0,0.12))] backdrop-blur-md transition-all duration-500 hover:border-gold/30 hover:shadow-[0_16px_50px_rgba(0,0,0,0.3)]"
+        {/* Un solo piano leggero, diviso da fili sottili: tre voci, non tre scatole */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1, delay: 0.15, ease: EASE }}
+          className="mt-10 grid overflow-hidden rounded-2xl border border-gold/[0.14] bg-[linear-gradient(180deg,rgba(200,169,126,0.07),rgba(255,255,255,0.015))] divide-y divide-white/[0.07] md:mt-12 lg:grid-cols-3 lg:divide-x lg:divide-y-0"
+        >
+          {voices.map((v, i) => (
+            <motion.figure
+              key={v.name}
+              initial={{ opacity: 0, y: 14 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.9, delay: 0.3 + i * 0.12, ease: EASE }}
+              className="flex flex-col p-6 md:p-8 lg:p-9"
+            >
+              {/* La piattaforma: un piccolo marchio con l'iniziale, e il nome */}
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-gold/35 bg-gold/[0.08] text-[11px] font-medium text-gold"
                 >
-                  <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gold/[0.05] blur-2xl transition-transform duration-700 group-hover:scale-150" />
+                  {v.mark}
+                </span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.26em] text-gold/80">{v.platform}</span>
+              </div>
 
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gold/12 border border-gold/20 flex items-center justify-center text-gold text-sm font-medium">
-                          {(review.customerName || "U").charAt(0).toUpperCase()}
-                        </div>
-                        <span className="text-foreground/80 text-sm font-medium tracking-wide">
-                          {review.customerName}
-                        </span>
-                      </div>
-                      <div className="flex gap-0.5">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <Star key={i} size={13} strokeWidth={1.5} className="text-gold fill-gold" />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-foreground/55 text-sm font-light leading-[1.7] italic">
-                      {review.text}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+              <blockquote className="relative mt-6 flex-1 text-[1.05rem] font-light leading-[1.7] text-foreground/85 lg:text-lg">
+                <span aria-hidden className="mr-1 font-serif text-2xl leading-none text-gold/50">&ldquo;</span>
+                {v.quote}
+                <span aria-hidden className="ml-0.5 font-serif text-2xl leading-none text-gold/50">&rdquo;</span>
+              </blockquote>
+
+              <figcaption className="mt-6 flex flex-col gap-1 border-t border-white/[0.07] pt-4 text-[11px] font-light tracking-[0.06em]">
+                <span className="text-foreground/75">{v.name}</span>
+                <span className="text-foreground/35">{v.note}</span>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </motion.div>
       </div>
-      <ReviewForm open={reviewFormOpen} onClose={() => setReviewFormOpen(false)} />
     </section>
   );
 }
