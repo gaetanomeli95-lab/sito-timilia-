@@ -208,11 +208,21 @@ export const strip = {
   ] satisfies TeraPhoto[],
 };
 
-/* Le persone: un passaggio breve, verso la fine, senza biografia istituzionale */
+/* Le persone: un passaggio verso la fine, dedicato a chi ha ideato il blend */
 export const people = {
   title: "Dietro la ricerca",
   name: "Giuseppe D'Angelo",
-  role: "Maestro pizzaiolo e tecnico di panificazione, ideatore di blend di farine e impasti alternativi. Il blend TERA nasce dal suo lavoro.",
+  roles: [
+    "Direttore Didattico dell'Accademia Fermentum",
+    "Maestro Pizzaiolo, Apprezzato Relatore Tecnico e Master Istruttore Internazionale",
+  ],
+  tagline: "Innovazione, Scienza e Passione nell'Arte della Panificazione",
+  paragraphs: [
+    "Giuseppe D'Angelo è una delle figure di riferimento nel panorama della pizza e della panificazione contemporanea. Con un approccio che coniuga la solida tradizione italiana con una costante ricerca scientifica, opera come apprezzato relatore tecnico e master istruttore internazionale, formando la nuova generazione di professionisti del settore.",
+    "In qualità di Direttore Didattico dell'Accademia Fermentum, guida percorsi di alta formazione incentrati sulla biochimica della lievitazione, sulla selezione delle materie prime e sull'ottimizzazione dei processi produttivi.",
+    "Esperto tecnico di panificazione e specialista nell'ideazione di blend di farine e impasti alternativi ad alta digeribilità, Giuseppe firma creazioni esclusive come il celebre blend TERA, frutto del suo continuo lavoro di studio e sperimentazione.",
+  ],
+  quote: "La panificazione moderna non è solo un mestiere, ma la perfetta sintesi tra tecnica, conoscenza della materia prima e rispetto per i tempi della natura.",
   photo: {
     src: "/images/giuseppe-dangelo-color.png",
     alt: "Giuseppe D'Angelo osserva e annusa un impasto appena formato",

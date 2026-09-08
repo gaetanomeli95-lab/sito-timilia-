@@ -843,10 +843,33 @@ function People() {
             <Reveal delay={0.1}>
               <p className="mt-5 text-xl font-light tracking-[-0.01em] md:text-2xl">{people.name}</p>
             </Reveal>
-            <Reveal delay={0.16}>
-              <p className="mt-3 max-w-xl text-[0.95rem] font-light leading-[1.8] text-[#262b25]/68 md:text-base">
-                {people.role}
+            <Reveal delay={0.14}>
+              <div className="mt-3 space-y-1">
+                {people.roles.map((role) => (
+                  <p key={role} className="text-[0.8rem] font-medium uppercase tracking-[0.14em] text-[#262b25]/70 md:text-[0.85rem]">
+                    {role}
+                  </p>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={0.18}>
+              <p className="mt-4 text-sm font-light italic text-[#262b25]/60 md:text-[0.95rem]">
+                {people.tagline}
               </p>
+            </Reveal>
+            <Reveal delay={0.22}>
+              <div className="mt-5 max-w-xl space-y-4">
+                {people.paragraphs.map((paragraph) => (
+                  <p key={paragraph.slice(0, 32)} className="text-[0.95rem] font-light leading-[1.8] text-[#262b25]/68 md:text-base">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={0.26}>
+              <blockquote className="mt-6 max-w-xl border-l-2 border-[#262b25]/20 pl-5 text-[0.95rem] font-light italic leading-[1.8] text-[#262b25]/75 md:text-base">
+                “{people.quote}”
+              </blockquote>
             </Reveal>
           </div>
         </div>
