@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -14,28 +15,11 @@ export type TruePizza3DShowcaseProps = {
 };
 
 type Vec3 = [number, number, number];
-type Mesh = {
-  position: WebGLBuffer;
-  normal: WebGLBuffer;
-  count: number;
-};
-
-type Part = {
-  mesh: "sphere" | "cylinder" | "torus";
-  home: Vec3;
-  exploded: Vec3;
-  scale: Vec3;
-  rotation: Vec3;
-  color: Vec3;
-  opacity?: number;
-  phase?: number;
-};
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smoothstep = (edge0: number, edge1: number, value: number) => {
-  const x = clamp((value - edge0) / Math.max(edge1 - edge0, 0.0001));
-  return x * x * (3 - 2 * x);
+  const t = clamp((value - edge0) / Math.max(edge1 - edge0, 0.00001));
+  return t * t * (3 - 2 * t);
 };
 
 function perspective(fov: number, aspect: number, near: number, far: number) {
@@ -95,511 +79,165 @@ function multiplyMat4(a: Float32Array, b: Float32Array) {
   return out;
 }
 
-function pushTriangle(
-  positions: number[],
-  normals: number[],
-  a: Vec3,
-  b: Vec3,
-  c: Vec3,
-  na: Vec3,
-  nb: Vec3,
-  nc: Vec3,
-) {
-  positions.push(...a, ...b, ...c);
-  normals.push(...na, ...nb, ...nc);
-}
-
-function cylinderGeometry(radius = 1, height = 1, segments = 64) {
+function buildGrid(segments = 72) {
   const positions: number[] = [];
-  const normals: number[] = [];
-  const half = height / 2;
-
-  for (let i = 0; i < segments; i += 1) {
-    const a = (i / segments) * Math.PI * 2;
-    const b = ((i + 1) / segments) * Math.PI * 2;
-    const x0 = Math.cos(a) * radius;
-    const z0 = Math.sin(a) * radius;
-    const x1 = Math.cos(b) * radius;
-    const z1 = Math.sin(b) * radius;
-
-    pushTriangle(positions, normals, [0, half, 0], [x0, half, z0], [x1, half, z1], [0, 1, 0], [0, 1, 0], [0, 1, 0]);
-    pushTriangle(positions, normals, [0, -half, 0], [x1, -half, z1], [x0, -half, z0], [0, -1, 0], [0, -1, 0], [0, -1, 0]);
-
-    const n0 = normalize3([x0, 0, z0]);
-    const n1 = normalize3([x1, 0, z1]);
-    pushTriangle(positions, normals, [x0, -half, z0], [x1, -half, z1], [x1, half, z1], n0, n1, n1);
-    pushTriangle(positions, normals, [x0, -half, z0], [x1, half, z1], [x0, half, z0], n0, n1, n0);
-  }
-
-  return { positions, normals };
-}
-
-function sphereGeometry(latSegments = 18, lonSegments = 28) {
-  const positions: number[] = [];
-  const normals: number[] = [];
-
-  const point = (lat: number, lon: number): Vec3 => {
-    const theta = (lat / latSegments) * Math.PI;
-    const phi = (lon / lonSegments) * Math.PI * 2;
-    return [Math.sin(theta) * Math.cos(phi), Math.cos(theta), Math.sin(theta) * Math.sin(phi)];
+  const uvs: number[] = [];
+  const push = (x: number, y: number, u: number, v: number) => {
+    positions.push(x, y);
+    uvs.push(u, v);
   };
 
-  for (let lat = 0; lat < latSegments; lat += 1) {
-    for (let lon = 0; lon < lonSegments; lon += 1) {
-      const p00 = point(lat, lon);
-      const p01 = point(lat, lon + 1);
-      const p10 = point(lat + 1, lon);
-      const p11 = point(lat + 1, lon + 1);
-      pushTriangle(positions, normals, p00, p10, p11, p00, p10, p11);
-      pushTriangle(positions, normals, p00, p11, p01, p00, p11, p01);
+  for (let y = 0; y < segments; y += 1) {
+    for (let x = 0; x < segments; x += 1) {
+      const u0 = x / segments;
+      const u1 = (x + 1) / segments;
+      const v0 = y / segments;
+      const v1 = (y + 1) / segments;
+      const x0 = u0 * 2 - 1;
+      const x1 = u1 * 2 - 1;
+      const y0 = v0 * 2 - 1;
+      const y1 = v1 * 2 - 1;
+
+      push(x0, y0, u0, v0);
+      push(x1, y0, u1, v0);
+      push(x1, y1, u1, v1);
+      push(x0, y0, u0, v0);
+      push(x1, y1, u1, v1);
+      push(x0, y1, u0, v1);
     }
   }
 
-  return { positions, normals };
+  return { positions: new Float32Array(positions), uvs: new Float32Array(uvs) };
 }
 
-function torusGeometry(major = 1, minor = 0.16, majorSegments = 72, minorSegments = 18) {
-  const positions: number[] = [];
-  const normals: number[] = [];
+function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
+  const shader = gl.createShader(type);
+  if (!shader) throw new Error("Shader non disponibile");
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const info = gl.getShaderInfoLog(shader) || "Errore shader";
+    gl.deleteShader(shader);
+    throw new Error(info);
+  }
+  return shader;
+}
 
-  const point = (uIndex: number, vIndex: number) => {
-    const u = (uIndex / majorSegments) * Math.PI * 2;
-    const v = (vIndex / minorSegments) * Math.PI * 2;
-    const normal: Vec3 = [Math.cos(v) * Math.cos(u), Math.sin(v), Math.cos(v) * Math.sin(u)];
-    const position: Vec3 = [
-      (major + minor * Math.cos(v)) * Math.cos(u),
-      minor * Math.sin(v),
-      (major + minor * Math.cos(v)) * Math.sin(u),
-    ];
-    return { position, normal };
-  };
+const VERTEX_SHADER = `
+precision highp float;
+attribute vec2 a_position;
+attribute vec2 a_uv;
+uniform mat4 u_viewProjection;
+uniform vec3 u_rotation;
+uniform vec3 u_offset;
+uniform float u_imageAspect;
+uniform float u_relief;
+uniform float u_layerRelief;
+uniform float u_scale;
+varying vec2 v_uv;
+varying float v_relief;
 
-  for (let u = 0; u < majorSegments; u += 1) {
-    for (let v = 0; v < minorSegments; v += 1) {
-      const a = point(u, v);
-      const b = point(u + 1, v);
-      const c = point(u + 1, v + 1);
-      const d = point(u, v + 1);
-      pushTriangle(positions, normals, a.position, b.position, c.position, a.normal, b.normal, c.normal);
-      pushTriangle(positions, normals, a.position, c.position, d.position, a.normal, c.normal, d.normal);
-    }
+vec3 rotateX(vec3 p, float a) {
+  float c = cos(a); float s = sin(a);
+  return vec3(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+vec3 rotateY(vec3 p, float a) {
+  float c = cos(a); float s = sin(a);
+  return vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+vec3 rotateZ(vec3 p, float a) {
+  float c = cos(a); float s = sin(a);
+  return vec3(p.x * c - p.y * s, p.x * s + p.y * c, p.z);
+}
+
+void main() {
+  v_uv = a_uv;
+  vec2 q = a_uv - 0.5;
+  q.x *= u_imageAspect;
+  float r = length(q) / 0.50;
+  float rim = smoothstep(0.72, 0.86, r) * (1.0 - smoothstep(0.98, 1.05, r));
+  float center = 1.0 - smoothstep(0.08, 0.92, r);
+  float organic = sin(a_uv.x * 31.0) * sin(a_uv.y * 27.0) * 0.018;
+  float height = rim * 0.30 + center * 0.045 + organic;
+  v_relief = height;
+
+  vec3 p = vec3(
+    a_position.x * u_imageAspect * 1.58,
+    a_position.y * 1.58,
+    height * u_relief + u_layerRelief
+  );
+  p.xy *= u_scale;
+  p = rotateX(p, u_rotation.x);
+  p = rotateY(p, u_rotation.y);
+  p = rotateZ(p, u_rotation.z);
+  p += u_offset;
+  gl_Position = u_viewProjection * vec4(p, 1.0);
+}
+`;
+
+const FRAGMENT_SHADER = `
+precision highp float;
+uniform sampler2D u_texture;
+uniform float u_imageAspect;
+uniform vec2 u_center;
+uniform float u_radius;
+uniform float u_layer;
+uniform float u_explode;
+uniform float u_opacity;
+uniform float u_tera;
+varying vec2 v_uv;
+varying float v_relief;
+
+float sat(vec3 c) {
+  return max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
+}
+
+void main() {
+  vec4 tex = texture2D(u_texture, v_uv);
+  vec3 c = tex.rgb;
+  vec2 q = v_uv - u_center;
+  q.x *= u_imageAspect;
+  float r = length(q) / u_radius;
+  float disc = 1.0 - smoothstep(0.985, 1.035, r);
+  float inner = 1.0 - smoothstep(0.72, 0.94, r);
+  float ring = smoothstep(0.70, 0.83, r) * (1.0 - smoothstep(0.97, 1.03, r));
+
+  float luminance = dot(c, vec3(0.299, 0.587, 0.114));
+  float chroma = sat(c);
+  float red = smoothstep(0.035, 0.19, c.r - max(c.g * 0.94, c.b)) * inner;
+  float green = smoothstep(0.025, 0.15, c.g - max(c.r * 0.92, c.b * 0.92)) * inner;
+  float cream = smoothstep(0.50, 0.78, luminance) * (1.0 - smoothstep(0.20, 0.48, chroma)) * inner;
+  float crust = ring * smoothstep(0.16, 0.62, luminance + c.r * 0.22);
+
+  if (u_tera > 0.5) {
+    red *= 0.82;
+    green *= 0.88;
+    cream = max(cream, smoothstep(0.43, 0.70, luminance) * (1.0 - smoothstep(0.24, 0.54, chroma)) * inner * 0.72);
   }
 
-  return { positions, normals };
-}
+  float chosen = max(max(crust, cream), max(red, green));
+  float alpha = 0.0;
 
-function createMesh(gl: WebGLRenderingContext, geometry: { positions: number[]; normals: number[] }): Mesh {
-  const position = gl.createBuffer();
-  const normal = gl.createBuffer();
-  if (!position || !normal) throw new Error("Unable to create WebGL buffers");
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, position);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometry.positions), gl.STATIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER, normal);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometry.normals), gl.STATIC_DRAW);
-  return { position, normal, count: geometry.positions.length / 3 };
-}
-
-function rotateAroundY(position: Vec3, angle: number): Vec3 {
-  const c = Math.cos(angle);
-  const s = Math.sin(angle);
-  return [position[0] * c + position[2] * s, position[1], -position[0] * s + position[2] * c];
-}
-
-const BUFALINA_NOTES = [
-  "Pomodorino siccagno",
-  "Bufala DOP",
-  "Pomodorino confit",
-  "Olio EVO",
-  "Basilico",
-];
-
-function buildParts(variant: "bufalina" | "tera"): Part[] {
-  const tera = variant === "tera";
-  const crust: Vec3 = tera ? [0.64, 0.47, 0.29] : [0.72, 0.39, 0.17];
-  const dough: Vec3 = tera ? [0.82, 0.68, 0.47] : [0.78, 0.52, 0.28];
-  const sauce: Vec3 = tera ? [0.62, 0.20, 0.12] : [0.72, 0.08, 0.035];
-  const cheese: Vec3 = tera ? [0.91, 0.88, 0.72] : [0.94, 0.91, 0.78];
-  const tomato: Vec3 = tera ? [0.73, 0.20, 0.10] : [0.82, 0.12, 0.055];
-  const basil: Vec3 = tera ? [0.24, 0.34, 0.22] : [0.12, 0.30, 0.10];
-
-  const parts: Part[] = [
-    { mesh: "cylinder", home: [0, -0.23, 0], exploded: [0, -2.8, 0.5], scale: [2.42, 0.34, 2.42], rotation: [0, 0, 0], color: dough },
-    { mesh: "torus", home: [0, 0.02, 0], exploded: [0, -1.9, 0.2], scale: [2.28, 0.64, 2.28], rotation: [0, 0, 0], color: crust },
-    { mesh: "cylinder", home: [0, 0.13, 0], exploded: [0, -0.78, -0.1], scale: [2.08, 0.10, 2.08], rotation: [0, 0, 0], color: sauce },
-  ];
-
-  const cheesePositions: Vec3[] = [
-    [-0.95, 0.35, -0.48], [0.28, 0.38, -0.92], [0.98, 0.36, -0.28],
-    [-0.45, 0.39, 0.18], [0.58, 0.40, 0.34], [-0.92, 0.36, 0.72],
-    [0.12, 0.38, 0.94], [1.12, 0.34, 0.64],
-  ];
-  cheesePositions.forEach((home, index) => {
-    const angle = (index / cheesePositions.length) * Math.PI * 2;
-    parts.push({
-      mesh: "sphere",
-      home,
-      exploded: [home[0] * 1.35, 1.8 + (index % 3) * 0.28, home[2] * 1.35 + Math.sin(angle) * 0.4],
-      scale: [0.40 + (index % 2) * 0.08, 0.14 + (index % 3) * 0.018, 0.34 + ((index + 1) % 2) * 0.07],
-      rotation: [0, angle * 0.35, 0],
-      color: cheese,
-      phase: index * 0.7,
-    });
-  });
-
-  const tomatoPositions: Vec3[] = [
-    [-1.28, 0.48, -0.05], [-0.15, 0.49, -1.24], [1.08, 0.48, -0.93],
-    [1.28, 0.49, 0.14], [0.62, 0.50, 1.15], [-0.62, 0.49, 1.14],
-  ];
-  tomatoPositions.forEach((home, index) => {
-    parts.push({
-      mesh: "sphere",
-      home,
-      exploded: [home[0] * 1.55, 2.72 + (index % 2) * 0.34, home[2] * 1.55],
-      scale: [0.27, 0.14, 0.22],
-      rotation: [0.15, index * 0.8, 0.1],
-      color: tomato,
-      phase: 2 + index * 0.8,
-    });
-  });
-
-  const basilPositions: Vec3[] = [
-    [-0.40, 0.62, -0.72], [0.62, 0.62, -0.42], [0.25, 0.62, 0.66], [-0.82, 0.62, 0.42],
-  ];
-  basilPositions.forEach((home, index) => {
-    parts.push({
-      mesh: "sphere",
-      home,
-      exploded: [home[0] * 1.8, 3.65 + index * 0.18, home[2] * 1.8],
-      scale: [0.35, 0.045, 0.13],
-      rotation: [0.05, index * 1.35, index % 2 ? 0.25 : -0.25],
-      color: basil,
-      phase: 4 + index,
-    });
-  });
-
-  for (let index = 0; index < 10; index += 1) {
-    const angle = (index / 10) * Math.PI * 2 + 0.35;
-    const radius = 0.55 + (index % 4) * 0.36;
-    const home: Vec3 = [Math.cos(angle) * radius, 0.57, Math.sin(angle) * radius];
-    parts.push({
-      mesh: "sphere",
-      home,
-      exploded: [Math.cos(angle) * (2.3 + (index % 2) * 0.3), 4.35 + (index % 3) * 0.22, Math.sin(angle) * (2.3 + (index % 2) * 0.3)],
-      scale: [0.055, 0.035, 0.055],
-      rotation: [0, 0, 0],
-      color: tera ? [0.72, 0.63, 0.42] : [0.92, 0.62, 0.16],
-      opacity: 0.86,
-      phase: 6 + index * 0.4,
-    });
+  if (u_layer < 0.5) {
+    alpha = tex.a * disc * (1.0 - chosen * u_explode * 0.94);
+  } else if (u_layer < 1.5) {
+    alpha = tex.a * disc * crust * smoothstep(0.02, 0.16, u_explode);
+  } else if (u_layer < 2.5) {
+    alpha = tex.a * disc * cream * smoothstep(0.05, 0.22, u_explode);
+  } else if (u_layer < 3.5) {
+    alpha = tex.a * disc * red * smoothstep(0.08, 0.28, u_explode);
+  } else {
+    alpha = tex.a * disc * green * smoothstep(0.12, 0.34, u_explode);
   }
 
-  return parts;
+  if (alpha < 0.015) discard;
+
+  float dimensional = 0.94 + clamp(v_relief * 0.9, 0.0, 0.09);
+  vec3 finalColor = c * dimensional;
+  if (u_tera > 0.5) finalColor = mix(finalColor, finalColor * vec3(0.98, 1.01, 0.96), 0.16);
+  gl_FragColor = vec4(finalColor, alpha * u_opacity);
 }
-
-function PizzaWebGL({ variant, progress, reducedMotion }: { variant: "bufalina" | "tera"; progress: number; reducedMotion: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const progressRef = useRef(progress);
-  const pointerRef = useRef({ x: 0, y: 0 });
-  const targetPointerRef = useRef({ x: 0, y: 0 });
-  const [failed, setFailed] = useState(false);
-  const parts = useMemo(() => buildParts(variant), [variant]);
-
-  useEffect(() => {
-    progressRef.current = progress;
-  }, [progress]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    let raf = 0;
-    let disposed = false;
-    let resizeObserver: ResizeObserver | null = null;
-
-    try {
-      const gl = canvas.getContext("webgl", {
-        alpha: true,
-        antialias: true,
-        depth: true,
-        powerPreference: "high-performance",
-      });
-      if (!gl) throw new Error("WebGL unavailable");
-
-      const vertexSource = `
-        attribute vec3 a_position;
-        attribute vec3 a_normal;
-        uniform mat4 u_viewProjection;
-        uniform vec3 u_translation;
-        uniform vec3 u_rotation;
-        uniform vec3 u_scale;
-        varying vec3 v_normal;
-        varying vec3 v_world;
-
-        mat3 rotateX(float a) {
-          float c = cos(a); float s = sin(a);
-          return mat3(1.0,0.0,0.0, 0.0,c,s, 0.0,-s,c);
-        }
-        mat3 rotateY(float a) {
-          float c = cos(a); float s = sin(a);
-          return mat3(c,0.0,-s, 0.0,1.0,0.0, s,0.0,c);
-        }
-        mat3 rotateZ(float a) {
-          float c = cos(a); float s = sin(a);
-          return mat3(c,s,0.0, -s,c,0.0, 0.0,0.0,1.0);
-        }
-
-        void main() {
-          mat3 rotation = rotateZ(u_rotation.z) * rotateY(u_rotation.y) * rotateX(u_rotation.x);
-          vec3 scaled = a_position * u_scale;
-          vec3 world = rotation * scaled + u_translation;
-          vec3 safeScale = max(abs(u_scale), vec3(0.0001));
-          v_normal = normalize(rotation * (a_normal / safeScale));
-          v_world = world;
-          gl_Position = u_viewProjection * vec4(world, 1.0);
-        }
-      `;
-
-      const fragmentSource = `
-        precision mediump float;
-        varying vec3 v_normal;
-        varying vec3 v_world;
-        uniform vec3 u_color;
-        uniform vec3 u_camera;
-        uniform vec3 u_keyColor;
-        uniform vec3 u_fillColor;
-        uniform vec3 u_pointPosition;
-        uniform float u_opacity;
-        uniform float u_shininess;
-
-        void main() {
-          vec3 n = normalize(v_normal);
-          vec3 keyDir = normalize(vec3(-0.55, 0.85, 0.42));
-          vec3 fillDir = normalize(vec3(0.72, 0.35, -0.60));
-          vec3 viewDir = normalize(u_camera - v_world);
-          vec3 halfDir = normalize(keyDir + viewDir);
-          float key = max(dot(n, keyDir), 0.0);
-          float fill = max(dot(n, fillDir), 0.0);
-          float specular = pow(max(dot(n, halfDir), 0.0), mix(10.0, 72.0, u_shininess));
-          float rim = pow(1.0 - max(dot(n, viewDir), 0.0), 2.2);
-          vec3 pointVector = u_pointPosition - v_world;
-          float pointDistance = max(length(pointVector), 0.001);
-          float point = max(dot(n, normalize(pointVector)), 0.0) / (1.0 + 0.08 * pointDistance * pointDistance);
-
-          vec3 light = vec3(0.18) + u_keyColor * key * 0.78 + u_fillColor * fill * 0.32;
-          vec3 color = u_color * light;
-          color += u_keyColor * point * 1.15;
-          color += mix(vec3(1.0), u_keyColor, 0.4) * specular * 0.28;
-          color += u_fillColor * rim * 0.16;
-          color = pow(max(color, 0.0), vec3(0.92));
-          gl_FragColor = vec4(color, u_opacity);
-        }
-      `;
-
-      const compile = (type: number, source: string) => {
-        const shader = gl.createShader(type);
-        if (!shader) throw new Error("Shader creation failed");
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-          const message = gl.getShaderInfoLog(shader) || "Shader compilation failed";
-          gl.deleteShader(shader);
-          throw new Error(message);
-        }
-        return shader;
-      };
-
-      const vertex = compile(gl.VERTEX_SHADER, vertexSource);
-      const fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
-      const program = gl.createProgram();
-      if (!program) throw new Error("Program creation failed");
-      gl.attachShader(program, vertex);
-      gl.attachShader(program, fragment);
-      gl.linkProgram(program);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) || "Program link failed");
-      gl.useProgram(program);
-
-      const aPosition = gl.getAttribLocation(program, "a_position");
-      const aNormal = gl.getAttribLocation(program, "a_normal");
-      const uniforms = {
-        viewProjection: gl.getUniformLocation(program, "u_viewProjection"),
-        translation: gl.getUniformLocation(program, "u_translation"),
-        rotation: gl.getUniformLocation(program, "u_rotation"),
-        scale: gl.getUniformLocation(program, "u_scale"),
-        color: gl.getUniformLocation(program, "u_color"),
-        camera: gl.getUniformLocation(program, "u_camera"),
-        keyColor: gl.getUniformLocation(program, "u_keyColor"),
-        fillColor: gl.getUniformLocation(program, "u_fillColor"),
-        pointPosition: gl.getUniformLocation(program, "u_pointPosition"),
-        opacity: gl.getUniformLocation(program, "u_opacity"),
-        shininess: gl.getUniformLocation(program, "u_shininess"),
-      };
-
-      if (aPosition < 0 || aNormal < 0 || Object.values(uniforms).some((value) => value === null)) {
-        throw new Error("Required WebGL attribute/uniform unavailable");
-      }
-
-      const meshes: Record<Part["mesh"], Mesh> = {
-        sphere: createMesh(gl, sphereGeometry()),
-        cylinder: createMesh(gl, cylinderGeometry()),
-        torus: createMesh(gl, torusGeometry()),
-      };
-
-      gl.enable(gl.DEPTH_TEST);
-      gl.enable(gl.CULL_FACE);
-      gl.cullFace(gl.BACK);
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-      const onPointerMove = (event: PointerEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        targetPointerRef.current.x = clamp(((event.clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1, -1, 1);
-        targetPointerRef.current.y = clamp(((event.clientY - rect.top) / Math.max(rect.height, 1)) * 2 - 1, -1, 1);
-      };
-      const onPointerLeave = () => {
-        targetPointerRef.current.x = 0;
-        targetPointerRef.current.y = 0;
-      };
-      canvas.addEventListener("pointermove", onPointerMove, { passive: true });
-      canvas.addEventListener("pointerleave", onPointerLeave);
-
-      const resize = () => {
-        const rect = canvas.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 1.65);
-        const width = Math.max(1, Math.round(rect.width * dpr));
-        const height = Math.max(1, Math.round(rect.height * dpr));
-        if (canvas.width !== width || canvas.height !== height) {
-          canvas.width = width;
-          canvas.height = height;
-          gl.viewport(0, 0, width, height);
-        }
-      };
-      resizeObserver = new ResizeObserver(resize);
-      resizeObserver.observe(canvas);
-      resize();
-
-      const drawMesh = (
-        mesh: Mesh,
-        translation: Vec3,
-        rotation: Vec3,
-        scale: Vec3,
-        color: Vec3,
-        opacity: number,
-        shininess: number,
-      ) => {
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.position);
-        gl.enableVertexAttribArray(aPosition);
-        gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normal);
-        gl.enableVertexAttribArray(aNormal);
-        gl.vertexAttribPointer(aNormal, 3, gl.FLOAT, false, 0, 0);
-        gl.uniform3fv(uniforms.translation, translation);
-        gl.uniform3fv(uniforms.rotation, rotation);
-        gl.uniform3fv(uniforms.scale, scale);
-        gl.uniform3fv(uniforms.color, color);
-        gl.uniform1f(uniforms.opacity, opacity);
-        gl.uniform1f(uniforms.shininess, shininess);
-        gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
-      };
-
-      const startedAt = performance.now();
-      const render = (now: number) => {
-        if (disposed || gl.isContextLost()) return;
-        resize();
-        const time = (now - startedAt) / 1000;
-        const p = reducedMotion ? 0.72 : progressRef.current;
-        const assemble = reducedMotion ? 1 : smoothstep(0.08, 0.58, p);
-        const heroTurn = reducedMotion ? 0.08 : smoothstep(0.58, 0.95, p) * 0.34;
-        const rise = reducedMotion ? 0 : smoothstep(0.64, 1, p) * 0.18;
-
-        pointerRef.current.x = lerp(pointerRef.current.x, targetPointerRef.current.x, 0.055);
-        pointerRef.current.y = lerp(pointerRef.current.y, targetPointerRef.current.y, 0.055);
-
-        const orbitX = reducedMotion ? 0 : pointerRef.current.x * 0.34;
-        const orbitY = reducedMotion ? 0 : pointerRef.current.y * 0.22;
-        const distance = 8.9 - smoothstep(0.52, 0.95, p) * 0.72;
-        const camera: Vec3 = [Math.sin(orbitX) * distance, 4.75 - orbitY * 2.3, Math.cos(orbitX) * distance];
-        const center: Vec3 = [0, 0.44 + rise, 0];
-        const projection = perspective(Math.PI / 4.25, canvas.width / Math.max(canvas.height, 1), 0.1, 40);
-        const view = lookAt(camera, center, [0, 1, 0]);
-        const viewProjection = multiplyMat4(projection, view);
-
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.useProgram(program);
-        gl.uniformMatrix4fv(uniforms.viewProjection, false, viewProjection);
-        gl.uniform3fv(uniforms.camera, camera);
-
-        if (variant === "tera") {
-          gl.uniform3fv(uniforms.keyColor, [1.0, 0.90, 0.72]);
-          gl.uniform3fv(uniforms.fillColor, [0.45, 0.57, 0.43]);
-          gl.uniform3fv(uniforms.pointPosition, [-3.0, 5.4, 4.5]);
-        } else {
-          gl.uniform3fv(uniforms.keyColor, [1.0, 0.55, 0.20]);
-          gl.uniform3fv(uniforms.fillColor, [0.40, 0.20, 0.08]);
-          gl.uniform3fv(uniforms.pointPosition, [-3.4, 4.8, 4.0]);
-        }
-
-        const plateColor: Vec3 = variant === "tera" ? [0.62, 0.61, 0.55] : [0.07, 0.055, 0.043];
-        drawMesh(meshes.cylinder, [0, -0.64, 0], [0, heroTurn * 0.2, 0], [3.0, 0.12, 3.0], plateColor, variant === "tera" ? 0.42 : 0.72, 0.18);
-
-        parts.forEach((part, index) => {
-          const localProgress = reducedMotion ? 1 : smoothstep(0.10 + Math.min(index, 18) * 0.005, 0.63 + Math.min(index, 18) * 0.004, p);
-          const t = Math.min(assemble, localProgress);
-          const floatAmount = t < 0.98 && !reducedMotion ? Math.sin(time * 0.7 + (part.phase || 0)) * 0.045 * (1 - t) : 0;
-          let position: Vec3 = [
-            lerp(part.exploded[0], part.home[0], t),
-            lerp(part.exploded[1], part.home[1], t) + floatAmount + rise,
-            lerp(part.exploded[2], part.home[2], t),
-          ];
-          position = rotateAroundY(position, heroTurn);
-          const rotation: Vec3 = [
-            part.rotation[0],
-            part.rotation[1] + heroTurn,
-            part.rotation[2] + (!reducedMotion && t < 0.9 ? Math.sin(time * 0.35 + index) * 0.015 : 0),
-          ];
-          drawMesh(meshes[part.mesh], position, rotation, part.scale, part.color, part.opacity ?? 1, part.mesh === "sphere" ? 0.68 : 0.30);
-        });
-
-        raf = requestAnimationFrame(render);
-      };
-      raf = requestAnimationFrame(render);
-
-      return () => {
-        disposed = true;
-        cancelAnimationFrame(raf);
-        resizeObserver?.disconnect();
-        canvas.removeEventListener("pointermove", onPointerMove);
-        canvas.removeEventListener("pointerleave", onPointerLeave);
-        Object.values(meshes).forEach((mesh) => {
-          gl.deleteBuffer(mesh.position);
-          gl.deleteBuffer(mesh.normal);
-        });
-        gl.deleteProgram(program);
-        gl.deleteShader(vertex);
-        gl.deleteShader(fragment);
-      };
-    } catch (error) {
-      console.error("TIMILIA true 3D scene disabled:", error);
-      setFailed(true);
-      return () => {
-        disposed = true;
-        cancelAnimationFrame(raf);
-        resizeObserver?.disconnect();
-      };
-    }
-  }, [parts, reducedMotion, variant]);
-
-  if (failed) {
-    return (
-      <div className="flex h-full w-full items-center justify-center rounded-[2rem] border border-white/10 bg-black/20 px-8 text-center text-xs uppercase tracking-[0.22em] text-white/45">
-        Il browser non ha inizializzato WebGL · contenuto testuale disponibile
-      </div>
-    );
-  }
-
-  return <canvas ref={canvasRef} className="h-full w-full touch-none" aria-label={`Scena 3D interattiva ${variant === "tera" ? "TERA" : "A Bufalina"}`} />;
-}
+`;
 
 export default function TruePizza3DShowcase({
   variant,
@@ -611,148 +249,367 @@ export default function TruePizza3DShowcase({
   notes,
 }: TruePizza3DShowcaseProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const [progress, setProgress] = useState(0);
-  const reduceMotion = useReducedMotion();
-  const tera = variant === "tera";
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const progressRef = useRef(0);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const [webglReady, setWebglReady] = useState(false);
+  const [webglFailed, setWebglFailed] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const isTera = variant === "tera";
+  const image = isTera ? "/images/tera-creazioni/creazione-14.png" : "/images/menu-story/bufalina.png";
+  const imageAlt = isTera ? "Creazione TERA senza glutine di Timilia" : "A Bufalina di Timilia";
+  const palette = useMemo(
+    () => isTera
+      ? { bg: "#e8e5dc", text: "#20251f", accent: "#65705f", line: "rgba(71,83,69,.20)" }
+      : { bg: "#050403", text: "#fff8ec", accent: "#d8a15c", line: "rgba(216,161,92,.20)" },
+    [isTera],
+  );
 
   useEffect(() => {
-    if (reduceMotion) {
-      setProgress(0.75);
-      return;
-    }
-    let raf = 0;
     const update = () => {
       const section = sectionRef.current;
       if (!section) return;
       const rect = section.getBoundingClientRect();
-      const travel = Math.max(rect.height - window.innerHeight, 1);
-      setProgress(clamp(-rect.top / travel));
-    };
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
+      const travel = Math.max(section.offsetHeight - window.innerHeight, 1);
+      progressRef.current = clamp(-rect.top / travel);
     };
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, [reduceMotion]);
+  }, []);
 
-  const assembled = smoothstep(0.08, 0.58, progress);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || reducedMotion) return;
+
+    let disposed = false;
+    let frame = 0;
+    let visible = true;
+
+    try {
+      const gl = canvas.getContext("webgl", {
+        alpha: true,
+        antialias: true,
+        premultipliedAlpha: true,
+      });
+      if (!gl) {
+        setWebglFailed(true);
+        return;
+      }
+
+      const vertexShader = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+      const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+      const program = gl.createProgram();
+      if (!program) throw new Error("Programma WebGL non disponibile");
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program) || "Link WebGL fallito");
+      }
+      gl.useProgram(program);
+
+      const grid = buildGrid(68);
+      const positionBuffer = gl.createBuffer();
+      const uvBuffer = gl.createBuffer();
+      if (!positionBuffer || !uvBuffer) throw new Error("Buffer WebGL non disponibile");
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, grid.positions, gl.STATIC_DRAW);
+      const positionLocation = gl.getAttribLocation(program, "a_position");
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, grid.uvs, gl.STATIC_DRAW);
+      const uvLocation = gl.getAttribLocation(program, "a_uv");
+      gl.enableVertexAttribArray(uvLocation);
+      gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
+      const getUniform = (name: string) => {
+        const location = gl.getUniformLocation(program, name);
+        if (!location) throw new Error(`Uniform ${name} non disponibile`);
+        return location;
+      };
+
+      const uniforms = {
+        viewProjection: getUniform("u_viewProjection"),
+        rotation: getUniform("u_rotation"),
+        offset: getUniform("u_offset"),
+        imageAspect: getUniform("u_imageAspect"),
+        relief: getUniform("u_relief"),
+        layerRelief: getUniform("u_layerRelief"),
+        scale: getUniform("u_scale"),
+        texture: getUniform("u_texture"),
+        center: getUniform("u_center"),
+        radius: getUniform("u_radius"),
+        layer: getUniform("u_layer"),
+        explode: getUniform("u_explode"),
+        opacity: getUniform("u_opacity"),
+        tera: getUniform("u_tera"),
+      };
+
+      const texture = gl.createTexture();
+      if (!texture) throw new Error("Texture WebGL non disponibile");
+      const source = new window.Image();
+      source.decoding = "async";
+      source.src = image;
+
+      source.onload = () => {
+        if (disposed) return;
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+        setWebglReady(true);
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
+
+        const resize = () => {
+          const rect = canvas.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 1.65);
+          const width = Math.max(1, Math.round(rect.width * dpr));
+          const height = Math.max(1, Math.round(rect.height * dpr));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+          }
+          gl.viewport(0, 0, width, height);
+        };
+
+        const render = () => {
+          if (disposed) return;
+          if (!visible) {
+            frame = requestAnimationFrame(render);
+            return;
+          }
+
+          resize();
+          const p = reducedMotion ? 0 : progressRef.current;
+          const tilt = smoothstep(0.05, 0.46, p);
+          const explode = smoothstep(0.18, 0.80, p);
+          const px = pointerRef.current.x;
+          const py = pointerRef.current.y;
+          const canvasAspect = canvas.width / Math.max(canvas.height, 1);
+          const imageAspect = source.naturalWidth / Math.max(source.naturalHeight, 1);
+
+          const projection = perspective((36 * Math.PI) / 180, canvasAspect, 0.1, 30);
+          const eye: Vec3 = [px * 0.42, -py * 0.26 + 0.06, 7.0 - tilt * 0.36];
+          const view = lookAt(eye, [0, 0.02, 0], [0, 1, 0]);
+          const viewProjection = multiplyMat4(projection, view);
+
+          gl.clearColor(0, 0, 0, 0);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          gl.useProgram(program);
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, texture);
+          gl.uniform1i(uniforms.texture, 0);
+          gl.uniformMatrix4fv(uniforms.viewProjection, false, viewProjection);
+          gl.uniform1f(uniforms.imageAspect, imageAspect);
+          gl.uniform2f(uniforms.center, isTera ? 0.50 : 0.50, isTera ? 0.52 : 0.50);
+          gl.uniform1f(uniforms.radius, isTera ? 0.485 : 0.49);
+          gl.uniform1f(uniforms.explode, explode);
+          gl.uniform1f(uniforms.tera, isTera ? 1 : 0);
+          gl.uniform1f(uniforms.relief, 0.18 + tilt * 0.95);
+          gl.uniform3f(
+            uniforms.rotation,
+            -0.03 - tilt * 0.48 - py * 0.035,
+            px * 0.09 + (isTera ? -0.02 : 0.03) * tilt,
+            px * 0.018,
+          );
+
+          const layers = [
+            { id: 0, offset: [0, 0, 0] as Vec3, relief: 0, scale: 1, opacity: 1 },
+            { id: 1, offset: [0, -0.12 * explode, 0.28 * explode] as Vec3, relief: 0.04 * explode, scale: 1.005, opacity: 1 },
+            { id: 2, offset: [-0.10 * explode, 0.16 * explode, 0.82 * explode] as Vec3, relief: 0.08 * explode, scale: 1.008, opacity: 1 },
+            { id: 3, offset: [0.12 * explode, 0.38 * explode, 1.38 * explode] as Vec3, relief: 0.12 * explode, scale: 1.012, opacity: 1 },
+            { id: 4, offset: [-0.05 * explode, 0.66 * explode, 1.94 * explode] as Vec3, relief: 0.16 * explode, scale: 1.018, opacity: 1 },
+          ];
+
+          layers.forEach((layer) => {
+            gl.uniform1f(uniforms.layer, layer.id);
+            gl.uniform3f(uniforms.offset, layer.offset[0], layer.offset[1], layer.offset[2]);
+            gl.uniform1f(uniforms.layerRelief, layer.relief);
+            gl.uniform1f(uniforms.scale, layer.scale);
+            gl.uniform1f(uniforms.opacity, layer.opacity);
+            gl.drawArrays(gl.TRIANGLES, 0, grid.positions.length / 2);
+          });
+
+          frame = requestAnimationFrame(render);
+        };
+
+        render();
+      };
+
+      source.onerror = () => setWebglFailed(true);
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          visible = entry?.isIntersecting ?? true;
+        },
+        { rootMargin: "300px 0px" },
+      );
+      observer.observe(canvas);
+
+      return () => {
+        disposed = true;
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+        gl.deleteTexture(texture);
+        gl.deleteBuffer(positionBuffer);
+        gl.deleteBuffer(uvBuffer);
+        gl.deleteProgram(program);
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+      };
+    } catch {
+      setWebglFailed(true);
+    }
+  }, [image, isTera, reducedMotion]);
 
   return (
     <section
       ref={sectionRef}
-      className={`relative h-[190svh] ${tera ? "bg-[#e9e4d9] text-[#252a24]" : "bg-[#050403] text-white"}`}
+      className="relative h-[220svh]"
+      style={{ backgroundColor: palette.bg, color: palette.text }}
+      onPointerMove={(event) => {
+        if (reducedMotion) return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        pointerRef.current = {
+          x: clamp(((event.clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1, -1, 1),
+          y: clamp(((event.clientY - rect.top) / Math.max(window.innerHeight, 1)) * 2 - 1, -1, 1),
+        };
+      }}
+      onPointerLeave={() => {
+        pointerRef.current = { x: 0, y: 0 };
+      }}
     >
-      <div className="sticky top-0 flex min-h-[100svh] items-center overflow-hidden">
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 ${
-            tera
-              ? "bg-[radial-gradient(circle_at_72%_42%,rgba(83,105,80,0.18),transparent_28%),radial-gradient(circle_at_15%_20%,rgba(188,159,112,0.22),transparent_34%),linear-gradient(135deg,#f3eee4,#ded8ca)]"
-              : "bg-[radial-gradient(circle_at_72%_42%,rgba(190,91,25,0.22),transparent_27%),radial-gradient(circle_at_8%_16%,rgba(116,62,27,0.16),transparent_31%),linear-gradient(135deg,#050403,#100a06)]"
-          }`}
-        />
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 opacity-[0.12] [background-image:radial-gradient(currentColor_0.55px,transparent_0.75px)] [background-size:17px_17px] ${tera ? "text-[#465745]" : "text-[#e9b267]"}`}
-        />
+      <div className="sticky top-0 min-h-[100svh] overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <Image src={image} alt="" fill sizes="100vw" className={`object-cover scale-110 blur-3xl ${isTera ? "opacity-[0.08]" : "opacity-[0.10]"}`} />
+          <div className={`absolute inset-0 ${isTera ? "bg-[radial-gradient(circle_at_72%_48%,rgba(112,126,105,0.16),transparent_34%)]" : "bg-[radial-gradient(circle_at_72%_48%,rgba(214,145,65,0.18),transparent_34%)]"}`} />
+          <div className={`absolute inset-0 ${isTera ? "bg-gradient-to-r from-[#e8e5dc] via-[#e8e5dc]/84 to-[#e8e5dc]/16" : "bg-gradient-to-r from-[#050403] via-[#050403]/82 to-transparent"}`} />
+        </div>
 
-        <div className="relative z-10 mx-auto grid min-h-[100svh] w-full max-w-[1600px] grid-rows-[auto_1fr] px-6 pb-10 pt-24 md:px-10 lg:grid-cols-[0.78fr_1.22fr] lg:grid-rows-1 lg:items-center lg:gap-8 lg:px-14 xl:px-20">
-          <div className="relative z-20 max-w-[36rem] pt-4 lg:pt-0">
-            <div className="flex items-center gap-3">
-              <span className={`h-px w-10 ${tera ? "bg-[#5a6957]/70" : "bg-[#d3a15c]/80"}`} />
-              <span className={`text-[10px] font-semibold uppercase tracking-[0.34em] md:text-xs ${tera ? "text-[#5a6957]" : "text-[#d3a15c]"}`}>
+        <div className="relative z-10 mx-auto grid min-h-[100svh] max-w-[1500px] items-center gap-10 px-6 py-24 md:px-10 lg:grid-cols-[0.78fr_1.22fr] lg:px-14 xl:px-20">
+          <div className="relative z-30 max-w-xl">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              className="flex items-center gap-3"
+            >
+              <span className="h-px w-10" style={{ backgroundColor: palette.accent }} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.35em] md:text-xs" style={{ color: palette.accent }}>
                 {eyebrow}
               </span>
-            </div>
+            </motion.div>
 
             <motion.h2
-              initial={{ opacity: 0, y: reduceMotion ? 0 : 22 }}
+              initial={{ opacity: 0, y: 22 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.55 }}
-              transition={{ duration: reduceMotion ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 text-[clamp(3.6rem,7vw,8.4rem)] font-light leading-[0.82] tracking-[-0.055em]"
+              viewport={{ once: true, amount: 0.45 }}
+              transition={{ delay: 0.08 }}
+              className="mt-7 text-[clamp(3.2rem,7vw,7.8rem)] font-light leading-[0.86] tracking-[-0.055em]"
             >
               {title}
             </motion.h2>
 
-            <p className={`mt-7 text-xl font-light leading-[1.45] md:text-2xl ${tera ? "text-[#252a24]/78" : "text-white/78"}`}>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.16 }}
+              className="mt-7 max-w-md font-serif text-xl italic leading-relaxed md:text-2xl"
+              style={{ color: palette.accent }}
+            >
               {lead}
-            </p>
-            <p className={`mt-5 max-w-xl text-sm font-light leading-[1.85] md:text-base ${tera ? "text-[#252a24]/56" : "text-white/48"}`}>
+            </motion.p>
+
+            <p className={`mt-6 max-w-lg text-sm font-light leading-[1.9] md:text-base ${isTera ? "text-[#20251f]/62" : "text-white/56"}`}>
               {body}
             </p>
 
-            <div className="mt-8 hidden gap-x-6 gap-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              {notes.map((note, index) => (
-                <div key={note.label} className={`border-t pt-3 ${tera ? "border-[#5a6957]/18" : "border-white/10"}`}>
-                  <div className="flex items-baseline gap-3">
-                    <span className={`text-[9px] font-medium tracking-[0.20em] ${tera ? "text-[#5a6957]" : "text-[#d3a15c]"}`}>
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-[10px] font-medium uppercase tracking-[0.13em]">{note.label}</span>
-                  </div>
-                  <p className={`mt-1 pl-8 text-xs font-light leading-relaxed ${tera ? "text-[#252a24]/46" : "text-white/38"}`}>{note.detail}</p>
-                </div>
+            <div className="mt-9 grid grid-cols-2 gap-x-6 gap-y-5">
+              {notes.slice(0, 5).map((note, index) => (
+                <motion.div
+                  key={note.label}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ delay: 0.18 + index * 0.06 }}
+                  className="border-t pt-3"
+                  style={{ borderColor: palette.line }}
+                >
+                  <span className="text-[9px] uppercase tracking-[0.22em]" style={{ color: palette.accent }}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-[0.08em]">{note.label}</p>
+                </motion.div>
               ))}
             </div>
+
+            <p className={`mt-9 max-w-md text-sm font-light italic leading-relaxed ${isTera ? "text-[#20251f]/54" : "text-white/46"}`}>
+              {closing}
+            </p>
           </div>
 
-          <div className="relative -mx-6 min-h-[52svh] sm:min-h-[58svh] md:-mx-10 lg:-mx-0 lg:min-h-[82svh]">
-            <div className="absolute inset-0">
-              <PizzaWebGL variant={variant} progress={progress} reducedMotion={Boolean(reduceMotion)} />
-            </div>
+          <div className="relative min-h-[52svh] lg:min-h-[88svh]">
+            <div className={`absolute left-1/2 top-[66%] h-[12%] w-[58%] -translate-x-1/2 rounded-[50%] blur-3xl ${isTera ? "bg-[#4c5a48]/15" : "bg-black/65"}`} />
 
-            <div className="pointer-events-none absolute inset-0 hidden lg:block">
-              {notes.slice(0, 5).map((note, index) => {
-                const right = index % 2 === 0;
-                const top = [17, 33, 49, 65, 79][index] ?? 50;
-                return (
-                  <motion.div
-                    key={note.label}
-                    animate={{ opacity: assembled > 0.58 ? 0.72 : 0, x: assembled > 0.58 ? 0 : right ? 14 : -14 }}
-                    transition={{ duration: 0.45, delay: index * 0.035 }}
-                    className={`absolute ${right ? "right-[2%]" : "left-[2%]"}`}
-                    style={{ top: `${top}%` }}
-                  >
-                    <div className={`flex items-center gap-3 ${right ? "flex-row" : "flex-row-reverse"}`}>
-                      <span className={`h-px w-14 ${tera ? "bg-[#5a6957]/45" : "bg-[#d3a15c]/45"}`} />
-                      <span className={`max-w-[9rem] text-[9px] font-medium uppercase tracking-[0.18em] ${tera ? "text-[#252a24]/62" : "text-white/62"}`}>
-                        {note.label}
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              })}
+            <Image
+              src={image}
+              alt={imageAlt}
+              fill
+              priority={false}
+              sizes="(max-width: 1024px) 100vw, 62vw"
+              className={`object-contain transition-opacity duration-700 ${webglReady && !reducedMotion ? "opacity-0" : "opacity-100"}`}
+            />
+
+            {!webglFailed && !reducedMotion && (
+              <canvas
+                ref={canvasRef}
+                className={`absolute inset-0 h-full w-full transition-opacity duration-700 ${webglReady ? "opacity-100" : "opacity-0"}`}
+                aria-label={`${title}: fotografia reale trasformata in rilievo tridimensionale interattivo`}
+              />
+            )}
+
+            <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-center lg:bottom-10">
+              <span className={`text-[9px] uppercase tracking-[0.32em] ${isTera ? "text-[#20251f]/38" : "text-white/35"}`}>
+                scorri · muovi il mouse
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="pointer-events-none absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-4">
-          <span className={`text-[9px] font-medium uppercase tracking-[0.24em] ${tera ? "text-[#252a24]/45" : "text-white/40"}`}>
-            {progress < 0.55 ? "Scorri · la materia si compone" : "Muovi il mouse · cambia prospettiva"}
-          </span>
-          <div className={`h-px w-20 overflow-hidden ${tera ? "bg-[#5a6957]/16" : "bg-white/10"}`}>
-            <div className={`h-full origin-left ${tera ? "bg-[#5a6957]" : "bg-[#d3a15c]"}`} style={{ transform: `scaleX(${progress})` }} />
-          </div>
+        <div className="pointer-events-none absolute right-5 top-1/2 hidden -translate-y-1/2 flex-col gap-8 xl:flex">
+          {notes.slice(0, 4).map((note, index) => (
+            <motion.div
+              key={`side-${note.label}`}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.35 + index * 0.1 }}
+              className="flex items-center gap-3"
+            >
+              <span className="h-px w-12" style={{ backgroundColor: palette.line }} />
+              <span className={`max-w-[10rem] text-[9px] uppercase tracking-[0.18em] ${isTera ? "text-[#20251f]/52" : "text-white/48"}`}>
+                {note.label}
+              </span>
+            </motion.div>
+          ))}
         </div>
-
-        <motion.div
-          aria-hidden="true"
-          animate={{ opacity: assembled > 0.9 ? 0.5 : 0 }}
-          className={`pointer-events-none absolute bottom-[7%] left-[7%] hidden max-w-sm font-serif text-xl italic leading-relaxed lg:block xl:text-2xl ${tera ? "text-[#465745]" : "text-[#d3a15c]"}`}
-        >
-          {closing}
-        </motion.div>
       </div>
     </section>
   );
 }
-
-export { BUFALINA_NOTES };
