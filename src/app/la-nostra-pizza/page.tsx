@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MenuStorySection from "@/components/MenuStorySection";
-import ExplodedPizzaShowcase from "@/components/experiments/ExplodedPizzaShowcase";
+import TruePizza3DShowcase from "@/components/experiments/TruePizza3DShowcase";
 
 export const metadata: Metadata = {
   title: "La Nostra Pizza – TIMILIA | Pizzeria Palermo",
@@ -22,17 +22,19 @@ export default function LaNostraPizzaPage() {
       <Navbar />
       <main className="flex-1">
         <MenuStorySection />
-        <ExplodedPizzaShowcase
+        <TruePizza3DShowcase
+          variant="bufalina"
           eyebrow="La materia prima, senza nascondigli"
           title="A Bufalina"
-          subtitle="Una pizza reale del menu diventa un oggetto da esplorare: la fotografia si apre in profondità, i livelli si separano e la composizione si legge come nel riferimento 3D che mi hai mandato."
-          image="/images/menu-story/bufalina.png"
-          imageAlt="Pizza A Bufalina di Timilia"
+          lead="Pochi elementi. Tutti decisivi."
+          body="La Bufalina vive di equilibrio, non di rumore. La base è costruita sulla pulizia del pomodoro, sulla qualità della bufala e su un finale essenziale che lascia parlare la materia prima."
+          closing="Quando gli ingredienti sono veri, non serve aggiungere rumore."
           notes={[
-            { label: "Pomodorino siccagno", detail: "La base aromatica, scelta prima del forno." },
-            { label: "Bufala DOP", detail: "Morbidezza e carattere senza coprire l'impasto." },
-            { label: "Pomodorino confit", detail: "Una nota più concentrata e dolce." },
-            { label: "Olio EVO · basilico", detail: "Il finale essenziale, aggiunto per chiudere il morso." },
+            { label: "Pomodorino siccagno", detail: "Intensità, identità e precisione." },
+            { label: "Bufala DOP", detail: "Morbidezza e carattere senza compromessi." },
+            { label: "Pomodorino confit", detail: "Il gusto si concentra senza perdere eleganza." },
+            { label: "Olio EVO", detail: "Il gesto finale che mette ordine." },
+            { label: "Basilico", detail: "Il profumo che chiude il cerchio." },
           ]}
         />
       </main>
