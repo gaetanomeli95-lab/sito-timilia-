@@ -1,169 +1,77 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import {
-  motion,
-  useMotionValueEvent,
-  useReducedMotion,
-  useScroll,
-} from "framer-motion";
+import { motion } from "framer-motion";
 
-type Ingredient = {
-  key: string;
-  step: string;
-  label: string;
-  detail: string;
-  accent: string;
-  image?: string;
-  imageFit?: "contain" | "cover";
-  align: "left" | "right";
-  cluster: { x: number; y: number; scale: number; rotate: number };
-};
-
-const INGREDIENTS: Ingredient[] = [
+const INGREDIENTS = [
   {
-    key: "basilico",
     step: "01",
     label: "Basilico",
-    detail: "Profumo netto, fresco. Il gesto che chiude la composizione.",
-    accent: "#6d8b3d",
+    detail: "Il profumo che chiude la composizione.",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Basil.png",
-    imageFit: "contain",
-    align: "right",
-    cluster: { x: 92, y: -128, scale: 0.46, rotate: 9 },
+    fit: "contain" as const,
   },
   {
-    key: "salsa",
     step: "02",
     label: "Salsa di pomodorino siccagno NP",
-    detail: "Intensità e profondità. La base aromatica della A Bufalina.",
-    accent: "#9e2d1f",
+    detail: "La base intensa e pulita da cui parte tutto.",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tomato%20passata.jpg",
-    imageFit: "cover",
-    align: "left",
-    cluster: { x: -74, y: -70, scale: 0.42, rotate: -7 },
+    fit: "cover" as const,
   },
   {
-    key: "pomodorini",
     step: "03",
     label: "Pomodorini confit",
-    detail: "Dolcezza concentrata, piccoli punti di luce e sapore.",
-    accent: "#bd3f24",
+    detail: "Dolcezza concentrata, succo e materia.",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tomato.png",
-    imageFit: "contain",
-    align: "right",
-    cluster: { x: 95, y: -28, scale: 0.39, rotate: 11 },
+    fit: "contain" as const,
   },
   {
-    key: "bufala",
     step: "04",
     label: "Bufala DOP",
-    detail: "Cremosa, piena, protagonista. Morbidezza senza rumore.",
-    accent: "#eee5d1",
+    detail: "Cremosa, autentica, protagonista.",
     image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Mozzarella%20di%20bufala3.jpg",
-    imageFit: "cover",
-    align: "left",
-    cluster: { x: -28, y: 18, scale: 0.48, rotate: -4 },
+    fit: "cover" as const,
   },
   {
-    key: "olio",
     step: "05",
     label: "Olio EVO",
-    detail: "Il finale: luce, materia, brillantezza. Poche gocce, precise.",
-    accent: "#d5a02b",
-    align: "right",
-    cluster: { x: 52, y: 78, scale: 0.58, rotate: 0 },
+    detail: "Il gesto finale: brillantezza, profumo, equilibrio.",
+    image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/OliveOil.png",
+    fit: "contain" as const,
   },
   {
-    key: "impasto",
     step: "06",
     label: "Impasto",
-    detail: "La struttura che tiene tutto insieme: tempo, equilibrio e forno.",
-    accent: "#c8a274",
-    image: "/images/menu-story/mani-tommaso.jpeg",
-    imageFit: "cover",
-    align: "left",
-    cluster: { x: 0, y: 126, scale: 0.44, rotate: 0 },
+    detail: "La struttura che accoglie tutto: tempo, aria e forno.",
+    image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pizza%201%20bg.jpg",
+    fit: "cover" as const,
   },
 ];
 
-const clamp = (value: number, min = 0, max = 1) =>
-  Math.min(max, Math.max(min, value));
-
-const ease = (value: number) => {
-  const t = clamp(value);
-  return t * t * (3 - 2 * t);
-};
-
-function OilVisual({ intensity = 1 }: { intensity?: number }) {
-  const drops = [
-    [48, 8, 15],
-    [18, 52, 8],
-    [78, 49, 10],
-    [34, 83, 9],
-    [69, 86, 6],
-  ];
+function IngredientPhoto({
+  src,
+  alt,
+  fit,
+}: {
+  src: string;
+  alt: string;
+  fit: "contain" | "cover";
+}) {
   return (
-    <div className="relative h-full w-full">
-      {drops.map(([x, y, size], index) => (
-        <div
-          key={index}
-          className="absolute rounded-[48%_52%_58%_42%/62%_46%_54%_38%] shadow-[0_12px_26px_rgba(196,134,27,.22)]"
-          style={{
-            left: `${x}%`,
-            top: `${y}%`,
-            width: `${size}%`,
-            aspectRatio: "0.72",
-            transform: `translate(-50%,-50%) rotate(${index % 2 ? 12 : -8}deg) scale(${intensity})`,
-            background:
-              "radial-gradient(circle at 31% 23%, rgba(255,250,205,.92) 0 7%, rgba(255,220,92,.9) 14%, rgba(203,137,23,.95) 48%, rgba(108,67,8,.96) 100%)",
-            boxShadow:
-              "inset -8px -12px 18px rgba(62,35,0,.35), inset 7px 8px 13px rgba(255,248,180,.28), 0 18px 30px rgba(0,0,0,.35)",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function IngredientVisual({ ingredient }: { ingredient: Ingredient }) {
-  if (ingredient.key === "olio") {
-    return (
-      <div className="h-[330px] w-[280px] md:h-[430px] md:w-[360px]">
-        <OilVisual />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="relative h-[320px] w-[320px] overflow-hidden rounded-[42%] md:h-[440px] md:w-[440px]"
-      style={{
-        maskImage:
-          "radial-gradient(ellipse 66% 66% at 50% 50%, #000 58%, transparent 100%)",
-        WebkitMaskImage:
-          "radial-gradient(ellipse 66% 66% at 50% 50%, #000 58%, transparent 100%)",
-      }}
-    >
+    <div className="relative mx-auto aspect-square w-full max-w-[560px] overflow-hidden">
+      <div className="absolute inset-[9%] rounded-full bg-[radial-gradient(circle,rgba(194,117,50,.14),transparent_62%)] blur-2xl" />
       <img
-        src={ingredient.image}
-        alt={ingredient.label}
-        className="h-full w-full"
+        src={src}
+        alt={alt}
+        loading="lazy"
+        className="relative z-10 h-full w-full"
         style={{
-          objectFit: ingredient.imageFit ?? "contain",
-          filter:
-            ingredient.key === "salsa"
-              ? "saturate(1.35) contrast(1.15) brightness(.92)"
-              : ingredient.key === "bufala"
-                ? "saturate(.82) contrast(1.08) brightness(1.04)"
-                : "saturate(1.13) contrast(1.08)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, transparent 38%, rgba(5,4,3,.12) 62%, rgba(5,4,3,.94) 100%)",
+          objectFit: fit,
+          objectPosition: "center",
+          maskImage:
+            "radial-gradient(ellipse 61% 61% at 50% 50%, #000 48%, rgba(0,0,0,.94) 60%, transparent 82%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 61% 61% at 50% 50%, #000 48%, rgba(0,0,0,.94) 60%, transparent 82%)",
+          filter: "contrast(1.08) saturate(1.08)",
         }}
       />
     </div>
@@ -171,245 +79,145 @@ function IngredientVisual({ ingredient }: { ingredient: Ingredient }) {
 }
 
 export default function BufalinaScrollAssembly() {
-  const ref = useRef<HTMLElement>(null);
-  const reducedMotion = useReducedMotion();
-  const [progress, setProgress] = useState(0);
-  const [pointer, setPointer] = useState({ x: 0, y: 0 });
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
-  useMotionValueEvent(scrollYProgress, "change", (value) => setProgress(value));
-
-  const totalStages = INGREDIENTS.length + 1;
-  const stage = progress * totalStages;
-  const activeIndex = Math.min(
-    totalStages - 1,
-    Math.max(0, Math.floor(stage)),
-  );
-  const local = stage - activeIndex;
-  const finalReveal = clamp((stage - INGREDIENTS.length + 0.05) / 0.88);
-
-  const glow = useMemo(
-    () =>
-      "radial-gradient(circle at 61% 44%, rgba(169,92,32,.16), transparent 27%), radial-gradient(circle at 22% 26%, rgba(96,48,20,.11), transparent 22%), linear-gradient(180deg,#050403 0%,#090604 55%,#030302 100%)",
-    [],
-  );
-
   return (
-    <section
-      ref={ref}
-      className="relative bg-[#050403] text-white"
-      style={{ minHeight: `${totalStages * 105}vh`, background: glow }}
-    >
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(circle at 72% 80%, rgba(228,116,38,.10), transparent 21%), radial-gradient(circle at 47% 52%, rgba(255,203,122,.05), transparent 31%)",
-          }}
-        />
+    <section className="relative overflow-clip bg-[#050403] text-[#f3eee5]">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 77% 19%,rgba(159,78,25,.15),transparent 24%), radial-gradient(circle at 67% 69%,rgba(213,133,54,.08),transparent 25%), linear-gradient(180deg,#050403 0%,#090604 48%,#030302 100%)",
+        }}
+      />
 
-        <div className="relative mx-auto grid h-full max-w-[1560px] grid-cols-1 items-center gap-3 px-5 pb-10 pt-24 md:px-10 lg:grid-cols-[.72fr_1.28fr] lg:px-14">
-          <div className="relative z-30 max-w-xl self-center">
-            <div className="flex items-center gap-3">
-              <span className="h-px w-10 bg-[#cda66c]/70" />
-              <span className="text-[10px] uppercase tracking-[.34em] text-[#cda66c]">
-                La materia prima, senza nascondigli
-              </span>
+      <div className="relative mx-auto grid max-w-[1540px] grid-cols-1 gap-8 px-5 pb-32 pt-28 md:px-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-14 lg:px-14 lg:pt-36">
+        <aside className="relative z-20 lg:sticky lg:top-24 lg:h-[calc(100vh-7rem)] lg:self-start lg:pt-8">
+          <div className="max-w-[470px]">
+            <div className="flex items-center gap-3 text-[10px] uppercase tracking-[.34em] text-[#d2aa72]">
+              <span className="h-px w-10 bg-[#d2aa72]/70" />
+              La materia prima, senza nascondigli
             </div>
-            <h2 className="mt-6 text-[clamp(3.4rem,7vw,7.7rem)] font-light leading-[.86] tracking-[-.055em]">
+
+            <h2 className="mt-7 font-serif text-[clamp(4rem,7.7vw,8.5rem)] font-light leading-[.84] tracking-[-.055em]">
               A Bufalina
             </h2>
-            <p className="mt-7 max-w-md text-xl font-light text-white/84 md:text-2xl">
-              Pochi elementi. Tutti decisivi.
+
+            <div className="mt-8 h-px w-16 bg-[#d2aa72]/70" />
+
+            <p className="mt-8 font-serif text-2xl leading-tight text-white/90 md:text-3xl">
+              Pochi elementi.<br />Tutti decisivi.
             </p>
-            <p className="mt-4 max-w-md text-sm font-light leading-7 text-white/48 md:text-base">
-              Scorri lentamente. Ogni ingrediente entra da solo, trova il suo posto e lascia spazio al successivo. Alla fine resta soltanto la pizza.
+
+            <p className="mt-7 max-w-[390px] text-[15px] font-light leading-7 text-white/58">
+              Salsa di pomodorino siccagno NP, bufala DOP, pomodorino confit,
+              olio EVO e basilico. Scorrendo non smontiamo la pizza: attraversiamo
+              la materia, ingrediente dopo ingrediente, fino alla A Bufalina vera.
             </p>
 
-            <div className="mt-9 hidden max-w-[360px] md:block">
-              {INGREDIENTS.map((ingredient, index) => {
-                const passed = stage > index + 0.55;
-                const current = activeIndex === index;
-                return (
-                  <div
-                    key={ingredient.key}
-                    className="grid grid-cols-[38px_1fr] items-center gap-3 py-1.5 transition-opacity duration-300"
-                    style={{ opacity: current ? 1 : passed ? 0.42 : 0.18 }}
-                  >
-                    <span className="font-mono text-[9px] tracking-[.18em] text-[#cda66c]">
-                      {ingredient.step}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-[.17em] text-white/75">
-                      {ingredient.label}
-                    </span>
-                  </div>
-                );
-              })}
-              <div
-                className="grid grid-cols-[38px_1fr] items-center gap-3 py-1.5 transition-opacity duration-300"
-                style={{ opacity: activeIndex === INGREDIENTS.length ? 1 : 0.18 }}
-              >
-                <span className="font-mono text-[9px] tracking-[.18em] text-[#cda66c]">07</span>
-                <span className="text-[10px] uppercase tracking-[.17em] text-white/75">A Bufalina</span>
-              </div>
-            </div>
-          </div>
+            <p className="mt-8 max-w-[340px] font-serif text-xl italic leading-relaxed text-white/72">
+              Quando gli ingredienti sono veri, non serve aggiungere rumore.
+            </p>
 
-          <div
-            className="relative h-[58vh] min-h-[430px] md:h-[72vh] lg:h-[82vh]"
-            onPointerMove={(event) => {
-              const bounds = event.currentTarget.getBoundingClientRect();
-              setPointer({
-                x: ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
-                y: ((event.clientY - bounds.top) / bounds.height) * 2 - 1,
-              });
-            }}
-            onPointerLeave={() => setPointer({ x: 0, y: 0 })}
-          >
-            <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: "1450px" }}>
-              <motion.div
-                className="relative h-full w-full max-w-[820px]"
-                animate={
-                  reducedMotion
-                    ? undefined
-                    : {
-                        rotateX: pointer.y * -2.4,
-                        rotateY: pointer.x * 3.2,
-                      }
-                }
-                transition={{ type: "spring", stiffness: 95, damping: 18 }}
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {INGREDIENTS.map((ingredient, index) => {
-                  const distance = stage - index;
-                  const enter = ease(clamp(distance / 0.72));
-                  const leave = ease(clamp((distance - 0.62) / 0.9));
-                  const currentOpacity = clamp(enter * (1 - leave * 0.78));
-                  const alreadyPlaced = distance > 1.05;
-                  const clusterOpacity = alreadyPlaced ? clamp(0.28 + (1 - finalReveal) * 0.28) : 0;
-                  const calloutOpacity = clamp(enter * (1 - ease(clamp((distance - 0.55) / 0.42))));
-                  const direction = ingredient.align === "left" ? -1 : 1;
-                  const enterX = direction * (1 - enter) * 150;
-                  const enterY = (1 - enter) * 92;
-                  const activeScale = 0.82 + enter * 0.18 - leave * 0.08;
-
-                  return (
-                    <div key={ingredient.key} className="absolute inset-0">
-                      <div
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                        style={{
-                          opacity: currentOpacity * (1 - finalReveal),
-                          transform: `translate(calc(-50% + ${enterX}px), calc(-50% + ${enterY}px)) scale(${activeScale})`,
-                          transition: "opacity 80ms linear",
-                          filter: "drop-shadow(0 34px 38px rgba(0,0,0,.44))",
-                        }}
-                      >
-                        <IngredientVisual ingredient={ingredient} />
-                      </div>
-
-                      <div
-                        className="absolute left-1/2 top-1/2 hidden md:block"
-                        style={{
-                          opacity: calloutOpacity * (1 - finalReveal),
-                          transform: `translate(${ingredient.align === "right" ? 190 : -470}px, -25px)`,
-                          width: 260,
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          {ingredient.align === "right" && <span className="h-px flex-1 bg-white/24" />}
-                          <span className="font-mono text-[10px] tracking-[.18em] text-[#cda66c]">
-                            {ingredient.step}
-                          </span>
-                          {ingredient.align === "left" && <span className="h-px flex-1 bg-white/24" />}
-                        </div>
-                        <div className={`mt-3 ${ingredient.align === "left" ? "text-right" : "text-left"}`}>
-                          <div className="text-[12px] uppercase tracking-[.16em] text-white/92">
-                            {ingredient.label}
-                          </div>
-                          <p className="mt-2 text-xs leading-5 text-white/48">
-                            {ingredient.detail}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div
-                        className="absolute left-1/2 top-1/2"
-                        style={{
-                          opacity: clusterOpacity,
-                          transform: `translate(calc(-50% + ${ingredient.cluster.x}px), calc(-50% + ${ingredient.cluster.y}px)) scale(${ingredient.cluster.scale}) rotate(${ingredient.cluster.rotate}deg)`,
-                          filter: "saturate(.85) brightness(.66) blur(.15px)",
-                        }}
-                      >
-                        <IngredientVisual ingredient={ingredient} />
-                      </div>
-                    </div>
-                  );
-                })}
-
-                <div
-                  className="absolute inset-[8%] flex items-center justify-center"
-                  style={{
-                    opacity: finalReveal,
-                    transform: `translateY(${(1 - finalReveal) * 54}px) scale(${0.84 + finalReveal * 0.16}) rotateX(${(1 - finalReveal) * 7}deg)`,
-                    transition: "opacity 70ms linear",
-                    transformStyle: "preserve-3d",
-                  }}
-                >
-                  <div className="relative h-full w-full">
-                    <div className="absolute inset-x-[7%] bottom-[6%] h-[18%] rounded-[50%] bg-black/70 blur-3xl" />
-                    <img
-                      src="/images/menu-story/bufalina.png"
-                      alt="A Bufalina di Timilia"
-                      className="absolute inset-0 h-full w-full object-contain"
-                      style={{
-                        filter:
-                          "drop-shadow(0 42px 54px rgba(0,0,0,.62)) saturate(1.08) contrast(1.03)",
-                      }}
-                    />
-                    <div
-                      className="pointer-events-none absolute inset-[10%] rounded-full opacity-60"
-                      style={{
-                        background:
-                          "radial-gradient(circle, transparent 46%, rgba(221,151,63,.08) 70%, transparent 78%)",
-                      }}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-            <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 text-center">
-              <div className="mx-auto h-10 w-px bg-gradient-to-b from-[#cda66c]/70 to-transparent" />
-              <span className="mt-2 block whitespace-nowrap text-[9px] uppercase tracking-[.28em] text-white/30">
-                {activeIndex < INGREDIENTS.length
-                  ? `${INGREDIENTS[activeIndex].step} · ${INGREDIENTS[activeIndex].label}`
-                  : "07 · nasce A Bufalina"}
+            <div className="mt-12 hidden items-center gap-4 lg:flex">
+              <span className="block h-14 w-px bg-gradient-to-b from-[#d2aa72] to-transparent" />
+              <span className="text-[9px] uppercase tracking-[.3em] text-white/38">
+                Scroll<br />come nasce
               </span>
             </div>
           </div>
-        </div>
+        </aside>
 
-        <div className="pointer-events-none absolute right-5 top-1/2 hidden -translate-y-1/2 xl:block">
-          <div className="flex flex-col items-center gap-3">
-            {Array.from({ length: totalStages }).map((_, index) => (
-              <div key={index} className="flex flex-col items-center gap-2">
-                <span
-                  className="block rounded-full transition-all duration-300"
-                  style={{
-                    width: activeIndex === index ? 7 : 4,
-                    height: activeIndex === index ? 7 : 4,
-                    background: activeIndex === index ? "#cda66c" : "rgba(255,255,255,.22)",
-                    boxShadow: activeIndex === index ? "0 0 22px rgba(205,166,108,.45)" : "none",
-                  }}
-                />
-                {index < totalStages - 1 && <span className="h-4 w-px bg-white/10" />}
+        <div className="relative z-10">
+          <div className="pointer-events-none absolute bottom-[13%] left-[42%] top-8 hidden w-px bg-gradient-to-b from-transparent via-[#c89554]/20 to-transparent md:block" />
+
+          {INGREDIENTS.map((ingredient, index) => (
+            <motion.article
+              key={ingredient.step}
+              initial={{ opacity: 0.22, y: 34, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.42 }}
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+              className="relative flex min-h-[78vh] items-center py-16 md:min-h-[88vh] md:py-24"
+            >
+              <div className="grid w-full items-center gap-6 md:grid-cols-[1.28fr_.72fr] md:gap-4">
+                <div className="relative">
+                  <IngredientPhoto
+                    src={ingredient.image}
+                    alt={ingredient.label}
+                    fit={ingredient.fit}
+                  />
+                  <div className="pointer-events-none absolute bottom-[11%] left-1/2 h-10 w-[58%] -translate-x-1/2 rounded-[50%] bg-black/60 blur-xl" />
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.72 }}
+                  transition={{ duration: 0.55, delay: 0.12 }}
+                  className="relative md:-ml-3"
+                >
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="h-px w-10 bg-[#d2aa72]/55 md:w-16" />
+                    <span className="font-mono text-[10px] tracking-[.2em] text-[#d2aa72]">
+                      {ingredient.step}
+                    </span>
+                  </div>
+                  <h3 className="max-w-[320px] text-[13px] uppercase tracking-[.17em] text-white/88 md:text-[14px]">
+                    {ingredient.label}
+                  </h3>
+                  <p className="mt-2 max-w-[290px] font-serif text-lg italic leading-relaxed text-white/56">
+                    {ingredient.detail}
+                  </p>
+                  {index < INGREDIENTS.length - 1 && (
+                    <div className="mt-8 text-[9px] uppercase tracking-[.28em] text-white/23">
+                      ↓ continua
+                    </div>
+                  )}
+                </motion.div>
               </div>
-            ))}
-          </div>
+            </motion.article>
+          ))}
+
+          <motion.article
+            initial={{ opacity: 0.15, y: 42, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.28 }}
+            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex min-h-screen items-center py-20 md:py-28"
+          >
+            <div className="w-full">
+              <div className="mb-7 flex items-center gap-3 md:justify-end md:pr-[10%]">
+                <span className="h-px w-12 bg-[#d2aa72]/60" />
+                <span className="font-mono text-[10px] tracking-[.22em] text-[#d2aa72]">07</span>
+                <span className="text-[11px] uppercase tracking-[.2em] text-white/64">Nasce A Bufalina</span>
+              </div>
+
+              <div className="relative mx-auto max-w-[900px]">
+                <div className="pointer-events-none absolute inset-[8%] rounded-full bg-[radial-gradient(circle,rgba(218,111,38,.19),transparent_64%)] blur-3xl" />
+                <motion.img
+                  src="/images/menu-story/bufalina.png"
+                  alt="Pizza A Bufalina di Timilia"
+                  className="relative z-10 mx-auto block h-auto w-full object-contain drop-shadow-[0_55px_55px_rgba(0,0,0,.6)]"
+                  initial={{ scale: 0.92, rotate: -1.2 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  viewport={{ once: true, amount: 0.45 }}
+                  transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </div>
+
+              <div className="mx-auto mt-4 grid max-w-[900px] gap-5 border-t border-white/10 pt-7 md:grid-cols-[1fr_auto] md:items-end">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[.32em] text-[#d2aa72]">A Bufalina</div>
+                  <p className="mt-3 max-w-xl font-serif text-2xl leading-tight text-white/88 md:text-3xl">
+                    Gli ingredienti non crollano dentro la pizza. Il percorso termina qui:
+                    nella pizza reale, intera, protagonista.
+                  </p>
+                </div>
+                <div className="text-[9px] uppercase tracking-[.28em] text-white/34 md:text-right">
+                  Timilia<br />Pizzaioli per passione
+                </div>
+              </div>
+            </div>
+          </motion.article>
         </div>
       </div>
     </section>
