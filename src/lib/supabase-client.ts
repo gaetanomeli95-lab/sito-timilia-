@@ -2,6 +2,60 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let browserClient: SupabaseClient | null = null;
 
+const missingConfigError = {
+  message: "Autenticazione non disponibile in questa preview.",
+};
+
+function createPreviewFallbackClient(): SupabaseClient {
+  const subscription = { unsubscribe() {} };
+
+  const auth = {
+    async getSession() {
+      return { data: { session: null }, error: null };
+    },
+    onAuthStateChange() {
+      return { data: { subscription } };
+    },
+    async signOut() {
+      return { error: null };
+    },
+    async signUp() {
+      return { data: { user: null, session: null }, error: missingConfigError };
+    },
+    async signInWithPassword() {
+      return { data: { user: null, session: null }, error: missingConfigError };
+    },
+    async resend() {
+      return { data: {}, error: missingConfigError };
+    },
+  };
+
+  const makeQuery = () => {
+    const result = Promise.resolve({ data: null, error: missingConfigError });
+    const query: Record<string, unknown> = {
+      select: () => query,
+      insert: () => query,
+      update: () => query,
+      delete: () => query,
+      eq: () => query,
+      neq: () => query,
+      order: () => query,
+      limit: () => query,
+      single: () => result,
+      maybeSingle: () => result,
+      then: result.then.bind(result),
+      catch: result.catch.bind(result),
+      finally: result.finally.bind(result),
+    };
+    return query;
+  };
+
+  return {
+    auth,
+    from: () => makeQuery(),
+  } as unknown as SupabaseClient;
+}
+
 function getSupabaseBrowserClient(): SupabaseClient {
   if (browserClient) return browserClient;
 
@@ -9,9 +63,8 @@ function getSupabaseBrowserClient(): SupabaseClient {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      "Supabase client environment variables are not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
-    );
+    browserClient = createPreviewFallbackClient();
+    return browserClient;
   }
 
   browserClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -26,10 +79,9 @@ function getSupabaseBrowserClient(): SupabaseClient {
 }
 
 /**
- * Keep the existing `supabase` API while delaying client creation until it is
- * actually used in the browser. Importing client components during Next.js
- * prerendering therefore no longer crashes Preview builds that do not expose
- * Supabase environment variables.
+ * Production uses the real Supabase client. Preview deployments without the
+ * public Supabase variables receive a neutral fallback instead of throwing at
+ * runtime, so visual experiments remain testable without affecting main.
  */
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, property) {
