@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+// @ts-ignore - Three.js types are intentionally omitted on this experimental branch.
+import * as THREE from "three";
+// @ts-ignore - Three.js example loader ships without local type declarations here.
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const MODEL_URL =
   "https://d2ol7oe51mr4n9.cloudfront.net/user_3J5bcdAgqMsyUqzT0zx6yGprNjK/d203f48f-f580-495f-8e01-afe60a4bb75e.glb";
@@ -57,14 +61,9 @@ export default function BufalinaScrollAssembly() {
 
     const init = async () => {
       try {
-        // Browser-only ESM imports keep the experiment isolated from the production dependency graph.
-        // @ts-ignore
-        const THREE = await import("https://esm.sh/three@0.169.0");
-        // @ts-ignore
-        const { GLTFLoader } = await import("https://esm.sh/three@0.169.0/examples/jsm/loaders/GLTFLoader.js");
         if (disposed || !canvasHostRef.current) return;
-
         const host = canvasHostRef.current;
+
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
         renderer.setClearColor(0x000000, 0);
@@ -120,6 +119,7 @@ export default function BufalinaScrollAssembly() {
             if (!item.group || !GROUP_RANGES[item.group]) continue;
             const [from, to] = GROUP_RANGES[item.group];
             const local = clamp((p - from) / Math.max(0.001, to - from));
+            item.action.enabled = true;
             item.action.paused = false;
             item.action.timeScale = 0;
             item.action.time = item.clip.duration * local;
@@ -128,7 +128,7 @@ export default function BufalinaScrollAssembly() {
         };
 
         const resize = () => {
-          if (!host || !renderer || !camera) return;
+          if (!renderer || !camera) return;
           const w = Math.max(1, host.clientWidth);
           const h = Math.max(1, host.clientHeight);
           renderer.setSize(w, h, false);
