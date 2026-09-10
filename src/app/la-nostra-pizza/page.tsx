@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MenuStorySection from "@/components/MenuStorySection";
-import TruePizza3DShowcase from "@/components/experiments/TruePizza3DShowcase";
+import RealPhotoPizzaExplodeV2 from "@/components/experiments/RealPhotoPizzaExplodeV2";
 
 export const metadata: Metadata = {
   title: "La Nostra Pizza – TIMILIA | Pizzeria Palermo",
@@ -22,8 +22,8 @@ export default function LaNostraPizzaPage() {
       <Navbar />
       <main className="flex-1">
         <MenuStorySection />
-        <TruePizza3DShowcase
-          variant="bufalina"
+        <RealPhotoPizzaExplodeV2
+          image="/images/menu-story/bufalina.png"
           eyebrow="La materia prima, senza nascondigli"
           title="A Bufalina"
           lead="Pochi elementi. Tutti decisivi."
