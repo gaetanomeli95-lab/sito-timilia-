@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
-import { useEffect, useMemo, useRef, useState } from "react";
 
 const MODEL_URL = "https://d2ol7oe51mr4n9.cloudfront.net/user_3J5bcdAgqMsyUqzT0zx6yGprNjK/a6b3ee8a-244a-4a33-a4cc-162aaf52c069.glb";
 
@@ -25,7 +25,23 @@ export default function BufalinaScrollAssembly() {
   const sectionRef = useRef<HTMLElement>(null);
   const modelRef = useRef<ModelViewerElement | null>(null);
   const [progress, setProgress] = useState(0);
-  const [ready, setReady] = useState(false);
+  const [viewerReady, setViewerReady] = useState(false);
+
+  useEffect(() => {
+    const mv = modelRef.current;
+    if (!mv || !viewerReady) return;
+    const onModelLoad = () => {
+      mv.pause?.();
+      const rect = sectionRef.current?.getBoundingClientRect();
+      if (!rect || typeof mv.duration !== "number" || !mv.duration) return;
+      const total = Math.max(1, rect.height - window.innerHeight);
+      const p = Math.min(1, Math.max(0, -rect.top / total));
+      mv.currentTime = p * mv.duration;
+    };
+    mv.addEventListener("load", onModelLoad);
+    onModelLoad();
+    return () => mv.removeEventListener("load", onModelLoad);
+  }, [viewerReady]);
 
   useEffect(() => {
     let raf = 0;
@@ -36,7 +52,7 @@ export default function BufalinaScrollAssembly() {
       const p = Math.min(1, Math.max(0, -rect.top / total));
       setProgress(p);
       const mv = modelRef.current;
-      if (mv && ready && typeof mv.duration === "number" && mv.duration > 0) {
+      if (mv && typeof mv.duration === "number" && mv.duration > 0) {
         mv.pause?.();
         mv.currentTime = Math.min(mv.duration, p * mv.duration);
       }
@@ -53,13 +69,12 @@ export default function BufalinaScrollAssembly() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [ready]);
+  }, []);
 
   const stage = useMemo(
     () => STAGES.find((s) => progress >= s.from && progress < s.to) ?? STAGES[STAGES.length - 1],
     [progress],
   );
-
   const reveal = Math.min(1, Math.max(0, (progress - 0.90) / 0.10));
 
   return (
@@ -68,6 +83,7 @@ export default function BufalinaScrollAssembly() {
         type="module"
         src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"
         strategy="afterInteractive"
+        onLoad={() => setViewerReady(true)}
       />
 
       <section ref={sectionRef} className="relative h-[700vh] bg-[#030201] text-[#f4eee5]">
@@ -88,40 +104,33 @@ export default function BufalinaScrollAssembly() {
             </div>
 
             <div className="relative min-h-0">
-              {typeof window !== "undefined" &&
-                (globalThis as any).React?.createElement?.("model-viewer", {
-                  ref: (node: ModelViewerElement | null) => {
-                    modelRef.current = node;
-                  },
-                  src: MODEL_URL,
-                  autoplay: true,
-                  "camera-controls": true,
-                  "interaction-prompt": "none",
-                  "shadow-intensity": "1.4",
-                  exposure: "1.1",
-                  style: {
-                    width: "100%",
-                    height: "100%",
-                    minHeight: "100vh",
-                    background: "transparent",
-                    opacity: 1 - reveal,
-                    transition: "opacity 80ms linear",
-                  },
-                  onLoad: () => {
-                    setReady(true);
-                    modelRef.current?.pause?.();
-                  },
-                })}
+              {React.createElement("model-viewer", {
+                ref: (node: ModelViewerElement | null) => { modelRef.current = node; },
+                src: MODEL_URL,
+                autoplay: true,
+                "camera-controls": true,
+                "interaction-prompt": "none",
+                "shadow-intensity": "1.4",
+                exposure: "1.1",
+                style: {
+                  width: "100%",
+                  height: "100%",
+                  minHeight: "100vh",
+                  background: "transparent",
+                  opacity: 1 - reveal,
+                  transition: "opacity 80ms linear",
+                },
+              })}
 
               <div
                 className="pointer-events-none absolute inset-0 flex items-center justify-center px-5 pt-20"
-                style={{ opacity: reveal, transform: `scale(${0.94 + reveal * 0.06})`, transition: "opacity 80ms linear" }}
+                style={{ opacity: reveal, transform: `scale(${0.94 + reveal * 0.06})` }}
               >
                 <div className="relative w-full max-w-[980px]">
                   <div className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,rgba(219,104,29,.2),transparent_64%)] blur-3xl" />
                   <img
                     src="/images/menu-story/bufalina.png"
-                    alt="Pizza A Bufalina di Timilia"
+                    alt="Pizza A Bufalina di Timilia: salsa di pomodorino siccagno, bufala DOP, pomodorino confit, olio EVO e basilico"
                     className="relative z-10 mx-auto block max-h-[82vh] w-full object-contain drop-shadow-[0_55px_55px_rgba(0,0,0,.7)]"
                   />
                 </div>
