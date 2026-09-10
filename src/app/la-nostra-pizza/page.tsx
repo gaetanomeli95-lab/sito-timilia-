@@ -21,8 +21,8 @@ export default function LaNostraPizzaPage() {
     <div className="flex min-h-screen flex-col bg-black">
       <Navbar />
       <main className="flex-1">
-        <MenuStorySection />
         <BufalinaScrollAssembly />
+        <MenuStorySection />
       </main>
       <Footer />
     </div>
