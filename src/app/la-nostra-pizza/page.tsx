@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MenuStorySection from "@/components/MenuStorySection";
+import BufalinaScrollAssembly from "@/components/BufalinaScrollAssembly";
 
 export const metadata: Metadata = {
   title: "La Nostra Pizza – TIMILIA | Pizzeria Palermo",
@@ -21,6 +22,7 @@ export default function LaNostraPizzaPage() {
       <Navbar />
       <main className="flex-1">
         <MenuStorySection />
+        <BufalinaScrollAssembly />
       </main>
       <Footer />
     </div>
