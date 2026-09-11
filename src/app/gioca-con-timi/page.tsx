@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import TimiGameSafe from "./TimiGameSafe";
+import TimiGame from "./TimiGame";
 
 export const metadata: Metadata = {
   title: "Impasta con Timì | TIMILIA",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function TimiGamePage() {
-  return <TimiGameSafe />;
+  return <TimiGame />;
 }
