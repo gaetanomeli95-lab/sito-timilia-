@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 
+const VIDEO_URL = "https://d2ol7oe51mr4n9.cloudfront.net/user_3J5bcdAgqMsyUqzT0zx6yGprNjK/ccfb3b9c-b304-4c16-807a-5455a37256a9.mp4";
+
 type LogoIntroProps = {
   initiallyVisible: boolean;
 };
@@ -137,7 +139,7 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
     >
       <video
         ref={videoRef}
-        src="/video/timilia-intro.mp4"
+        src={VIDEO_URL}
         poster="/images/logo-timilia-original.jpg"
         preload="auto"
         playsInline
@@ -208,7 +210,7 @@ export default function LogoIntro({ initiallyVisible }: LogoIntroProps) {
               ) : (
                 <div className="mt-8 flex flex-col items-center gap-4">
                   <p className="max-w-md text-xs leading-relaxed tracking-[0.08em] text-white/45">
-                    Il filmato di prova non è ancora disponibile in questa build.
+                    Il filmato non è disponibile in questo momento.
                   </p>
                   <button
                     type="button"
