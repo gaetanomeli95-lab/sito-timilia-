@@ -2,6 +2,7 @@ import LogoIntro from "@/components/LogoIntro";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AmbientSection from "@/components/AmbientSection";
+import TimiGameTeaser from "@/components/TimiGameTeaser";
 import TeraSection from "@/components/TeraSection";
 import MenuStoryTeaser from "@/components/MenuStoryTeaser";
 import BrandDetails from "@/components/BrandDetails";
@@ -19,6 +20,7 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <AmbientSection />
+        <TimiGameTeaser />
         <TeraSection />
         <MenuStoryTeaser />
         <BrandDetails />
