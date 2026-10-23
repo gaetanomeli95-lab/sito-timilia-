@@ -147,7 +147,7 @@ export default function AmbientSection() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.08),rgba(5,5,5,0.22)_48%,rgba(5,5,5,0.42)_100%)]" />
       </div>
 
-      <div className="ambient-atmosphere pointer-events-none absolute inset-0 z-[1]" aria-hidden="true">
+      <div className="ambient-atmosphere pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.10),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.05),transparent_34%)]" />
         {/* Puntini e bagliore solo nella parte alta: niente filtri blur né maschere su tutta la sezione */}
         <div className="absolute inset-x-0 top-0 h-[120svh] opacity-[0.12] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />

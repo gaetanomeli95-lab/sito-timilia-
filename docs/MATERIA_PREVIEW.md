@@ -6,6 +6,7 @@ Base: `main` al commit `ca61a7669afcd187212927fe2cb47784d8d387a9`.
 ## Esperienza
 
 - Home, capitolo «Tutto comincia dall’impasto»: la fotografia delle mani di Tommaso è accompagnata da farina che si raccoglie al progredire dello scroll.
+- Lo sfondo atmosferico della home contiene il proprio alone decorativo: corretto lo sconfinamento di 39 px rilevato sul viewport mobile da 390 px.
 - TERA, capitoli 02–05: una scena continua attraversa materia, ricerca, blend e pizza. La materia si raccoglie, trova un equilibrio e lascia il posto alle fotografie dei prodotti.
 - Lo scorrimento resta nativo, reversibile e utilizzabile anche da tastiera. Gli indirizzi `#materia`, `#ricerca`, `#blend` e `#pizza` restano validi.
 - I testi provengono dai contenuti esistenti. Il blend resta descritto senza introdurre ingredienti, proporzioni o proprietà nutrizionali.
