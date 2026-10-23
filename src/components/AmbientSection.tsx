@@ -209,7 +209,7 @@ export default function AmbientSection() {
                   />
                 </motion.div>
               </AnimatePresence>
-              {activeChapter === 1 && <HomeMatterVisual progress={matterProgress} />}
+              <HomeMatterVisual progress={matterProgress} active={activeChapter === 1} />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(5,5,5,0.14)_48%,rgba(5,5,5,0.82)_100%)]" />
               <div className="absolute inset-x-0 bottom-0 z-10 p-8">
                 <AnimatePresence mode="wait" initial={false}>

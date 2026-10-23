@@ -4,6 +4,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
+import { useMatterTimeline } from "@/components/matter/useMatterTimeline";
 import { arrival, blend, heroImages, matter, research, type TeraPhoto } from "@/data/teraStoryData";
 import styles from "./TeraMatterJourney.module.css";
 
@@ -15,33 +16,51 @@ const photographs: TeraPhoto[] = [
   arrival.hero,
 ];
 const chapterNames = [matter.title, research.title, blend.title, arrival.title];
+const smooth = (value: number) => {
+  const t = Math.max(0, Math.min(1, value));
+  return t * t * (3 - 2 * t);
+};
 
 function JourneyPhoto({ photo, index, progress }: { photo: TeraPhoto; index: number; progress: MotionValue<number> }) {
-  const centre = index / 3;
-  const opacity = useTransform(progress, [centre - 0.21, centre - 0.045, centre + 0.045, centre + 0.21], [0, index === 0 ? 0.72 : 1, index === 0 ? 0.72 : 1, 0]);
-  const scale = useTransform(progress, [centre - 0.21, centre + 0.21], [1.045, 0.985]);
+  // The outgoing image stays opaque beneath the incoming image. The transition
+  // therefore never fades through an empty/dark frame between chapters.
+  const opacity = useTransform(progress, (p) => index === 0 ? 1 : smooth((p * 3 - index + 0.68) / 0.36));
+  const visibility = useTransform(progress, (p) => p * 3 > index + 0.70 || p * 3 < index - 0.70 ? "hidden" : "visible");
+  const scale = useTransform(progress, [0, 1], [1.035, 1]);
   return (
-    <motion.div className={`${styles.photograph} ${index === 3 ? styles.finalPhoto : ""}`} style={{ opacity, scale }}>
-      <Image src={photo.src} alt="" fill sizes="(max-width: 767px) 100vw, 56vw" quality={82} className={styles.image} />
+    <motion.div className={`${styles.photograph} ${index === 3 ? styles.finalPhoto : ""}`} style={{ opacity, scale, visibility }}>
+      <Image src={photo.src} alt="" fill loading="eager" sizes="(max-width: 767px) 100vw, 56vw" quality={82} className={styles.image} />
     </motion.div>
   );
+}
+
+function JourneyCaption({ index, active }: { index: number; active: number }) {
+  return <motion.div className={styles.caption} initial={false}
+    animate={{ opacity: active === index ? 1 : 0, y: index === active ? 0 : index < active ? -18 : 18 }}
+    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}>
+    <span className={styles.captionNumber}>0{index + 2}</span>
+    <span>{chapterNames[index]}</span>
+  </motion.div>;
 }
 
 /** A single surface crosses four semantic chapters. Native scroll remains native. */
 export default function TeraMatterJourney() {
   const rootRef = useRef<HTMLDivElement>(null);
-  const progress = useMotionValue(0);
+  const targetProgress = useMotionValue(0);
+  const progress = useMatterTimeline(targetProgress);
   const reduce = useReducedMotion();
   const [canvasReady, setCanvasReady] = useState(false);
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
   const onCanvasReady = useCallback(() => setCanvasReady(true), []);
   const enhanced = canvasReady && reduce === false;
   const materialOpacity = useTransform(progress, [0, 0.23, 0.46, 0.70, 0.88, 1], [1, 0.95, 0.85, 0.70, 0.3, 0]);
   const lineScale = useTransform(progress, [0, 1], [0.04, 1]);
 
   useMotionValueEvent(progress, "change", (value) => {
-    const next = Math.min(3, Math.round(value * 3));
-    setActive((previous) => previous === next ? previous : next);
+    const next = Math.min(3, Math.max(0, Math.round(value * 3)));
+    // React only renders at a chapter boundary, never on every scroll frame.
+    if (next !== activeRef.current) { activeRef.current = next; setActive(next); }
   });
 
   useEffect(() => {
@@ -64,7 +83,7 @@ export default function TeraMatterJourney() {
           }
         }
       }
-      progress.set(value);
+      targetProgress.set(value);
     };
     const measure = () => {
       if (disposed) return;
@@ -89,7 +108,7 @@ export default function TeraMatterJourney() {
       window.removeEventListener("scroll", scroll);
       window.removeEventListener("resize", measure);
     };
-  }, [enhanced, progress]);
+  }, [enhanced, targetProgress]);
 
   return (
     <div ref={rootRef} className={styles.journey} data-motion={enhanced ? "ready" : "static"}>
@@ -102,8 +121,7 @@ export default function TeraMatterJourney() {
             <MatterCanvas progress={progress} onReady={onCanvasReady} className={styles.canvas} />
           </motion.div>
           <div className={styles.visualCaption}>
-            <span className={styles.captionNumber}>0{active + 2}</span>
-            <span key={active} className={styles.captionTitle}>{chapterNames[active]}</span>
+            {chapterNames.map((name, index) => <JourneyCaption key={name} index={index} active={active} />)}
           </div>
           <div className={styles.progressTrack}><motion.span style={{ scaleX: lineScale }} /></div>
         </div>
@@ -165,7 +183,7 @@ function ChapterLabel({ number, title }: { number: string; title: string }) {
 function StaticPhoto({ photo }: { photo: TeraPhoto }) {
   return <>
     <figure className={styles.staticPhoto} style={{ aspectRatio: photo.ratio }}>
-      <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 90vw, 45vw" quality={80} />
+      <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 767px) 100vw, 56vw" quality={82} />
     </figure>
     <p className="sr-only">{photo.alt}</p>
   </>;

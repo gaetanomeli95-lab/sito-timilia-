@@ -9,34 +9,50 @@ type Props = {
   className?: string;
   onReady?: () => void;
 };
-
 const TAU = Math.PI * 2;
-const clamp = (v: number) => Math.min(1, Math.max(0, v));
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-const ease = (a: number, b: number, v: number) => {
-  const t = clamp((v - a) / (b - a));
+const ease = (start: number, end: number, value: number) => {
+  const t = Math.min(1, Math.max(0, (value - start) / (end - start)));
   return t * t * (3 - 2 * t);
 };
 
-// Seeded once: scrolling back reconstructs the same material, rather than
-// generating a new cloud. Coordinates describe flour, folds and a single mass.
 function makeMaterial(count: number) {
   let seed = 8191;
   const random = () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return seed / 4294967296;
   };
-  return Array.from({ length: count }, () => ({
-    angle: random() * TAU,
-    radius: Math.sqrt(random()),
-    spreadX: random(),
-    spreadY: random(),
-    size: 0.35 + random() * 1.05,
-    shade: Math.floor(random() * 5),
-  }));
+  const buckets = Array.from({ length: 5 }, () => [] as {
+    sx: number; sy: number; fx: number; fy: number;
+    ux: number; uy: number; bend: number; size: number;
+  }[]);
+  for (let i = 0; i < count; i++) {
+    const a = random() * TAU;
+    const r = Math.sqrt(random());
+    const x = random() - 0.5;
+    const y = random() - 0.5;
+    const c = Math.cos(a), s = Math.sin(a);
+    const shade = Math.floor(random() * 5);
+    // All per-grain trigonometry happens once. The frame loop only interpolates
+    // three worked surfaces, in colour buckets with no repeated array scans.
+    buckets[shade].push({
+      sx: x * 1.18,
+      sy: Math.sin(x * 5) * 0.13 + y * 0.25,
+      fx: c * r * 0.30 + (c > 0 ? 0.075 : -0.075),
+      fy: s * r * 0.18 + Math.sin(a * 2) * 0.04,
+      ux: c * r * (0.34 + Math.cos(a * 3) * 0.014),
+      uy: s * r * (0.22 + Math.sin(a * 5) * 0.012),
+      bend: Math.sin(a * 3) * r,
+      size: (0.45 + random() * 1.0) * (0.65 + Math.sqrt(1 - r * r) * 0.5),
+    });
+  }
+  return buckets;
 }
+const contour = Array.from({ length: 49 }, (_, i) => {
+  const a = i / 48 * TAU;
+  return { x: Math.cos(a), y: Math.sin(a), fold: Math.sin(a * 3) };
+});
 
-/** Decorative only. The story and photographs always remain HTML. */
+/** Shares the already-smoothed timeline with photos; no second easing clock. */
 export default function MatterCanvas({ progress, tone = "mineral", className, onReady }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const readyRef = useRef(onReady);
@@ -44,151 +60,99 @@ export default function MatterCanvas({ progress, tone = "mineral", className, on
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) return;
-
+    const ctx = canvas?.getContext("2d", { alpha: true });
+    if (!canvas || !ctx) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const palette = tone === "warm"
       ? ["#ac8661", "#c7a27b", "#dfc6a5", "#f0dfc5", "#fff4df"]
       : ["#8e9d83", "#b6b99c", "#d5d1b6", "#e9e3ce", "#fff5df"];
-    let width = 1;
-    let height = 1;
-    let material = makeMaterial(2800);
-    let frame = 0;
+    let width = 1, height = 1;
+    let material = makeMaterial(1100);
     let visible = false;
+    let frame = 0;
     let disposed = false;
-    let displayed = progress.get();
-    let pointerX = 0;
-    let pointerY = 0;
-    let lastFrame = 0;
 
-    const draw = (p: number) => {
-      ctx.clearRect(0, 0, width, height);
-      const gather = ease(0.02, 0.35, p);
-      const unite = ease(0.38, 0.72, p);
-      const release = ease(0.77, 1, p);
+    const draw = () => {
+      if (disposed || !visible || document.hidden || reduced.matches) return;
+      const p = Math.min(1, Math.max(0, progress.get()));
+      const gather = ease(0.01, 0.36, p);
+      const unite = ease(0.38, 0.73, p);
+      const release = 1 - ease(0.76, 1, p);
       const scale = Math.min(width, height * 1.22);
-      const cx = width * 0.51 + pointerX * 5;
-      const cy = height * 0.50 + pointerY * 4;
-      const rotation = -0.28 + p * 0.5;
-      const cos = Math.cos(rotation);
-      const sin = Math.sin(rotation);
+      const cx = width * 0.51, cy = height * 0.50;
+      const rotation = -0.25 + p * 0.48;
+      const cos = Math.cos(rotation), sin = Math.sin(rotation);
+      const bend = Math.sin(p * TAU) * 0.014 * gather * (1 - unite);
+      const sizeScale = Math.min(1.2, scale / 460);
+      ctx.clearRect(0, 0, width, height);
+      if (release < 0.001) return;
 
-      // Fine, broken strata: a worked surface, with no glow or neon strokes.
-      ctx.lineWidth = 0.55;
       ctx.strokeStyle = palette[2];
-      ctx.globalAlpha = (0.025 + gather * 0.045) * (1 - release);
-      for (let layer = 0; layer < 18; layer++) {
-        const r = 0.19 + layer * 0.009;
-        ctx.beginPath();
-        for (let j = 0; j <= 100; j++) {
-          const a = j / 100 * TAU;
-          const fold = Math.sin(a * 3 + p * 4 + layer * 0.11) * (0.024 - unite * 0.015);
-          const x = Math.cos(a) * (r + fold) * 1.19;
-          const y = Math.sin(a) * (r + fold) * (0.63 + unite * 0.14);
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.045 * gather * release;
+      ctx.beginPath();
+      for (let layer = 0; layer < 8; layer++) {
+        const r = 0.18 + layer * 0.017;
+        contour.forEach((point, index) => {
+          const fold = point.fold * 0.023 * (1 - unite);
+          const x = point.x * (r + fold) * 1.13;
+          const y = point.y * (r + fold) * 0.72;
           const px = cx + (x * cos - y * sin) * scale;
           const py = cy + (x * sin + y * cos) * scale;
-          if (j === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
+          if (index === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
       }
-
-      // Bucket by colour to keep canvas state changes bounded on mobile.
-      for (let shade = 0; shade < palette.length; shade++) {
+      ctx.stroke();
+      for (let shade = 0; shade < material.length; shade++) {
         ctx.fillStyle = palette[shade];
-        ctx.globalAlpha = (0.38 + shade * 0.11) * (1 - release * 0.95);
-        for (const grain of material) {
-          if (grain.shade !== shade) continue;
-          const { angle: a, radius: r } = grain;
-          const scatteredX = (grain.spreadX - 0.5) * 1.22;
-          const scatteredY = (grain.spreadY - 0.5) * 0.58 + Math.sin(scatteredX * 5) * 0.10;
-          const ripple = Math.sin(a * 3 + p * 5) * 0.035 + Math.sin(a * 7) * 0.012;
-          const split = (1 - unite) * 0.085 * (Math.cos(a) > 0 ? 1 : -1);
-          const foldedX = Math.cos(a) * r * (0.32 + ripple) + split;
-          const foldedY = Math.sin(a) * r * (0.19 + ripple) + Math.sin(a * 2 + p * 7) * 0.035 * (1 - unite);
-          const x = mix(scatteredX, foldedX, gather);
-          const y = mix(scatteredY, foldedY, gather);
-          const z = Math.sqrt(1 - r * r);
-          const size = grain.size * (0.6 + z * 0.6) * Math.min(1.25, scale / 520);
-          const px = cx + (x * cos - y * sin) * scale;
-          const py = cy + (x * sin + y * cos) * scale;
-          ctx.fillRect(px, py, size, size * (0.72 + grain.spreadY * 0.55));
+        ctx.globalAlpha = (0.40 + shade * 0.10) * release;
+        for (const grain of material[shade]) {
+          const x = grain.sx + (grain.fx - grain.sx) * gather + (grain.ux - grain.fx) * unite;
+          const y = grain.sy + (grain.fy - grain.sy) * gather + (grain.uy - grain.fy) * unite + grain.bend * bend;
+          const size = grain.size * sizeScale;
+          ctx.fillRect(cx + (x * cos - y * sin) * scale, cy + (x * sin + y * cos) * scale, size, size * 0.8);
         }
       }
       ctx.globalAlpha = 1;
     };
-
-    const tick = (now: number) => {
-      frame = 0;
-      if (disposed || !visible || document.hidden || reduced.matches) return;
-      const dt = Math.min(48, now - lastFrame || 16);
-      lastFrame = now;
-      displayed = mix(displayed, progress.get(), 1 - Math.exp(-dt / 95));
-      draw(displayed);
-      if (Math.abs(displayed - progress.get()) > 0.00025) schedule();
-    };
+    // Progress is emitted from Motion's frame loop. Draw within that same frame,
+    // rather than queueing an extra rAF and lagging a frame behind the images.
+    const unsubscribe = progress.on("change", draw);
     const schedule = () => {
-      if (!frame && !disposed && visible && !document.hidden && !reduced.matches) {
-        frame = requestAnimationFrame(tick);
-      }
+      if (!frame) frame = requestAnimationFrame(() => { frame = 0; draw(); });
     };
     const resize = () => {
       const bounds = canvas.getBoundingClientRect();
-      width = Math.max(1, bounds.width);
-      height = Math.max(1, bounds.height);
-      const dpr = Math.min(window.devicePixelRatio || 1, width < 640 ? 1.5 : 2);
+      if (bounds.width < 1 || bounds.height < 1) return;
+      width = bounds.width; height = bounds.height;
+      const mobile = width < 640;
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.4);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      material = makeMaterial(width < 640 ? 2800 : 5600);
+      material = makeMaterial(mobile ? 1100 : 1900);
       schedule();
-    };
-    const pointer = (event: PointerEvent) => {
-      if (!finePointer.matches) return;
-      const rect = canvas.getBoundingClientRect();
-      pointerX = clamp((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointerY = clamp((event.clientY - rect.top) / rect.height) * 2 - 1;
-      schedule();
-    };
-    const resetPointer = () => { pointerX = 0; pointerY = 0; schedule(); };
-    const visibility = () => {
-      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
-      else schedule();
-    };
-    const motionPreference = () => {
-      if (reduced.matches) { cancelAnimationFrame(frame); frame = 0; ctx.clearRect(0, 0, width, height); }
-      else schedule();
     };
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) schedule(); else { cancelAnimationFrame(frame); frame = 0; }
+      if (visible) schedule();
     });
-    observer.observe(canvas);
     const resizeObserver = new ResizeObserver(resize);
+    observer.observe(canvas);
     resizeObserver.observe(canvas);
-    const unsubscribe = progress.on("change", schedule);
-    const surface = canvas.parentElement;
-    surface?.addEventListener("pointermove", pointer);
-    surface?.addEventListener("pointerleave", resetPointer);
-    document.addEventListener("visibilitychange", visibility);
-    reduced.addEventListener("change", motionPreference);
+    document.addEventListener("visibilitychange", schedule);
+    reduced.addEventListener("change", schedule);
     resize();
     readyRef.current?.();
-
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
       unsubscribe();
       observer.disconnect();
       resizeObserver.disconnect();
-      surface?.removeEventListener("pointermove", pointer);
-      surface?.removeEventListener("pointerleave", resetPointer);
-      document.removeEventListener("visibilitychange", visibility);
-      reduced.removeEventListener("change", motionPreference);
+      document.removeEventListener("visibilitychange", schedule);
+      reduced.removeEventListener("change", schedule);
     };
   }, [progress, tone]);
-
   return <canvas ref={canvasRef} aria-hidden="true" className={className} />;
 }

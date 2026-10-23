@@ -42,33 +42,36 @@
   height: 82%;
 }
 
-.photoField { position: absolute; inset: 4% 0 9%; }
-.photograph { position: absolute; inset: 0; }
-.image {
-  object-fit: cover;
+.photoField {
+  position: absolute;
+  inset: 4% 0 9%;
   mask-image: radial-gradient(ellipse 65% 61% at 52% 50%, #000 26%, transparent 79%);
 }
-.finalPhoto .image {
-  object-fit: contain;
-  mask-image: radial-gradient(ellipse 70% 64% at 50% 50%, #000 35%, transparent 83%);
+.photograph {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
 }
+.image { object-fit: cover; }
+.finalPhoto .image { object-fit: contain; }
 .material { position: absolute; inset: 0; pointer-events: none; }
-.canvas { display: block; width: 100%; height: 100%; }
+.canvas { display: block; width: 100%; height: 100%; contain: strict; }
 
 .visualCaption {
   position: absolute;
   bottom: 7%;
   left: 17%;
-  display: flex;
-  align-items: center;
-  gap: 18px;
+  width: 66%;
+  height: 16px;
+  overflow: hidden;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.28em;
   color: #d4d9c9;
 }
 .captionNumber { font-variant-numeric: tabular-nums; color: #9ca994; }
-.captionTitle { animation: caption-arrive 400ms ease-out both; }
+.caption { position: absolute; inset: 0; display: flex; align-items: center; gap: 18px; }
 .progressTrack {
   position: absolute;
   bottom: 4%;
@@ -130,12 +133,19 @@
 .proof figcaption { margin-top: 12px; color: #b8c2af; font-size: 9px; line-height: 1.7; letter-spacing: 0.18em; text-transform: uppercase; }
 .arrivalQuote { margin-top: 32px; max-width: 30ch; font-size: clamp(1.25rem, 2vw, 1.8rem); font-weight: 300; line-height: 1.4; }
 .arrivalQuote span { color: #c9d3c2; }
-.staticPhoto { position: relative; width: 100%; margin-top: 36px; }
+.staticPhoto {
+  position: absolute;
+  top: 50%;
+  left: 122%;
+  width: 125%;
+  height: 70svh;
+  transform: translateY(-50%);
+  mask-image: radial-gradient(ellipse 65% 61% at 52% 50%, #000 26%, transparent 79%);
+}
 .staticPhoto img { object-fit: cover; }
 .journey[data-motion="ready"] .staticPhoto { display: none; }
-.journey[data-motion="static"] .chapter { width: 100%; max-width: 780px; margin: auto; min-height: auto; padding: 100px 0; }
-
-@keyframes caption-arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+/* The fallback keeps the same chapter geometry as the moving scene. Hydrating
+   or decoding the canvas never moves the page underneath the reader. */
 
 @media (min-width: 1600px) {
   .visual { right: max(0px, calc((100vw - 1600px) / 2)); width: min(57%, 870px); }
@@ -153,10 +163,10 @@
   .content { padding: 0; }
   .visual { top: 68px; right: 0; width: 100%; height: 39svh; }
   .photoField { inset: 0 0 4%; }
-  .image { mask-image: radial-gradient(ellipse 72% 68% at 50% 44%, #000 22%, transparent 76%); }
-  .finalPhoto .image { mask-image: radial-gradient(ellipse 78% 76% at 50% 44%, #000 28%, transparent 78%); }
+  .photoField { mask-image: radial-gradient(ellipse 72% 68% at 50% 44%, #000 22%, transparent 76%); }
   .material { inset: -9% -4% -8%; }
-  .visualCaption { bottom: 1%; left: 26px; font-size: 9px; letter-spacing: 0.22em; gap: 14px; }
+  .visualCaption { bottom: 1%; left: 26px; font-size: 9px; letter-spacing: 0.22em; }
+  .caption { gap: 14px; }
   .progressTrack { bottom: -4%; left: 26px; width: calc(100% - 52px); }
   .chapter {
     width: 100%;
@@ -174,12 +184,11 @@
   .proof { max-width: 100%; }
   .arrival { padding-bottom: 16svh; }
   .arrivalQuote { font-size: 21px; margin-top: 26px; }
-  .journey[data-motion="static"] .chapter { padding: 90px 26px; background: none; }
+  .staticPhoto { top: 68px; left: 0; width: 100%; height: 39svh; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .journey[data-motion] .stage { display: none; }
-  .journey[data-motion] .staticPhoto { display: block; }
+  .journey[data-motion] .staticPhoto { display: block; position: relative; top: auto; left: auto; width: 100%; height: auto; margin-top: 36px; transform: none; mask-image: none; }
   .journey[data-motion] .chapter { width: 100%; max-width: 780px; min-height: auto; padding: 90px 26px; margin: auto; background: none; }
-  .captionTitle { animation: none; }
 }

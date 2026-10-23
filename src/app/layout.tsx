@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import "lenis/dist/lenis.css";
 import GoogleTranslateScript from "@/components/GoogleTranslateScript";
 import CookieBanner from "@/components/CookieBanner";
 

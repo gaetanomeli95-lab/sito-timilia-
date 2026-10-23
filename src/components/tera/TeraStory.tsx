@@ -478,6 +478,7 @@ function Strip() {
         <div
           ref={scroller}
           onScroll={onScroll}
+          data-lenis-prevent
           className="flex snap-x snap-mandatory items-end gap-4 overflow-x-auto px-6 pb-2 scroll-pl-6 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:px-12 md:scroll-pl-12 lg:px-20 lg:scroll-pl-20 [&::-webkit-scrollbar]:hidden"
         >
           {strip.photos.map((photo, i) => (
