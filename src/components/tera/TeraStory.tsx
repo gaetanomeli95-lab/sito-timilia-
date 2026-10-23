@@ -9,10 +9,13 @@ import {
   useReducedMotion,
   useScroll,
   useTransform,
+  useMotionValue,
 } from "framer-motion";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import Grain from "@/components/tera/Grain";
 import TeraMatterJourney from "@/components/tera/TeraMatterJourney";
+import { useMatterTimeline } from "@/components/matter/useMatterTimeline";
+import styles from "./TeraStory.module.css";
 import {
   closing,
   hero,
@@ -60,7 +63,7 @@ function Reveal({
   );
 }
 
-/* Le immagini respirano con lo scroll: mai adesivi, mai statiche */
+/* Measure a stationary wrapper; only its photo layer moves. */
 function Parallax({
   children,
   amount = 30,
@@ -73,11 +76,12 @@ function Parallax({
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [amount, -amount]);
+  const progress = useMatterTimeline(scrollYProgress);
+  const y = useTransform(progress, [0, 1], [amount, -amount]);
   return (
-    <motion.div ref={ref} style={reduce ? undefined : { y }} className={className}>
-      {children}
-    </motion.div>
+    <div ref={ref} className={className}>
+      <motion.div style={reduce ? undefined : { y }} className={styles.parallaxPhoto}>{children}</motion.div>
+    </div>
   );
 }
 
@@ -170,19 +174,12 @@ function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, 140]);
-  const textY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const progress = useMatterTimeline(scrollYProgress);
+  const imgY = useTransform(progress, [0, 1], [0, 70]);
 
   return (
     <section ref={ref} className="relative min-h-[100svh] overflow-hidden bg-[#6c7152]">
-      <motion.div style={reduce ? undefined : { y: imgY }} className="absolute inset-0">
-        <motion.div
-          initial={{ scale: reduce ? 1 : 1.06 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2.6, ease: EASE }}
-          className="absolute inset-0"
-        >
+      <motion.div style={reduce ? undefined : { y: imgY }} className={`${styles.heroImage} absolute inset-0`}>
           <Image
             src={heroImages.stillLife.src}
             alt={heroImages.stillLife.alt}
@@ -192,7 +189,6 @@ function Hero() {
             sizes="100vw"
             quality={84}
           />
-        </motion.div>
       </motion.div>
 
       {/* Scrim per il testo: l'alto della parete si scurisce appena */}
@@ -205,8 +201,7 @@ function Hero() {
       />
       <Grain />
 
-      <motion.div
-        style={reduce ? undefined : { y: textY, opacity: textOpacity }}
+      <div
         className={`${container} relative z-10 flex min-h-[100svh] flex-col pb-36 pt-28 md:pt-32`}
       >
         <motion.div
@@ -220,7 +215,7 @@ function Hero() {
             width={1983}
             height={793}
             priority
-            className="h-auto w-[min(52vw,13rem)] md:w-[15rem] drop-shadow-[0_18px_50px_rgba(0,0,0,0.25)]"
+            className="h-auto w-[min(52vw,13rem)] md:w-[15rem]"
             sizes="(max-width: 768px) 52vw, 240px"
           />
         </motion.div>
@@ -253,7 +248,7 @@ function Hero() {
         >
           {hero.sub}
         </motion.p>
-      </motion.div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -338,18 +333,34 @@ function Lightbox({
   onNavigate: (next: number) => void;
 }) {
   const total = strip.photos.length;
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const trigger = document.activeElement as HTMLElement | null;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus({ preventScroll: true });
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      trigger?.focus({ preventScroll: true });
+    };
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") onNavigate((index + 1) % total);
-      if (e.key === "ArrowLeft") onNavigate((index - 1 + total) % total);
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        onNavigate((index + (e.key === "ArrowRight" ? 1 : -1) + total) % total);
+      }
+      if (e.key === "Tab") {
+        const buttons = closeRef.current?.parentElement?.querySelectorAll<HTMLButtonElement>("button");
+        if (!buttons?.length) return;
+        if (e.shiftKey && document.activeElement === buttons[0]) { e.preventDefault(); buttons[buttons.length - 1].focus(); }
+        else if (!e.shiftKey && document.activeElement === buttons[buttons.length - 1]) { e.preventDefault(); buttons[0].focus(); }
+      }
     };
     window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [index, onClose, onNavigate, total]);
 
   const photo = strip.photos[index];
@@ -377,6 +388,7 @@ function Lightbox({
       </motion.div>
 
       <button
+        ref={closeRef}
         type="button"
         onClick={onClose}
         aria-label="Chiudi"
@@ -415,27 +427,51 @@ function Lightbox({
 
 function Strip() {
   const scroller = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
+  const progress = useMotionValue(0);
+  const progressX = useTransform(progress, (value) => `${value * (100 / 0.18 - 100)}%`);
+  const reduce = useReducedMotion();
+  const [edges, setEdges] = useState({ start: true, end: false });
   const [selected, setSelected] = useState<number | null>(null);
+  const target = useRef<number | null>(null);
+  const drag = useRef<{ id: number; x: number; y: number; left: number; active: boolean } | null>(null);
+  const suppressClick = useRef(false);
 
-  const onScroll = useCallback(() => {
+  useEffect(() => {
     const el = scroller.current;
     if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    setProgress(max > 0 ? el.scrollLeft / max : 0);
-  }, []);
+    let settled: ReturnType<typeof setTimeout>;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      progress.set(max > 0 ? Math.max(0, Math.min(1, el.scrollLeft / max)) : 0);
+      const start = el.scrollLeft < 2, end = el.scrollLeft >= max - 2;
+      setEdges((previous) => previous.start === start && previous.end === end ? previous : { start, end });
+      clearTimeout(settled);
+      settled = setTimeout(() => { target.current = null; }, 160);
+    };
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    el.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => { clearTimeout(settled); observer.disconnect(); el.removeEventListener("scroll", update); };
+  }, [progress]);
 
   const scrollBy = (dir: 1 | -1) => {
     const el = scroller.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.7, behavior: "smooth" });
+    const max = el.scrollWidth - el.clientWidth;
+    const padding = parseFloat(getComputedStyle(el).paddingLeft);
+    const positions = Array.from(el.querySelectorAll<HTMLButtonElement>("button")).map((card) => Math.min(max, Math.max(0, card.offsetLeft - padding)));
+    const current = target.current ?? el.scrollLeft;
+    const next = dir > 0 ? positions.find((p) => p > current + 2) ?? max : positions.reverse().find((p) => p < current - 2) ?? 0;
+    target.current = next;
+    el.scrollTo({ left: next, behavior: reduce ? "instant" : "smooth" });
   };
 
   const close = useCallback(() => setSelected(null), []);
   const navigate = useCallback((n: number) => setSelected(n), []);
 
   return (
-    <section className="relative overflow-hidden bg-[#f4f1ea] pb-[12svh] text-[#262b25]">
+    <section id="stesso-impasto" className="relative scroll-mt-28 overflow-hidden bg-[#f4f1ea] pb-[12svh] text-[#262b25]">
       <Grain />
       <div className={`${container} relative flex flex-col gap-8 md:flex-row md:items-end md:justify-between`}>
         <div>
@@ -459,7 +495,9 @@ function Strip() {
             type="button"
             onClick={() => scrollBy(-1)}
             aria-label="Foto precedenti"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-[#262b25] bg-[#262b25] text-[#f4f1ea] transition-all duration-300 hover:bg-[#5a6957] hover:border-[#5a6957] md:h-14 md:w-14"
+            aria-controls="tera-fotografie"
+            disabled={edges.start}
+            className={styles.galleryArrow}
           >
             <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
           </button>
@@ -467,7 +505,9 @@ function Strip() {
             type="button"
             onClick={() => scrollBy(1)}
             aria-label="Foto successive"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-[#262b25] bg-[#262b25] text-[#f4f1ea] transition-all duration-300 hover:bg-[#5a6957] hover:border-[#5a6957] md:h-14 md:w-14"
+            aria-controls="tera-fotografie"
+            disabled={edges.end}
+            className={styles.galleryArrow}
           >
             <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
           </button>
@@ -477,9 +517,48 @@ function Strip() {
       <Reveal delay={0.1} className="relative mt-10 md:mt-14">
         <div
           ref={scroller}
-          onScroll={onScroll}
-          data-lenis-prevent
-          className="flex snap-x snap-mandatory items-end gap-4 overflow-x-auto px-6 pb-2 scroll-pl-6 [-ms-overflow-style:none] [scrollbar-width:none] md:gap-6 md:px-12 md:scroll-pl-12 lg:px-20 lg:scroll-pl-20 [&::-webkit-scrollbar]:hidden"
+          id="tera-fotografie"
+          role="region"
+          aria-label="Dallo stesso impasto: fotografie"
+          tabIndex={0}
+          data-lenis-prevent-horizontal
+          onKeyDown={(event) => {
+            if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+              event.preventDefault();
+              scrollBy(event.key === "ArrowRight" ? 1 : -1);
+            }
+          }}
+          onPointerDown={(event) => {
+            if (event.pointerType !== "mouse" || event.button !== 0) return;
+            target.current = null;
+            suppressClick.current = false;
+            drag.current = { id: event.pointerId, x: event.clientX, y: event.clientY, left: event.currentTarget.scrollLeft, active: false };
+          }}
+          onPointerMove={(event) => {
+            const gesture = drag.current;
+            if (!gesture || gesture.id !== event.pointerId || !event.buttons) return;
+            const dx = event.clientX - gesture.x;
+            if (!gesture.active && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(event.clientY - gesture.y)) {
+              gesture.active = true;
+              suppressClick.current = true;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              event.currentTarget.dataset.dragging = "true";
+            }
+            if (gesture.active) {
+              event.preventDefault();
+              event.currentTarget.scrollTo({ left: gesture.left - dx, behavior: "instant" });
+            }
+          }}
+          onPointerUp={(event) => {
+            drag.current = null;
+            delete event.currentTarget.dataset.dragging;
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+          }}
+          onPointerCancel={(event) => { drag.current = null; delete event.currentTarget.dataset.dragging; }}
+          onClickCapture={(event) => {
+            if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false; }
+          }}
+          className={`${styles.gallery} flex items-end gap-4 overflow-x-auto px-6 pb-2 scroll-pl-6 md:gap-6 md:px-12 md:scroll-pl-12 lg:px-20 lg:scroll-pl-20`}
         >
           {strip.photos.map((photo, i) => (
             <button
@@ -494,7 +573,8 @@ function Strip() {
                 src={photo.src}
                 alt={photo.alt}
                 fill
-                loading="eager"
+                loading="lazy"
+                draggable={false}
                 className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                 sizes="(max-width: 768px) 80vw, 46vw"
                 quality={76}
@@ -508,9 +588,9 @@ function Strip() {
       {/* Indicatore di posizione: una linea che si sposta */}
       <div className={`${container} mt-8`}>
         <div className="relative h-px w-full bg-[#262b25]/12">
-          <span
-            className="absolute top-0 h-px bg-[#5a6957] transition-[left] duration-150"
-            style={{ width: "18%", left: `${progress * 82}%` }}
+          <motion.span
+            className="absolute left-0 top-0 h-px bg-[#5a6957]"
+            style={{ width: "18%", x: progressX }}
           />
         </div>
       </div>

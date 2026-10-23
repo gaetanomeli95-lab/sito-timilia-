@@ -29,7 +29,7 @@ function JourneyPhoto({ photo, index, progress }: { photo: TeraPhoto; index: num
   const scale = useTransform(progress, [0, 1], [1.035, 1]);
   return (
     <motion.div className={`${styles.photograph} ${index === 3 ? styles.finalPhoto : ""}`} style={{ opacity, scale, visibility }}>
-      <Image src={photo.src} alt="" fill loading="eager" sizes="(max-width: 767px) 100vw, 56vw" quality={82} className={styles.image} />
+      <Image src={photo.src} alt="" fill loading="lazy" sizes="(max-width: 767px) 100vw, 56vw" quality={82} className={styles.image} />
     </motion.div>
   );
 }
