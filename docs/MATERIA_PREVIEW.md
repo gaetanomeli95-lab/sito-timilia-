@@ -25,6 +25,6 @@ La scena TERA usa fotografie fisse e testo a fianco su desktop; su mobile l’im
 - TypeScript: `npx tsc --noEmit`.
 - Build Next.js: `npm run build`, comprensiva di lint e generazione delle pagine.
 - Controllo browser su desktop e mobile: capitoli, ritorno all’indietro, fotografie, assenza di overflow orizzontale, fallback statici.
-- Per la verifica browser locale si usano valori fittizi delle variabili pubbliche Supabase: la navbar esistente richiede una configurazione del client anche quando non si effettua l’accesso. I servizi account/pagamenti non fanno parte di questa modifica.
+- Verifica browser anche senza variabili Supabase: la navbar inizializza la sessione soltanto quando il servizio account è configurato, così la navigazione pubblica funziona nelle anteprime. Il flusso di autenticazione configurato resta quello esistente; account e pagamenti non sono stati collaudati con operazioni reali.
 
 Aprire la preview Vercel del branch su `/` e `/tera#materia`. Verificare il ritmo sul proprio telefono prima di un’eventuale promozione. Questa modifica non richiede nuove variabili d’ambiente, configurazioni DNS o interventi sul dominio.

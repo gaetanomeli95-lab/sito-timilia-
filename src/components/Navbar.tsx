@@ -38,9 +38,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    // Public pages must also work on previews without account configuration.
+    // The configured production authentication flow remains the same.
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthUser(session?.user ?? null);
-    });
+    }).catch(() => setAuthUser(null));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthUser(session?.user ?? null);
     });
