@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll } from "framer-motion";
+import { useRef, useState } from "react";
+import HomeMatterVisual from "@/components/matter/HomeMatterVisual";
 
 const chapters = [
   {
@@ -24,8 +25,8 @@ const chapters = [
       "Per noi la pizza non è soltanto una base sulla quale adagiare degli ingredienti. È ricerca, tempo, fermentazione e materia.",
       "La Timilia, antico grano siciliano che dà il nome alla nostra pizzeria, racconta una parte della nostra filosofia: partire dalla Sicilia, dalle sue radici e dai suoi sapori, per costruire qualcosa di contemporaneo.",
     ],
-    image: "/images/menu-hero.jpg",
-    imageAlt: "Pizza e impasto Timilia",
+    image: "/images/menu-story/mani-tommaso.jpeg",
+    imageAlt: "Le mani di Tommaso lavorano l'impasto Timilia nella farina",
     imagePosition: "center",
     visualLabel: "Farina · ricerca · impasto",
   },
@@ -110,6 +111,11 @@ const reveal = {
 export default function AmbientSection() {
   const reduceMotion = useReducedMotion();
   const [activeChapter, setActiveChapter] = useState(0);
+  const matterRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: matterProgress } = useScroll({
+    target: matterRef,
+    offset: ["start 85%", "end 30%"],
+  });
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.8, ease: "easeOut" as const };
@@ -203,6 +209,7 @@ export default function AmbientSection() {
                   />
                 </motion.div>
               </AnimatePresence>
+              {activeChapter === 1 && <HomeMatterVisual progress={matterProgress} />}
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(5,5,5,0.14)_48%,rgba(5,5,5,0.82)_100%)]" />
               <div className="absolute inset-x-0 bottom-0 z-10 p-8">
                 <AnimatePresence mode="wait" initial={false}>
@@ -234,6 +241,7 @@ export default function AmbientSection() {
             {chapters.map((chapter, index) => (
               <motion.article
                 key={chapter.title}
+                ref={index === 1 ? matterRef : undefined}
                 variants={reveal}
                 initial="hidden"
                 whileInView="visible"
@@ -254,6 +262,7 @@ export default function AmbientSection() {
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.34),rgba(5,5,5,0.72)_48%,rgba(5,5,5,0.94)_100%)]" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_18%,rgba(200,169,126,0.12),transparent_35%)]" />
+                  {index === 1 && <HomeMatterVisual progress={matterProgress} />}
                 </div>
 
                 <div className="relative z-10 flex min-h-[28rem] flex-col justify-end sm:min-h-[32rem] lg:min-h-0 lg:justify-start">
