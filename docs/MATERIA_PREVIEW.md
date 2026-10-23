@@ -21,6 +21,14 @@ Testi, ingredienti dichiarati, intro cinematografica e contenuti commerciali res
 
 ## Verifica
 
+### Home: ingresso delle immagini e ritorno dello scroll
+
+Le sei card di «L'esperienza Timilia» non vengono più nascoste e rianimate al rientro nel viewport. Le fotografie mobile restano ferme nelle proprie card; solo il testo ha un ingresso iniziale. Su desktop tutte le foto restano montate e una progressione basata sui centri dei capitoli regola la dissolvenza nei due sensi. I riferimenti misurati non vengono trasformati. La foto precedente resta opaca sotto quella entrante, che viene mostrata dopo la decodifica; un caricamento lento non scopre il fondo della card. Non ci sono più zoom al cambio immagine o selezioni basate sull'ordine degli eventi `onViewportEnter`. Anche la materia decorativa segue la progressione continua fra i capitoli.
+
+«Tempo · fermentazione · lavorazione» usa ora la fotografia pulita delle mani sull'impasto (`tera-hero-2.png`) al posto dell'immagine con testi incorporati. Il punto focale è al 38% orizzontale; la risoluzione richiesta tiene conto dell'altezza della card e del rapporto della fotografia, evitando di ingrandire una piccola immagine orizzontale dentro un ritaglio verticale.
+
+Verificati tutti i sei capitoli in sequenza 0→5→0 nelle viewport 1440×1000, 1280×720 e 390×844, senza overflow o errori JavaScript. Sui due desktop, invertire lo scroll a metà dissolvenza conserva gli stessi nodi fotografici e restituisce la stessa composizione entro l'1,1% di opacità nel tempo di assestamento del test. Un impulso reale di rotellina seguito dall'inversione produce 64 e 66 valori intermedi di dissolvenza, senza vuoti fotografici. La prova con risposta dell'immagine «Tempo» sospesa conserva la copertura fotografica completa prima del suo caricamento. Verificati anche ritaglio, preferenza di movimento ridotto e relativo cambio durante la visita. Queste prove controllano il comportamento in Chromium headless e non certificano gli FPS su hardware fisico.
+
 ### Apertura TERA e galleria
 
 La hero ora muove solo lo sfondo: eliminati lo zoom iniziale sovrapposto e il trascinamento separato del testo. La prima fotografia misura un contenitore fermo e anima un solo livello, con la stessa progressione smorzata. Sui dispositivi touch entrambi i parallasse sono disattivati. La grana usa due piccole texture PNG memorizzabili nella cache, senza filtri SVG o `mix-blend-mode` sulle sezioni intere. Le immagini della scena e della galleria vengono caricate in prossimità della rispettiva sezione, anziché richiedere dodici foto subito all'apertura.
