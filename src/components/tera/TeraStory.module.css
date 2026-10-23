@@ -1,0 +1,42 @@
+.heroImage,
+.parallaxPhoto {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Touch scrolling stays entirely native in the opening chapters. */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .heroImage,
+  .parallaxPhoto { transform: none !important; will-change: auto; }
+}
+
+.gallery {
+  position: relative;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.gallery::-webkit-scrollbar { display: none; }
+.gallery[data-dragging] { scroll-snap-type: none; cursor: grabbing; }
+.gallery button { cursor: inherit; }
+.gallery:focus-visible { outline: 1px solid #5a6957; outline-offset: -2px; }
+
+.galleryArrow {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #262b25;
+  border-radius: 50%;
+  background: #262b25;
+  color: #f4f1ea;
+  transition: background-color 200ms, opacity 200ms;
+}
+.galleryArrow:hover:not(:disabled) { background: #5a6957; }
+.galleryArrow:disabled { opacity: 0.25; cursor: default; }
+.galleryArrow:focus-visible { outline: 2px solid #5a6957; outline-offset: 4px; }
+@media (min-width: 768px) { .galleryArrow { height: 3.5rem; width: 3.5rem; } }

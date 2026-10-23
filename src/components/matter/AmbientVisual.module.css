@@ -1,0 +1,8 @@
+.frame { isolation: isolate; }
+.photo { position: absolute; inset: 0; will-change: opacity; }
+
+/* Mobile photographs stay attached to their cards, including on the way back.
+   Only the first reveal of the text moves; the photograph never scales in. */
+@media (prefers-reduced-motion: reduce) {
+  .photo { will-change: auto; }
+}

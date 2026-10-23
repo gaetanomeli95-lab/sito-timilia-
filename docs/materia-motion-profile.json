@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-23",
+  "baseline_commit": "eefcb540ffbae7f26c9edfc6d602147667eeb7ef",
+  "environment": {
+    "browser": "Chromium headless 153",
+    "graphics": "software/SwiftShader",
+    "cpu_throttle": 4,
+    "device_scale_factor": 2,
+    "wheel_input": {
+      "pulses": 24,
+      "delta_y": 120,
+      "interval_ms": 90
+    },
+    "note": "Browser simulation, not physical-device certification. Timings include the instrumented drawing callback."
+  },
+  "baseline": [
+    {
+      "name": "desktop",
+      "cpuThrottle": 4,
+      "frame": {
+        "count": 105,
+        "p50": 33.3,
+        "p95": 1533.3,
+        "max": 3449.9
+      },
+      "canvas": {
+        "count": 104,
+        "p50": 12.3,
+        "p95": 26.8,
+        "max": 55.6
+      },
+      "fillCalls": 582400
+    },
+    {
+      "name": "mobile",
+      "cpuThrottle": 4,
+      "frame": {
+        "count": 125,
+        "p50": 16.8,
+        "p95": 50,
+        "max": 1700
+      },
+      "canvas": {
+        "count": 126,
+        "p50": 7.8,
+        "p95": 17.9,
+        "max": 37
+      },
+      "fillCalls": 352800
+    }
+  ],
+  "revised": [
+    {
+      "name": "desktop",
+      "cpuThrottle": 4,
+      "frame": {
+        "count": 217,
+        "p50": 16.7,
+        "p95": 16.8,
+        "max": 66.6
+      },
+      "canvas": {
+        "count": 218,
+        "p50": 3.3,
+        "p95": 6.2,
+        "max": 19.4
+      },
+      "fillCalls": 414200
+    },
+    {
+      "name": "mobile",
+      "cpuThrottle": 4,
+      "frame": {
+        "count": 193,
+        "p50": 16.7,
+        "p95": 33.4,
+        "max": 1533.3
+      },
+      "canvas": {
+        "count": 194,
+        "p50": 3,
+        "p95": 9,
+        "max": 22.5
+      },
+      "fillCalls": 213400
+    }
+  ]
+}

@@ -1,8 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { motion, useReducedMotion, useScroll } from "framer-motion";
+import { useRef } from "react";
+import HomeMatterVisual from "@/components/matter/HomeMatterVisual";
+import AmbientVisual from "@/components/matter/AmbientVisual";
+import { useAmbientTimeline } from "@/components/matter/useAmbientTimeline";
 
 const chapters = [
   {
@@ -15,6 +18,7 @@ const chapters = [
     image: "/images/ambient-experience.png",
     imageAlt: "Atmosfera di Timilia nel centro storico di Palermo",
     imagePosition: "center",
+    imageRatio: 1.5,
     visualLabel: "Via Maqueda 221 · Palermo",
   },
   {
@@ -24,9 +28,10 @@ const chapters = [
       "Per noi la pizza non è soltanto una base sulla quale adagiare degli ingredienti. È ricerca, tempo, fermentazione e materia.",
       "La Timilia, antico grano siciliano che dà il nome alla nostra pizzeria, racconta una parte della nostra filosofia: partire dalla Sicilia, dalle sue radici e dai suoi sapori, per costruire qualcosa di contemporaneo.",
     ],
-    image: "/images/menu-hero.jpg",
-    imageAlt: "Pizza e impasto Timilia",
+    image: "/images/menu-story/mani-tommaso.jpeg",
+    imageAlt: "Le mani di Tommaso lavorano l'impasto Timilia nella farina",
     imagePosition: "center",
+    imageRatio: 1122 / 1402,
     visualLabel: "Farina · ricerca · impasto",
   },
   {
@@ -36,9 +41,10 @@ const chapters = [
       "Da Timilia può capitare di aspettare, soprattutto quando Via Maqueda si riempie e tante persone scelgono di venirci a trovare nello stesso momento.",
       "Il nostro impasto aspetta. Le fermentazioni hanno bisogno del loro tempo. Il forno ha i suoi ritmi. E una pizza preparata al momento non ama avere fretta.",
     ],
-    image: "/images/tera-experience.png",
-    imageAlt: "Ricerca, farina e lavorazione dell'impasto Timilia",
-    imagePosition: "center",
+    image: "/images/tera-hero-2.png",
+    imageAlt: "Mani che lavorano l'impasto sul tavolo, accanto alle ciotole di farina",
+    imagePosition: "38% 50%",
+    imageRatio: 1672 / 941,
     visualLabel: "Tempo · fermentazione · lavorazione",
   },
   {
@@ -51,6 +57,7 @@ const chapters = [
     image: "/images/ambient-experience-2.png",
     imageAlt: "Dettagli e atmosfera della sala Timilia",
     imagePosition: "center",
+    imageRatio: 1.5,
     visualLabel: "Voci · tavoli · energia",
   },
   {
@@ -63,6 +70,7 @@ const chapters = [
     image: "/images/brand-details.png",
     imageAlt: "Dettagli dell'identità visiva e materica Timilia",
     imagePosition: "center",
+    imageRatio: 1.5,
     visualLabel: "Identità · materia · Sicilia",
   },
   {
@@ -75,6 +83,7 @@ const chapters = [
     image: "/images/ambient-experience.png",
     imageAlt: "Esperienza Timilia nel cuore di Palermo",
     imagePosition: "center",
+    imageRatio: 1.5,
     visualLabel: "Crescere · sperimentare · migliorare",
   },
 ];
@@ -109,12 +118,16 @@ const reveal = {
 
 export default function AmbientSection() {
   const reduceMotion = useReducedMotion();
-  const [activeChapter, setActiveChapter] = useState(0);
+  const chapterRef = useRef<HTMLDivElement>(null);
+  const { progress: chapterProgress, active: activeChapter } = useAmbientTimeline(chapterRef, chapters.length);
+  const matterRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: matterProgress } = useScroll({
+    target: matterRef,
+    offset: ["start 85%", "end 30%"],
+  });
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.8, ease: "easeOut" as const };
-
-  const activeVisual = chapters[activeChapter];
 
   return (
     <section id="ambient" className="relative bg-[#080807] text-foreground">
@@ -141,7 +154,7 @@ export default function AmbientSection() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.08),rgba(5,5,5,0.22)_48%,rgba(5,5,5,0.42)_100%)]" />
       </div>
 
-      <div className="ambient-atmosphere pointer-events-none absolute inset-0 z-[1]" aria-hidden="true">
+      <div className="ambient-atmosphere pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(180,119,53,0.10),transparent_28%),radial-gradient(circle_at_12%_40%,rgba(109,84,54,0.05),transparent_34%)]" />
         {/* Puntini e bagliore solo nella parte alta: niente filtri blur né maschere su tutta la sezione */}
         <div className="absolute inset-x-0 top-0 h-[120svh] opacity-[0.12] [background-image:radial-gradient(rgba(220,173,105,0.28)_0.7px,transparent_0.7px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
@@ -175,71 +188,14 @@ export default function AmbientSection() {
         </motion.header>
 
         <div className="mt-20 grid gap-12 lg:mt-32 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20 xl:gap-28">
-          <div className="hidden lg:sticky lg:top-24 lg:block lg:h-[calc(100vh-8rem)] lg:self-start">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.985 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={transition}
-              className="relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.025] shadow-[0_40px_120px_rgba(0,0,0,0.42)]"
-            >
-              <AnimatePresence initial={false} mode="sync">
-                <motion.div
-                  key={activeVisual.image}
-                  initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 1.025 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={reduceMotion ? { duration: 0 } : { duration: 0.7, ease: "easeOut" }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={activeVisual.image}
-                    alt={activeVisual.imageAlt}
-                    fill
-                    loading="lazy"
-                    className="object-cover"
-                    style={{ objectPosition: activeVisual.imagePosition }}
-                    sizes="44vw"
-                  />
-                </motion.div>
-              </AnimatePresence>
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(5,5,5,0.14)_48%,rgba(5,5,5,0.82)_100%)]" />
-              <div className="absolute inset-x-0 bottom-0 z-10 p-8">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={activeVisual.visualLabel}
-                    initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={reduceMotion ? { duration: 0 } : { duration: 0.35 }}
-                  >
-                    <span className="text-[10px] uppercase tracking-[0.3em] text-gold/78">
-                      {activeVisual.visualLabel}
-                    </span>
-                    <div className="mt-4 flex gap-1.5" aria-hidden="true">
-                      {chapters.map((chapter, index) => (
-                        <span
-                          key={chapter.title}
-                          className={`h-px transition-all duration-500 ${index === activeChapter ? "w-10 bg-gold" : "w-4 bg-white/24"}`}
-                        />
-                      ))}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </div>
+          <AmbientVisual chapters={chapters} progress={chapterProgress} active={activeChapter} matterProgress={matterProgress} />
 
-          <div className="space-y-5 lg:space-y-0 lg:divide-y lg:divide-white/[0.09]">
+          <div ref={chapterRef} className="space-y-5 lg:space-y-0 lg:divide-y lg:divide-white/[0.09]">
             {chapters.map((chapter, index) => (
-              <motion.article
+              <article
                 key={chapter.title}
-                variants={reveal}
-                initial="hidden"
-                whileInView="visible"
-                onViewportEnter={() => setActiveChapter(index)}
-                viewport={{ once: false, amount: 0.42 }}
-                transition={{ ...transition, delay: reduceMotion ? 0 : 0.04 }}
+                ref={index === 1 ? matterRef : undefined}
+                data-ambient-chapter={index}
                 className="relative -mx-2 min-h-[34rem] overflow-hidden rounded-[1.75rem] px-6 py-12 sm:-mx-1 sm:min-h-[38rem] sm:px-8 sm:py-14 lg:mx-0 lg:min-h-[58vh] lg:overflow-visible lg:rounded-none lg:px-0 lg:py-20"
               >
                 <div className="absolute inset-0 lg:hidden" aria-hidden="true">
@@ -250,13 +206,19 @@ export default function AmbientSection() {
                     loading="lazy"
                     className="object-cover"
                     style={{ objectPosition: chapter.imagePosition }}
-                    sizes="100vw"
+                    sizes={`max(100vw, ${Math.ceil(768 * chapter.imageRatio)}px)`}
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.34),rgba(5,5,5,0.72)_48%,rgba(5,5,5,0.94)_100%)]" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_18%,rgba(200,169,126,0.12),transparent_35%)]" />
+                  {index === 1 && <HomeMatterVisual progress={matterProgress} />}
                 </div>
 
-                <div className="relative z-10 flex min-h-[28rem] flex-col justify-end sm:min-h-[32rem] lg:min-h-0 lg:justify-start">
+                <motion.div
+                  initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+                  transition={transition}
+                  className="relative z-10 flex min-h-[28rem] flex-col justify-end sm:min-h-[32rem] lg:min-h-0 lg:justify-start">
                   <div className="mb-5 flex items-center gap-4">
                     <span className="font-mono text-[10px] tracking-[0.2em] text-gold/82">
                       {String(index + 1).padStart(2, "0")}
@@ -275,8 +237,8 @@ export default function AmbientSection() {
                       </p>
                     ))}
                   </div>
-                </div>
-              </motion.article>
+                </motion.div>
+              </article>
             ))}
           </div>
         </div>

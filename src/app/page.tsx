@@ -10,10 +10,12 @@ import ReviewsSection from "@/components/ReviewsSection";
 import MapSection from "@/components/MapSection";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import SmoothStoryScroll from "@/components/matter/SmoothStoryScroll";
 
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 bg-background">
+      <SmoothStoryScroll />
       <LogoIntro initiallyVisible={true} />
       <Navbar />
       <main className="flex-1">
